@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface Job {
   id: string;
@@ -17,6 +17,117 @@ interface Job {
   tip: string;
 }
 
+// Futuristic 3D Particle Constellation Sphere Component
+function Neural3DCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // 3D Spherical Particle Nodes
+    const particleCount = 70;
+    const particles: { x: number; y: number; z: number; sx: number; sy: number }[] = [];
+    const radius = Math.min(width, height) * 0.35;
+
+    for (let i = 0; i < particleCount; i++) {
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      particles.push({
+        x: radius * Math.sin(phi) * Math.cos(theta),
+        y: radius * Math.sin(phi) * Math.sin(theta),
+        z: radius * Math.cos(phi),
+        sx: 0,
+        sy: 0,
+      });
+    }
+
+    let angleX = 0.003;
+    let angleY = 0.005;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const cosX = Math.cos(angleX);
+      const sinX = Math.sin(angleX);
+      const cosY = Math.cos(angleY);
+      const sinY = Math.sin(angleY);
+
+      // Rotate and Project 3D to 2D
+      for (let i = 0; i < particleCount; i++) {
+        const p = particles[i];
+
+        // Rotate Y
+        let x1 = p.x * cosY - p.z * sinY;
+        let z1 = p.z * cosY + p.x * sinY;
+
+        // Rotate X
+        let y1 = p.y * cosX - z1 * sinX;
+        let z2 = z1 * cosX + p.y * sinX;
+
+        p.x = x1;
+        p.y = y1;
+        p.z = z2;
+
+        const fov = 300;
+        const scale = fov / (fov + z2);
+        p.sx = width / 2 + p.x * scale;
+        p.sy = height / 2 + p.y * scale;
+
+        const alpha = Math.max(0.1, (z2 + radius) / (2 * radius));
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, 2 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(129, 140, 248, ${alpha})`;
+        ctx.shadowBlur = 8 * scale;
+        ctx.shadowColor = '#818cf8';
+        ctx.fill();
+      }
+
+      // Draw Neural Connection Strands
+      for (let i = 0; i < particleCount; i++) {
+        for (let j = i + 1; j < particleCount; j++) {
+          const dx = particles[i].sx - particles[j].sx;
+          const dy = particles[i].sy - particles[j].sy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 65) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].sx, particles[i].sy);
+            ctx.lineTo(particles[j].sx, particles[j].sy);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${1 - dist / 65})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-full block opacity-75" />;
+}
+
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,21 +138,17 @@ export default function CampusNexPlatform() {
   const [interviewStep, setInterviewStep] = useState(1);
   const [interviewAnswer, setInterviewAnswer] = useState('');
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
-
-  // Welcome Momentum Modal State
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [hologramActive, setHologramActive] = useState(false);
 
   useEffect(() => {
-    // Show automatically on page load
     setShowWelcomeModal(true);
   }, []);
 
-  // Resume Scanner State
   const [isScanning, setIsScanning] = useState(false);
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
-  // Kanban Board Candidates
   const [kanbanCandidates, setKanbanCandidates] = useState([
     { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'interview', score: 94, branch: 'CSE' },
     { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'shortlist', score: 85, branch: 'ECE' },
@@ -101,7 +208,7 @@ export default function CampusNexPlatform() {
   const handleApply = (id: string) => {
     if (!appliedJobs.includes(id)) {
       setAppliedJobs([...appliedJobs, id]);
-      setJobs(jobs.map(j => j.id === id ? { ...j, applicants: j.applicants + 1 } : j));
+      setJobs(jobs.map(j => (j.id === id ? { ...j, applicants: j.applicants + 1 } : j)));
     }
   };
 
@@ -139,53 +246,69 @@ export default function CampusNexPlatform() {
   };
 
   const moveCandidateStage = (id: string, newStage: string) => {
-    setKanbanCandidates(kanbanCandidates.map(c => c.id === id ? { ...c, stage: newStage } : c));
+    setKanbanCandidates(kanbanCandidates.map(c => (c.id === id ? { ...c, stage: newStage } : c)));
   };
 
-  const filteredJobs = jobs.filter(j =>
-    j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    j.company.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredJobs = jobs.filter(
+    j =>
+      j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      j.company.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 font-sans pb-28 selection:bg-indigo-500 selection:text-white">
-      {/* Navigation Bar */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#0a0f1d]/90 border-b border-indigo-950 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
+    <div className="min-h-screen bg-[#050811] text-slate-100 font-sans pb-28 selection:bg-cyan-500 selection:text-black relative">
+      {/* Top Cyber Telemetry Matrix Bar */}
+      <div className="bg-[#0b1021] border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-cyan-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+            QUANTUM ATS ENGINE ACTIVE
+          </span>
+          <span>LATENCY: 12ms</span>
+          <span>MODEL: NEURAL-v4.2</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-slate-400">
+          <span>GPU ACCELERATION: ON</span>
+          <span className="text-emerald-400">TIER-1 VERIFIED: 94.2%</span>
+        </div>
+      </div>
+
+      {/* Main Glass Navigation Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#070b16]/90 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/30">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
             ✦
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
+              <span className="text-xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                 CampusNex AI
               </span>
-              <span className="text-[10px] bg-gradient-to-r from-indigo-500/20 to-pink-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-bold">
-                ENTERPRISE RECRUITMENT SUITE
+              <span className="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                HYPERSCALE ATS
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Intelligent Campus Hiring & Career Placement Ecosystem</p>
+            <p className="text-[11px] text-slate-400">Neural Intelligence & Campus Recruitment Ecosystem</p>
           </div>
         </div>
 
-        {/* View Switchers */}
         <div className="flex items-center gap-2">
-          <div className="flex bg-[#131b2e] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+          <div className="flex bg-[#0f172a] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
             <button
               onClick={() => setActiveTab('student')}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               🎓 Student Portal
             </button>
             <button
               onClick={() => setActiveTab('recruiter')}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               💼 Recruiter ATS
             </button>
             <button
               onClick={() => setActiveTab('tpo')}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               📊 TPO Analytics
             </button>
@@ -193,37 +316,62 @@ export default function CampusNexPlatform() {
 
           <button
             onClick={() => setShowWelcomeModal(true)}
-            className="p-2 rounded-xl bg-[#131b2e] border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 hover:border-indigo-500 transition"
-            title="Open Momentum Briefing"
+            className="p-2 rounded-xl bg-[#0f172a] border border-cyan-800/40 text-cyan-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition"
           >
             <span>✨</span> Daily Spark
           </button>
         </div>
       </header>
 
+      {/* Futuristic 3D Constellation Hero Banner */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
+        <div className="relative h-44 sm:h-52 w-full rounded-3xl overflow-hidden border border-cyan-900/50 bg-gradient-to-r from-[#070e24] via-[#0b1229] to-[#120b24] shadow-2xl flex items-center justify-between p-6">
+          <div className="z-10 max-w-lg">
+            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60 uppercase tracking-widest">
+              Live Quantum Cluster • 412 Verified Nodes
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
+              Enterprise Neural Placement Core
+            </h2>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              Real-time deep learning ATS vector matching analyzing syllabus depth, live GitHub commits, and competitive DSA ranks.
+            </p>
+            <div className="flex gap-2 mt-3 text-[11px] font-mono text-cyan-300">
+              <span className="bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">★ 91.2% Success</span>
+              <span className="bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">⚡ 42 MNCs Active</span>
+            </div>
+          </div>
+
+          {/* 3D Canvas Sphere in Background */}
+          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-1/2 pointer-events-none z-0">
+            <Neural3DCanvas />
+          </div>
+        </div>
+      </div>
+
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-        {/* KPI Summary Cards */}
+        {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
-          <div className="bg-[#0f172a]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-cyan-500/40 transition">
             <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Placement Rate</span>
             <div className="text-2xl font-black text-white mt-1">91.2%</div>
             <span className="text-emerald-400 font-bold flex items-center gap-1 mt-1">↑ +8.4% this season</span>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
             <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Average CTC</span>
             <div className="text-2xl font-black text-white mt-1">₹12.8 LPA</div>
-            <span className="text-indigo-400 font-bold mt-1 block">Highest: ₹44.5 LPA</span>
+            <span className="text-cyan-400 font-bold mt-1 block">Highest: ₹44.5 LPA</span>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
             <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Active Drives</span>
             <div className="text-2xl font-black text-white mt-1">{jobs.length} Companies</div>
             <span className="text-amber-400 font-bold mt-1 block">3 drives closing today</span>
           </div>
-          <div className="bg-[#0f172a]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
             <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Total Candidates</span>
             <div className="text-2xl font-black text-white mt-1">412</div>
-            <span className="text-cyan-400 font-bold mt-1 block">94% AI Profile Verified</span>
+            <span className="text-pink-400 font-bold mt-1 block">94% AI Profile Verified</span>
           </div>
         </div>
 
@@ -231,11 +379,11 @@ export default function CampusNexPlatform() {
         {activeTab === 'student' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              {/* Resume Scanner Dropzone */}
-              <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-[#0e1629] border border-indigo-800/40 p-5 rounded-2xl shadow-2xl">
+              {/* Resume Scanner */}
+              <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629] border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-2xl">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-2xl">
                       📄
                     </div>
                     <div>
@@ -247,7 +395,7 @@ export default function CampusNexPlatform() {
                   <button
                     onClick={handleSimulateResumeScan}
                     disabled={isScanning}
-                    className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"
+                    className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2"
                   >
                     {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
                     {isScanning ? 'Parsing Resume...' : 'Scan Resume PDF'}
@@ -255,7 +403,7 @@ export default function CampusNexPlatform() {
                 </div>
 
                 {resumeParsed && (
-                  <div className="mt-4 pt-4 border-t border-indigo-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="mt-4 pt-4 border-t border-cyan-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
                         {parsedScore}%
@@ -276,23 +424,26 @@ export default function CampusNexPlatform() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search campus drives by role, skills (e.g. React), or company..."
+                  placeholder="Search campus drives by role, skills, or company..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0d1424] border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-indigo-500 transition shadow-inner"
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#0b1021] border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner"
                 />
                 <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
               </div>
 
               {/* Job Cards */}
               <div className="space-y-3.5">
-                {filteredJobs.map((job) => (
-                  <div key={job.id} className="bg-[#0e1629] border border-slate-800 hover:border-slate-700 p-5 rounded-2xl shadow-xl transition-all">
+                {filteredJobs.map(job => (
+                  <div
+                    key={job.id}
+                    className="bg-[#0b1021] border border-slate-800 hover:border-cyan-800/60 p-5 rounded-2xl shadow-xl transition-all"
+                  >
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-bold text-lg text-white">{job.title}</h3>
-                          <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-semibold">
+                          <span className="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full font-semibold">
                             {job.type}
                           </span>
                         </div>
@@ -316,7 +467,7 @@ export default function CampusNexPlatform() {
 
                     <div className="flex flex-wrap gap-1.5 mt-3">
                       {job.skills.map((s, i) => (
-                        <span key={i} className="text-xs bg-[#17223b] text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-900/40">
+                        <span key={i} className="text-xs bg-[#121a33] text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-900/40">
                           {s}
                         </span>
                       ))}
@@ -341,7 +492,7 @@ export default function CampusNexPlatform() {
                           className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
                             appliedJobs.includes(job.id)
                               ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                              : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-600/30'
                           }`}
                         >
                           {appliedJobs.includes(job.id) ? '✓ Applied' : 'Quick Apply'}
@@ -353,46 +504,67 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Profile & Pipeline */}
+            {/* Right Column: Hologram Profile & Pipeline */}
             <div className="space-y-5">
-              <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-white text-lg">
-                    HF
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
-                    <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                      CGPA: 8.9 • Verified Candidate
-                    </span>
+              <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
+                      HF
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
+                      <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
+                      <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                        CGPA: 8.9 • Verified Candidate
+                      </span>
+                    </div>
                   </div>
                 </div>
+
+                {/* 3D Hologram Toggle */}
+                <button
+                  onClick={() => setHologramActive(!hologramActive)}
+                  className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
+                >
+                  <span>🌐</span> {hologramActive ? 'Close 3D Holographic Telemetry' : 'Launch 3D Holographic Telemetry'}
+                </button>
+
+                {hologramActive && (
+                  <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 text-center animate-in fade-in duration-200">
+                    <div className="w-16 h-16 mx-auto rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center animate-spin">
+                      <span className="text-xs text-cyan-300">AI</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-cyan-400 block mt-2">Holographic Neural Identity #8942</span>
+                    <span className="text-[10px] text-slate-400 block">Candidate Rank: Top 1.2% in Tier-1 Region</span>
+                  </div>
+                )}
 
                 <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
                   <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block">
                     Verified Skill Assessments
                   </span>
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 rounded-lg bg-[#141d33] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
                       <span>⚡</span> LeetCode Top 5% (1840+)
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-[#141d33] border border-indigo-500/30 text-indigo-300 text-xs font-semibold flex items-center gap-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
                       <span>🐙</span> GitHub: 120+ Commits
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-[#141d33] border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
+                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
                       <span>✓</span> Next.js Certified
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-5 shadow-xl">
+              {/* Application Pipeline */}
+              <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
                   <span>⚡</span> Live Placement Pipeline
                 </h4>
                 <div className="space-y-4">
-                  <div className="p-3 bg-[#131d36] rounded-xl border border-slate-800 text-xs">
+                  <div className="p-3 bg-[#11192e] rounded-xl border border-slate-800 text-xs">
                     <div className="flex justify-between items-center font-bold">
                       <span className="text-white">TechCorp India</span>
                       <span className="text-emerald-400 text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded-full">Round 2: Technical</span>
@@ -401,13 +573,13 @@ export default function CampusNexPlatform() {
                     <div className="flex items-center gap-1 mt-3">
                       <div className="h-1.5 flex-1 bg-emerald-500 rounded-full" />
                       <div className="h-1.5 flex-1 bg-emerald-500 rounded-full" />
-                      <div className="h-1.5 flex-1 bg-indigo-500 rounded-full animate-pulse" />
+                      <div className="h-1.5 flex-1 bg-cyan-500 rounded-full animate-pulse" />
                       <div className="h-1.5 flex-1 bg-slate-700 rounded-full" />
                     </div>
                     <div className="flex justify-between text-[9px] text-slate-400 mt-1.5">
                       <span>Applied</span>
                       <span>Shortlisted</span>
-                      <span className="text-indigo-300 font-bold">Technical</span>
+                      <span className="text-cyan-300 font-bold">Technical</span>
                       <span>Offer</span>
                     </div>
                   </div>
@@ -419,7 +591,7 @@ export default function CampusNexPlatform() {
 
         {/* TAB 2: RECRUITER ATS */}
         {activeTab === 'recruiter' && (
-          <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+          <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h2 className="text-xl font-bold text-white">Kanban Recruitment Pipeline & Screening</h2>
@@ -427,14 +599,14 @@ export default function CampusNexPlatform() {
               </div>
               <button
                 onClick={() => setIsPostModalOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/30"
+                className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-600/30"
               >
                 + Post New Drive
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-              <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
+              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
                   <span>📥 Applied</span>
                   <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[10px]">
@@ -443,14 +615,14 @@ export default function CampusNexPlatform() {
                 </div>
                 <div className="space-y-2.5">
                   {kanbanCandidates.filter(c => c.stage === 'applied').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#17223b] rounded-lg border border-slate-700/60 shadow">
+                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-slate-700/60 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
                         <span className="text-[10px] text-amber-400 font-bold">{cand.score}% ATS</span>
                         <button
                           onClick={() => moveCandidateStage(cand.id, 'shortlist')}
-                          className="text-[10px] text-indigo-300 hover:text-white underline font-bold"
+                          className="text-[10px] text-cyan-300 hover:text-white underline font-bold"
                         >
                           Shortlist →
                         </button>
@@ -460,20 +632,20 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
-                <div className="font-bold text-indigo-300 mb-3 flex justify-between items-center">
+              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
+                <div className="font-bold text-cyan-300 mb-3 flex justify-between items-center">
                   <span>⚡ Shortlisted</span>
-                  <span className="bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full text-[10px]">
+                  <span className="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full text-[10px]">
                     {kanbanCandidates.filter(c => c.stage === 'shortlist').length}
                   </span>
                 </div>
                 <div className="space-y-2.5">
                   {kanbanCandidates.filter(c => c.stage === 'shortlist').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#17223b] rounded-lg border border-indigo-500/30 shadow">
+                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-cyan-500/30 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-indigo-400 font-bold">{cand.score}% ATS</span>
+                        <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% ATS</span>
                         <button
                           onClick={() => moveCandidateStage(cand.id, 'interview')}
                           className="text-[10px] text-purple-300 hover:text-white underline font-bold"
@@ -486,7 +658,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
+              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
                   <span>🎙️ Technical Round</span>
                   <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
@@ -495,7 +667,7 @@ export default function CampusNexPlatform() {
                 </div>
                 <div className="space-y-2.5">
                   {kanbanCandidates.filter(c => c.stage === 'interview').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#17223b] rounded-lg border border-purple-500/30 shadow">
+                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-purple-500/30 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
@@ -512,7 +684,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
+              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
                   <span>🎉 Offer Extended</span>
                   <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
@@ -521,7 +693,7 @@ export default function CampusNexPlatform() {
                 </div>
                 <div className="space-y-2.5">
                   {kanbanCandidates.filter(c => c.stage === 'offer').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#17223b] rounded-lg border border-emerald-500/40 shadow">
+                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-emerald-500/40 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
@@ -540,14 +712,14 @@ export default function CampusNexPlatform() {
 
         {/* TAB 3: TPO ADMIN */}
         {activeTab === 'tpo' && (
-          <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+          <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div>
               <h2 className="text-xl font-bold text-white">Training & Placement Cell (TPO) Comprehensive Analytics</h2>
               <p className="text-xs text-slate-400">Department metrics, package distribution, and drive conversion ratios.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-              <div className="p-4 bg-[#121a2d] rounded-2xl border border-slate-800 space-y-3">
+              <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
                 <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
                 <div>
                   <div className="flex justify-between mb-1">
@@ -555,17 +727,17 @@ export default function CampusNexPlatform() {
                     <span className="text-emerald-400 font-bold">96% (148/154)</span>
                   </div>
                   <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-[96%]" />
+                    <div className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[96%]" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-slate-300">Electronics & Communication (ECE)</span>
-                    <span className="text-indigo-400 font-bold">88% (106/120)</span>
+                    <span className="text-cyan-400 font-bold">88% (106/120)</span>
                   </div>
                   <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-indigo-500 to-blue-400 h-full w-[88%]" />
+                    <div className="bg-gradient-to-r from-cyan-500 to-indigo-400 h-full w-[88%]" />
                   </div>
                 </div>
 
@@ -580,17 +752,17 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              <div className="p-4 bg-[#121a2d] rounded-2xl border border-slate-800 space-y-3">
+              <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
                 <h4 className="font-bold text-white text-sm">CTC Package Tier Breakdown</h4>
-                <div className="flex justify-between p-2.5 bg-[#17223b] rounded-xl">
+                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
                   <span>Super Dream Tier (&gt; ₹16 LPA)</span>
                   <span className="text-white font-bold">48 Offers</span>
                 </div>
-                <div className="flex justify-between p-2.5 bg-[#17223b] rounded-xl">
+                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
                   <span>Dream Tier (₹10 - ₹16 LPA)</span>
                   <span className="text-white font-bold">142 Offers</span>
                 </div>
-                <div className="flex justify-between p-2.5 bg-[#17223b] rounded-xl">
+                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
                   <span>Core Engineering (₹6 - ₹10 LPA)</span>
                   <span className="text-white font-bold">116 Offers</span>
                 </div>
@@ -603,17 +775,16 @@ export default function CampusNexPlatform() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsPostModalOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-white/20"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-cyan-300/40 shadow-cyan-500/50"
       >
         +
       </button>
 
-      {/* MOTIVATIONAL / MOMENTUM POPUP MODAL */}
+      {/* Welcome Momentum Modal */}
       {showWelcomeModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-indigo-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            {/* Background Glow */}
-            <div className="absolute -top-14 -right-14 w-36 h-36 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="bg-[#0b1021] border border-cyan-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute -top-14 -right-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-pink-500/20 rounded-full blur-2xl pointer-events-none" />
 
             <button
@@ -625,8 +796,8 @@ export default function CampusNexPlatform() {
 
             <div className="flex items-center gap-2 mb-2">
               <span className="text-2xl">🔥</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
-                Daily Placement Velocity
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase tracking-wider font-mono">
+                Placement Velocity Core
               </span>
             </div>
 
@@ -640,16 +811,15 @@ export default function CampusNexPlatform() {
                 : 'Campus recruitment velocity is up +8.4% this cycle. Access AI-vetted candidate benchmarks, LeetCode rank verifications, and streamlined pipeline trackers.'}
             </p>
 
-            {/* Quick Metrics Bar inside popup */}
             <div className="grid grid-cols-2 gap-3 my-4">
-              <div className="p-3 bg-[#131d36] rounded-2xl border border-slate-800 text-xs">
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
                 <span className="text-slate-400 text-[10px] block">Placement Momentum</span>
                 <span className="text-base font-black text-emerald-400 mt-0.5 block">91.2% Success</span>
                 <span className="text-[10px] text-slate-400">Class of 2026</span>
               </div>
-              <div className="p-3 bg-[#131d36] rounded-2xl border border-slate-800 text-xs">
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
                 <span className="text-slate-400 text-[10px] block">Top Offer Tier</span>
-                <span className="text-base font-black text-indigo-300 mt-0.5 block">₹44.5 LPA CTC</span>
+                <span className="text-base font-black text-cyan-300 mt-0.5 block">₹44.5 LPA CTC</span>
                 <span className="text-[10px] text-slate-400">Verified Benchmarks</span>
               </div>
             </div>
@@ -662,7 +832,7 @@ export default function CampusNexPlatform() {
                       setShowWelcomeModal(false);
                       handleSimulateResumeScan();
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
                   >
                     ⚡ Scan & Benchmark Resume
                   </button>
@@ -680,7 +850,7 @@ export default function CampusNexPlatform() {
                       setShowWelcomeModal(false);
                       setIsPostModalOpen(true);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
                   >
                     🚀 Post Urgent Drive
                   </button>
@@ -697,10 +867,10 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* MODAL 1: AI Mock Interview Simulator */}
+      {/* AI Mock Interview Modal */}
       {isInterviewModalOpen && interviewJob && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl">
+          <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl">
             <button
               onClick={() => setIsInterviewModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
@@ -717,7 +887,7 @@ export default function CampusNexPlatform() {
             {interviewStep === 1 && (
               <div className="space-y-4">
                 <div className="p-3.5 bg-indigo-950/40 border border-indigo-800/40 rounded-xl">
-                  <span className="text-indigo-300 font-bold block mb-1">AI Interviewer Question:</span>
+                  <span className="text-cyan-300 font-bold block mb-1">AI Interviewer Question:</span>
                   <p className="text-white text-sm">
                     "Explain the difference between Client-Side Rendering (CSR) and Server-Side Rendering (SSR) in Next.js, and how caching benefits latency?"
                   </p>
@@ -728,13 +898,13 @@ export default function CampusNexPlatform() {
                     rows={3}
                     placeholder="Type or dictate your technical response..."
                     value={interviewAnswer}
-                    onChange={(e) => setInterviewAnswer(e.target.value)}
-                    className="w-full bg-[#141f38] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-indigo-500"
+                    onChange={e => setInterviewAnswer(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <button
                   onClick={() => setInterviewStep(2)}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 font-bold text-white shadow-lg"
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 font-bold text-white shadow-lg"
                 >
                   Submit Response for AI Scoring
                 </button>
@@ -763,14 +933,11 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* MODAL 2: Post Job */}
+      {/* Post Drive Modal */}
       {isPostModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button
-              onClick={() => setIsPostModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 text-lg"
-            >
+          <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
+            <button onClick={() => setIsPostModalOpen(false)} className="absolute top-4 right-4 text-slate-400 text-lg">
               ✕
             </button>
             <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
@@ -782,8 +949,8 @@ export default function CampusNexPlatform() {
                   required
                   placeholder="e.g. AI Cloud Architect"
                   value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full bg-[#141f38] border border-slate-700 rounded-xl p-2.5 text-white"
+                  onChange={e => setNewTitle(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                 />
               </div>
               <div>
@@ -793,8 +960,8 @@ export default function CampusNexPlatform() {
                   required
                   placeholder="e.g. Google India"
                   value={newCompany}
-                  onChange={(e) => setNewCompany(e.target.value)}
-                  className="w-full bg-[#141f38] border border-slate-700 rounded-xl p-2.5 text-white"
+                  onChange={e => setNewCompany(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                 />
               </div>
               <div>
@@ -803,8 +970,8 @@ export default function CampusNexPlatform() {
                   type="text"
                   placeholder="e.g. ₹16 - ₹20 LPA"
                   value={newSalary}
-                  onChange={(e) => setNewSalary(e.target.value)}
-                  className="w-full bg-[#141f38] border border-slate-700 rounded-xl p-2.5 text-white"
+                  onChange={e => setNewSalary(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                 />
               </div>
               <div className="pt-2 flex gap-2">
@@ -815,10 +982,7 @@ export default function CampusNexPlatform() {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 rounded-xl bg-indigo-600 text-white font-bold"
-                >
+                <button type="submit" className="flex-1 py-2 rounded-xl bg-cyan-600 text-white font-bold">
                   Publish Opening
                 </button>
               </div>
@@ -827,18 +991,22 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* MODAL 3: ATS Match Breakdown */}
+      {/* ATS Match Modal */}
       {selectedAtsJob && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button onClick={() => setSelectedAtsJob(null)} className="absolute top-4 right-4 text-slate-400 text-lg">✕</button>
+          <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
+            <button onClick={() => setSelectedAtsJob(null)} className="absolute top-4 right-4 text-slate-400 text-lg">
+              ✕
+            </button>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
                 {selectedAtsJob.matchScore}%
               </div>
               <div>
                 <h3 className="font-bold text-white text-base">ATS Compatibility Report</h3>
-                <p className="text-slate-400">{selectedAtsJob.title} • {selectedAtsJob.company}</p>
+                <p className="text-slate-400">
+                  {selectedAtsJob.title} • {selectedAtsJob.company}
+                </p>
               </div>
             </div>
 
@@ -864,7 +1032,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
               <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
-                <span className="text-indigo-300 font-bold block mb-1">✦ AI Resume Optimization Tip:</span>
+                <span className="text-cyan-300 font-bold block mb-1">✦ AI Resume Optimization Tip:</span>
                 {selectedAtsJob.tip}
               </div>
             </div>
