@@ -220,7 +220,6 @@ function HexagonSkillRadar() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw Concentric Hexagonal Rings
       for (let level = 1; level <= 4; level++) {
         const r = (maxRadius / 4) * level;
         ctx.beginPath();
@@ -237,7 +236,6 @@ function HexagonSkillRadar() {
         ctx.stroke();
       }
 
-      // Draw Spokes from center
       for (let i = 0; i < sides; i++) {
         const a = i * angleStep - Math.PI / 2;
         const x = centerX + maxRadius * Math.cos(a);
@@ -248,7 +246,6 @@ function HexagonSkillRadar() {
         ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
         ctx.stroke();
 
-        // Label
         const lx = centerX + (maxRadius + 16) * Math.cos(a);
         const ly = centerY + (maxRadius + 14) * Math.sin(a);
         ctx.fillStyle = '#67e8f9';
@@ -258,7 +255,6 @@ function HexagonSkillRadar() {
         ctx.fillText(skills[i].label, lx, ly);
       }
 
-      // Draw Candidate Vector Skill Shape
       ctx.beginPath();
       for (let i = 0; i < sides; i++) {
         const a = i * angleStep - Math.PI / 2;
@@ -277,7 +273,6 @@ function HexagonSkillRadar() {
       ctx.shadowColor = '#c084fc';
       ctx.stroke();
 
-      // Radar Sweep Line
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
       const sx = centerX + maxRadius * Math.cos(sweepAngle);
@@ -700,7 +695,7 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Hologram Profile & Feature 3: Hexagonal Skill Radar */}
+            {/* Right Column: Hologram Profile & Hexagonal Skill Radar */}
             <div className="space-y-5">
               <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
@@ -718,7 +713,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Feature 3: Holographic Hexagonal 3D Radar Toggle */}
                 <button
                   onClick={() => setHologramActive(!hologramActive)}
                   className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
@@ -732,7 +726,6 @@ export default function CampusNexPlatform() {
                       <span>HEXAGONAL NEURAL VECTOR</span>
                       <span className="text-purple-300 font-bold">AVG: 93.4%</span>
                     </div>
-                    {/* Render Hexagon Radar Canvas */}
                     <HexagonSkillRadar />
                     <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
                       Live Telemetry: Algorithmic rating + stress resilience mapped in real-time.
@@ -910,14 +903,50 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* TAB 3: TPO ADMIN */}
+        {/* TAB 3: TPO ADMIN (FEATURE 4: QUANTUM GLOBAL TECH PULSE & PREDICTIVE RADAR) */}
         {activeTab === 'tpo' && (
           <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-white">Training & Placement Cell (TPO) Comprehensive Analytics</h2>
-              <p className="text-xs text-slate-400">Department metrics, package distribution, and drive conversion ratios.</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">Quantum Placement Intelligence & Economic Threat Radar</h2>
+                <p className="text-xs text-slate-400">Autonomous predictive macroeconomic demand modeling for campus batches.</p>
+              </div>
+              <div className="px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/60 font-mono text-[10px] text-cyan-300">
+                GLOBAL_MARKET_TELEMETRY: CONNECTED
+              </div>
             </div>
 
+            {/* Feature 4: Tech Demand Heatmap & Threat Alert */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+              <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-900/50 space-y-2">
+                <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
+                <div className="text-lg font-bold text-white">AI Infrastructure & LLM Ops</div>
+                <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge (Silicon Valley / BLR)</div>
+                <p className="text-[10px] text-slate-400 font-sans mt-2">
+                  Highest placement compensation multiplier detected. 64 students already aligned.
+                </p>
+              </div>
+
+              <div className="p-4 bg-[#081024] rounded-2xl border border-purple-900/50 space-y-2">
+                <span className="text-[10px] text-purple-400 block font-bold">HIGH PERFORMANCE SYSTEMS</span>
+                <div className="text-lg font-bold text-white">Rust & Low-Latency Go Core</div>
+                <div className="text-cyan-300 font-bold">↑ +34.6% Microservices Demand</div>
+                <p className="text-[10px] text-slate-400 font-sans mt-2">
+                  Global FinTech and high-frequency trading MNCs actively parsing distributed repos.
+                </p>
+              </div>
+
+              <div className="p-4 bg-[#081024] rounded-2xl border border-amber-900/50 space-y-2">
+                <span className="text-[10px] text-amber-400 block font-bold">DEPRECATION / RISK INDEX</span>
+                <div className="text-lg font-bold text-white">Monolithic PHP & Legacy Web</div>
+                <div className="text-rose-400 font-bold">↓ -14.2% Market Reduction</div>
+                <p className="text-[10px] text-slate-400 font-sans mt-2">
+                  Recommendation: Shift legacy coursework to Next.js Full Stack & Serverless components.
+                </p>
+              </div>
+            </div>
+
+            {/* Department Conversion & Predictive Package Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
               <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
                 <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
