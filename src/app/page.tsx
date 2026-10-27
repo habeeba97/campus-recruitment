@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Job {
   id: string;
@@ -27,6 +27,14 @@ export default function CampusNexPlatform() {
   const [interviewStep, setInterviewStep] = useState(1);
   const [interviewAnswer, setInterviewAnswer] = useState('');
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+
+  // Welcome Momentum Modal State
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    // Show automatically on page load
+    setShowWelcomeModal(true);
+  }, []);
 
   // Resume Scanner State
   const [isScanning, setIsScanning] = useState(false);
@@ -161,24 +169,34 @@ export default function CampusNexPlatform() {
         </div>
 
         {/* View Switchers */}
-        <div className="flex bg-[#131b2e] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+        <div className="flex items-center gap-2">
+          <div className="flex bg-[#131b2e] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+            <button
+              onClick={() => setActiveTab('student')}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              🎓 Student Portal
+            </button>
+            <button
+              onClick={() => setActiveTab('recruiter')}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              💼 Recruiter ATS
+            </button>
+            <button
+              onClick={() => setActiveTab('tpo')}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            >
+              📊 TPO Analytics
+            </button>
+          </div>
+
           <button
-            onClick={() => setActiveTab('student')}
-            className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+            onClick={() => setShowWelcomeModal(true)}
+            className="p-2 rounded-xl bg-[#131b2e] border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 hover:border-indigo-500 transition"
+            title="Open Momentum Briefing"
           >
-            🎓 Student Portal
-          </button>
-          <button
-            onClick={() => setActiveTab('recruiter')}
-            className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-          >
-            💼 Recruiter ATS
-          </button>
-          <button
-            onClick={() => setActiveTab('tpo')}
-            className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-          >
-            📊 TPO Analytics
+            <span>✨</span> Daily Spark
           </button>
         </div>
       </header>
@@ -212,9 +230,8 @@ export default function CampusNexPlatform() {
         {/* TAB 1: STUDENT VIEW */}
         {activeTab === 'student' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left 2 Columns: Jobs & AI Interview */}
             <div className="lg:col-span-2 space-y-4">
-              {/* Feature 2: Interactive Resume Scanner Dropzone */}
+              {/* Resume Scanner Dropzone */}
               <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-[#0e1629] border border-indigo-800/40 p-5 rounded-2xl shadow-2xl">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
@@ -232,11 +249,7 @@ export default function CampusNexPlatform() {
                     disabled={isScanning}
                     className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"
                   >
-                    {isScanning ? (
-                      <span className="animate-spin text-sm">↻</span>
-                    ) : (
-                      <span>⚡</span>
-                    )}
+                    {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
                     {isScanning ? 'Parsing Resume...' : 'Scan Resume PDF'}
                   </button>
                 </div>
@@ -309,7 +322,6 @@ export default function CampusNexPlatform() {
                       ))}
                     </div>
 
-                    {/* Action Bar with Feature 1: AI Mock Interview Trigger */}
                     <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
                       <span className="text-slate-500">👥 {job.applicants} students applied</span>
                       <div className="flex items-center gap-2">
@@ -341,9 +353,8 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Feature 5: LeetCode/GitHub Sync & LinkedIn Pipeline */}
+            {/* Right Column: Profile & Pipeline */}
             <div className="space-y-5">
-              {/* Profile Card with Feature 5 */}
               <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center font-bold text-white text-lg">
@@ -358,7 +369,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Feature 5: LeetCode & GitHub Badges */}
                 <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
                   <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block">
                     Verified Skill Assessments
@@ -377,7 +387,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* LinkedIn-Style Visual Pipeline */}
               <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
                   <span>⚡</span> Live Placement Pipeline
@@ -408,7 +417,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* TAB 2: RECRUITER ATS (Feature 3: Kanban Recruitment Board) */}
+        {/* TAB 2: RECRUITER ATS */}
         {activeTab === 'recruiter' && (
           <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -424,9 +433,7 @@ export default function CampusNexPlatform() {
               </button>
             </div>
 
-            {/* Kanban Columns */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-              {/* Column 1: Applied */}
               <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
                   <span>📥 Applied</span>
@@ -453,7 +460,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Column 2: Shortlisted */}
               <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-indigo-300 mb-3 flex justify-between items-center">
                   <span>⚡ Shortlisted</span>
@@ -480,7 +486,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Column 3: Interview */}
               <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
                   <span>🎙️ Technical Round</span>
@@ -507,7 +512,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Column 4: Offer Rolled Out */}
               <div className="bg-[#121a2d] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
                   <span>🎉 Offer Extended</span>
@@ -534,7 +538,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* TAB 3: TPO ADMIN (Feature 4: Placement & CTC Analytics Visualizer) */}
+        {/* TAB 3: TPO ADMIN */}
         {activeTab === 'tpo' && (
           <div className="bg-[#0e1629] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div>
@@ -542,7 +546,6 @@ export default function CampusNexPlatform() {
               <p className="text-xs text-slate-400">Department metrics, package distribution, and drive conversion ratios.</p>
             </div>
 
-            {/* Visual Distribution Bars */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
               <div className="p-4 bg-[#121a2d] rounded-2xl border border-slate-800 space-y-3">
                 <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
@@ -597,7 +600,7 @@ export default function CampusNexPlatform() {
         )}
       </main>
 
-      {/* Floating Action Button (+ Post Drive) */}
+      {/* Floating Action Button */}
       <button
         onClick={() => setIsPostModalOpen(true)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-white/20"
@@ -605,7 +608,96 @@ export default function CampusNexPlatform() {
         +
       </button>
 
-      {/* MODAL 1: Feature 1: AI Mock Interview Simulator */}
+      {/* MOTIVATIONAL / MOMENTUM POPUP MODAL */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0f172a] border border-indigo-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Background Glow */}
+            <div className="absolute -top-14 -right-14 w-36 h-36 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-pink-500/20 rounded-full blur-2xl pointer-events-none" />
+
+            <button
+              onClick={() => setShowWelcomeModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-2xl">🔥</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
+                Daily Placement Velocity
+              </span>
+            </div>
+
+            <h3 className="text-xl font-black text-white tracking-tight mt-1">
+              {activeTab === 'student' ? 'Your Dream Career Begins Today.' : 'High-Potential Campus Talent Awaits.'}
+            </h3>
+
+            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+              {activeTab === 'student'
+                ? 'Consistency beats talent when talent stops practicing. Over 42 companies are actively parsing candidate portfolios on CampusNex this week.'
+                : 'Campus recruitment velocity is up +8.4% this cycle. Access AI-vetted candidate benchmarks, LeetCode rank verifications, and streamlined pipeline trackers.'}
+            </p>
+
+            {/* Quick Metrics Bar inside popup */}
+            <div className="grid grid-cols-2 gap-3 my-4">
+              <div className="p-3 bg-[#131d36] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Placement Momentum</span>
+                <span className="text-base font-black text-emerald-400 mt-0.5 block">91.2% Success</span>
+                <span className="text-[10px] text-slate-400">Class of 2026</span>
+              </div>
+              <div className="p-3 bg-[#131d36] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Top Offer Tier</span>
+                <span className="text-base font-black text-indigo-300 mt-0.5 block">₹44.5 LPA CTC</span>
+                <span className="text-[10px] text-slate-400">Verified Benchmarks</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+              {activeTab === 'student' ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowWelcomeModal(false);
+                      handleSimulateResumeScan();
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                  >
+                    ⚡ Scan & Benchmark Resume
+                  </button>
+                  <button
+                    onClick={() => setShowWelcomeModal(false)}
+                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
+                  >
+                    Explore Drives →
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowWelcomeModal(false);
+                      setIsPostModalOpen(true);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                  >
+                    🚀 Post Urgent Drive
+                  </button>
+                  <button
+                    onClick={() => setShowWelcomeModal(false)}
+                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
+                  >
+                    View Pipeline
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: AI Mock Interview Simulator */}
       {isInterviewModalOpen && interviewJob && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0f172a] border border-slate-800 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl">
@@ -620,14 +712,14 @@ export default function CampusNexPlatform() {
               <span className="text-xl">🎙️</span>
               <h3 className="text-base font-bold text-white">AI Technical Mock Interview Room</h3>
             </div>
-            <p className="text-slate-400 mb-4">Simulating interview questions for {interviewJob.title} at {interviewJob.company}</p>
+            <p className="text-slate-400 mb-4">Simulating questions for {interviewJob.title} at {interviewJob.company}</p>
 
             {interviewStep === 1 && (
               <div className="space-y-4">
                 <div className="p-3.5 bg-indigo-950/40 border border-indigo-800/40 rounded-xl">
                   <span className="text-indigo-300 font-bold block mb-1">AI Interviewer Question:</span>
                   <p className="text-white text-sm">
-                    "Explain the difference between Client-Side Rendering (CSR) and Server-Side Rendering (SSR) in Next.js, and how does caching benefit latency?"
+                    "Explain the difference between Client-Side Rendering (CSR) and Server-Side Rendering (SSR) in Next.js, and how caching benefits latency?"
                   </p>
                 </div>
                 <div>
