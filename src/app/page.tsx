@@ -121,6 +121,74 @@ function Neural3DCanvas() {
   return <canvas ref={canvasRef} className="w-full h-full block opacity-75" />;
 }
 
+// Feature 2: Real-time Biometric EKG / Brain-Wave Oscilloscope Canvas
+function BiometricPulseCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let step = 0;
+    const width = (canvas.width = canvas.offsetWidth);
+    const height = (canvas.height = canvas.offsetHeight);
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Grid Lines
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 15) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Sinusoidal EKG Neural Wave
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#22d3ee';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#06b6d4';
+
+      for (let x = 0; x < width; x++) {
+        const spike = Math.sin((x + step) * 0.05);
+        const cardiacKick = (x + step) % 120 > 50 && (x + step) % 120 < 70 ? Math.sin((x + step) * 0.3) * 22 : 0;
+        const y = height / 2 + spike * 8 + cardiacKick;
+
+        if (x === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+
+      step += 2.5;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20] border border-cyan-900/50" />;
+}
+
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
   const [searchQuery, setSearchQuery] = useState('');
@@ -788,7 +856,7 @@ export default function CampusNexPlatform() {
         )}
       </main>
 
-      {/* FEATURE 1: AUTONOMOUS AI MATRIX CONSOLE WIDGET */}
+      {/* Autonomous AI Matrix Console Widget */}
       <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
         <div className="bg-[#070b16]/95 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden font-mono text-[11px]">
           <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
@@ -916,10 +984,10 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* AI Mock Interview Modal */}
+      {/* FEATURE 2: AI TECHNICAL MOCK INTERVIEW ROOM WITH BIOMETRIC PULSE & STRESS TELEMETRY */}
       {isInterviewModalOpen && interviewJob && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl">
+          <div className="bg-[#0b1021] border border-cyan-800/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl">
             <button
               onClick={() => setIsInterviewModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
@@ -927,16 +995,56 @@ export default function CampusNexPlatform() {
               ✕
             </button>
 
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">🎙️</span>
-              <h3 className="text-base font-bold text-white">AI Technical Mock Interview Room</h3>
+            <div className="flex items-center justify-between mb-3 pr-8">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🎙️</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">Quantum Neural Biometric Interview Lab</h3>
+                  <p className="text-[11px] text-cyan-300 font-mono">
+                    Candidate Evaluation: {interviewJob.title} • {interviewJob.company}
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-slate-400 mb-4">Simulating questions for {interviewJob.title} at {interviewJob.company}</p>
+
+            {/* Feature 2: Real-time Oscilloscope & Telemetry Strip */}
+            <div className="my-3 space-y-2">
+              <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
+                <span className="flex items-center gap-1.5 text-cyan-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                  LIVE NEURAL BRAINWAVE & CARDIAC MONITOR
+                </span>
+                <span className="text-emerald-400 font-bold">STABILITY: 98.4%</span>
+              </div>
+
+              {/* Oscilloscope Canvas Component */}
+              <BiometricPulseCanvas />
+
+              {/* 4 Biometric Counters */}
+              <div className="grid grid-cols-4 gap-2 text-center font-mono">
+                <div className="p-2 bg-[#081024] rounded-xl border border-cyan-950">
+                  <span className="text-[9px] text-slate-400 block">HEART RATE</span>
+                  <span className="text-xs font-bold text-emerald-400 mt-0.5 block">74 BPM</span>
+                </div>
+                <div className="p-2 bg-[#081024] rounded-xl border border-cyan-950">
+                  <span className="text-[9px] text-slate-400 block">COGNITIVE LOAD</span>
+                  <span className="text-xs font-bold text-cyan-300 mt-0.5 block">36% (Normal)</span>
+                </div>
+                <div className="p-2 bg-[#081024] rounded-xl border border-cyan-950">
+                  <span className="text-[9px] text-slate-400 block">VOCAL JITTER</span>
+                  <span className="text-xs font-bold text-indigo-300 mt-0.5 block">0.03%</span>
+                </div>
+                <div className="p-2 bg-[#081024] rounded-xl border border-cyan-950">
+                  <span className="text-[9px] text-slate-400 block">NEURAL FOCUS</span>
+                  <span className="text-xs font-bold text-purple-300 mt-0.5 block">99.1%</span>
+                </div>
+              </div>
+            </div>
 
             {interviewStep === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-4 mt-4">
                 <div className="p-3.5 bg-indigo-950/40 border border-indigo-800/40 rounded-xl">
-                  <span className="text-cyan-300 font-bold block mb-1">AI Interviewer Question:</span>
+                  <span className="text-cyan-300 font-bold block mb-1">AI Interviewer Core Prompt:</span>
                   <p className="text-white text-sm">
                     "Explain the difference between Client-Side Rendering (CSR) and Server-Side Rendering (SSR) in Next.js, and how caching benefits latency?"
                   </p>
@@ -948,33 +1056,36 @@ export default function CampusNexPlatform() {
                     placeholder="Type or dictate your technical response..."
                     value={interviewAnswer}
                     onChange={e => setInterviewAnswer(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 font-sans"
                   />
                 </div>
                 <button
                   onClick={() => setInterviewStep(2)}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 font-bold text-white shadow-lg"
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 font-bold text-white shadow-lg shadow-cyan-600/30 hover:opacity-95 transition"
                 >
-                  Submit Response for AI Scoring
+                  Submit Response for Neural Biometric & ATS Scoring →
                 </button>
               </div>
             )}
 
             {interviewStep === 2 && (
-              <div className="space-y-3">
+              <div className="space-y-3 mt-4">
                 <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-emerald-400 font-bold text-sm">AI Score: 92/100 (Strong Candidate)</span>
+                    <span className="text-emerald-400 font-bold text-sm">AI Performance Score: 94/100 (Exceptional Tier)</span>
+                    <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+                      STRESS RESILIENT
+                    </span>
                   </div>
-                  <p className="text-slate-300 text-[11px] leading-relaxed">
-                    Great clarity! You accurately addressed hydration timing and server component separation. Adding details about Next.js static incremental regeneration (ISR) would achieve a 100/100 benchmark.
+                  <p className="text-slate-300 text-[11px] leading-relaxed mt-2">
+                    Biometric telemetry confirms consistent voice pitch and zero cognitive panic during distributed architecture questioning. Your technical grasp on hydration timing and Edge caching meets Tier-1 hiring benchmarks.
                   </p>
                 </div>
                 <button
                   onClick={() => setIsInterviewModalOpen(false)}
                   className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-white font-bold transition"
                 >
-                  Complete Interview Practice
+                  Complete Biometric Session & Save Transcript
                 </button>
               </div>
             )}
