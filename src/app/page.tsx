@@ -17,7 +17,7 @@ interface Job {
   tip: string;
 }
 
-// Futuristic 3D Particle Constellation Sphere Component
+// 3D Particle Constellation Sphere Component
 function Neural3DCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -38,7 +38,6 @@ function Neural3DCanvas() {
     };
     window.addEventListener('resize', handleResize);
 
-    // 3D Spherical Particle Nodes
     const particleCount = 70;
     const particles: { x: number; y: number; z: number; sx: number; sy: number }[] = [];
     const radius = Math.min(width, height) * 0.35;
@@ -66,15 +65,10 @@ function Neural3DCanvas() {
       const cosY = Math.cos(angleY);
       const sinY = Math.sin(angleY);
 
-      // Rotate and Project 3D to 2D
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i];
-
-        // Rotate Y
         let x1 = p.x * cosY - p.z * sinY;
         let z1 = p.z * cosY + p.x * sinY;
-
-        // Rotate X
         let y1 = p.y * cosX - z1 * sinX;
         let z2 = z1 * cosX + p.y * sinX;
 
@@ -96,7 +90,6 @@ function Neural3DCanvas() {
         ctx.fill();
       }
 
-      // Draw Neural Connection Strands
       for (let i = 0; i < particleCount; i++) {
         for (let j = i + 1; j < particleCount; j++) {
           const dx = particles[i].sx - particles[j].sx;
@@ -141,14 +134,39 @@ export default function CampusNexPlatform() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hologramActive, setHologramActive] = useState(false);
 
-  useEffect(() => {
-    setShowWelcomeModal(true);
-  }, []);
-
+  // Resume Scanner State
   const [isScanning, setIsScanning] = useState(false);
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
+  // Feature 1: Autonomous AI Matrix Stream Console
+  const [terminalOpen, setTerminalOpen] = useState(true);
+  const [terminalLogs, setTerminalLogs] = useState<string[]>([
+    '⚡ [INIT]: Quantum Vector Embeddings Initialized for 412 candidates.',
+    '✦ [AGENT_01]: Parsing Habeeba Fatima (CSE) vs TechCorp Full-Stack node.',
+    '✓ [MATCH_SUCCESS]: 92% semantic alignment verified in distributed systems.'
+  ]);
+
+  useEffect(() => {
+    setShowWelcomeModal(true);
+
+    const logPool = [
+      '✦ [AGENT_03]: Extracting GitHub activity: 120+ contributions verified.',
+      '⚡ [AI_ATS]: Parsing leetcode rating #1840 -> Top 5% tier assigned.',
+      '🔥 [DISPATCH]: Automated technical interview pipeline opened with TechCorp.',
+      '✦ [AGENT_02]: High-velocity candidate pool ranked for DataMetrics AI.',
+      '✓ [SMART_CONTRACT]: Campus placement verification proof minted #0x8942.'
+    ];
+
+    const interval = setInterval(() => {
+      const nextLog = logPool[Math.floor(Math.random() * logPool.length)];
+      setTerminalLogs(prev => [nextLog, ...prev.slice(0, 5)]);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Kanban Candidates
   const [kanbanCandidates, setKanbanCandidates] = useState([
     { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'interview', score: 94, branch: 'CSE' },
     { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'shortlist', score: 85, branch: 'ECE' },
@@ -256,7 +274,7 @@ export default function CampusNexPlatform() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050811] text-slate-100 font-sans pb-28 selection:bg-cyan-500 selection:text-black relative">
+    <div className="min-h-screen bg-[#050811] text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative">
       {/* Top Cyber Telemetry Matrix Bar */}
       <div className="bg-[#0b1021] border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
         <div className="flex items-center gap-3">
@@ -342,7 +360,6 @@ export default function CampusNexPlatform() {
             </div>
           </div>
 
-          {/* 3D Canvas Sphere in Background */}
           <div className="absolute right-0 top-0 bottom-0 w-full sm:w-1/2 pointer-events-none z-0">
             <Neural3DCanvas />
           </div>
@@ -522,7 +539,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* 3D Hologram Toggle */}
                 <button
                   onClick={() => setHologramActive(!hologramActive)}
                   className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
@@ -558,7 +574,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Application Pipeline */}
+              {/* Live Application Pipeline */}
               <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
                   <span>⚡</span> Live Placement Pipeline
@@ -771,6 +787,39 @@ export default function CampusNexPlatform() {
           </div>
         )}
       </main>
+
+      {/* FEATURE 1: AUTONOMOUS AI MATRIX CONSOLE WIDGET */}
+      <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
+        <div className="bg-[#070b16]/95 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden font-mono text-[11px]">
+          <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-bold text-cyan-300 tracking-wider">AI_AGENT_MATRIX_v4.2</span>
+            </div>
+            <button
+              onClick={() => setTerminalOpen(!terminalOpen)}
+              className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-[10px] bg-slate-800"
+            >
+              {terminalOpen ? 'MINIMIZE ▾' : 'EXPAND ▴'}
+            </button>
+          </div>
+
+          {terminalOpen && (
+            <div className="p-3 space-y-1.5 max-h-36 overflow-y-auto text-slate-300 bg-black/40">
+              {terminalLogs.map((log, index) => (
+                <div
+                  key={index}
+                  className={`leading-relaxed text-[10px] ${
+                    index === 0 ? 'text-cyan-300 font-bold' : 'text-slate-400'
+                  }`}
+                >
+                  {log}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Floating Action Button */}
       <button
