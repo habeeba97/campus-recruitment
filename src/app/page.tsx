@@ -17,6 +17,86 @@ interface Job {
   tip: string;
 }
 
+// Phase 5: Browser Native Web Audio Synthesizer Engine
+class CyberAudioEngine {
+  private ctx: AudioContext | null = null;
+  public enabled: boolean = true;
+
+  private init() {
+    if (!this.ctx && typeof window !== 'undefined') {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  // Futuristic Click / Blip Sound
+  playBlip() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.08);
+    } catch {
+      // Audio fallback silent
+    }
+  }
+
+  // Laser Confirmation Chime
+  playLaser() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.15);
+    } catch {}
+  }
+
+  // Resonant Warp Pulse (For Scans & Modals)
+  playWarp() {
+    if (!this.enabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.25);
+    } catch {}
+  }
+}
+
+const cyberAudio = new CyberAudioEngine();
+
 // 3D Particle Constellation Sphere Component
 function Neural3DCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -187,7 +267,7 @@ function BiometricPulseCanvas() {
   return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20] border border-cyan-900/50" />;
 }
 
-// Feature 3: Holographic Hexagonal 3D Skill Vector Radar
+// Holographic Hexagonal 3D Skill Vector Radar
 function HexagonSkillRadar() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -308,6 +388,7 @@ export default function CampusNexPlatform() {
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hologramActive, setHologramActive] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Resume Scanner State
   const [isScanning, setIsScanning] = useState(false);
@@ -397,7 +478,15 @@ export default function CampusNexPlatform() {
   const [newCompany, setNewCompany] = useState('');
   const [newSalary, setNewSalary] = useState('');
 
+  const toggleSound = () => {
+    const nextState = !soundEnabled;
+    setSoundEnabled(nextState);
+    cyberAudio.enabled = nextState;
+    if (nextState) cyberAudio.playBlip();
+  };
+
   const handleApply = (id: string) => {
+    cyberAudio.playLaser();
     if (!appliedJobs.includes(id)) {
       setAppliedJobs([...appliedJobs, id]);
       setJobs(jobs.map(j => (j.id === id ? { ...j, applicants: j.applicants + 1 } : j)));
@@ -407,6 +496,7 @@ export default function CampusNexPlatform() {
   const handleCreateJob = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !newCompany) return;
+    cyberAudio.playLaser();
     const newEntry: Job = {
       id: Date.now().toString(),
       title: newTitle,
@@ -429,15 +519,18 @@ export default function CampusNexPlatform() {
   };
 
   const handleSimulateResumeScan = () => {
+    cyberAudio.playWarp();
     setIsScanning(true);
     setTimeout(() => {
       setIsScanning(false);
       setResumeParsed(true);
       setParsedScore(95);
+      cyberAudio.playLaser();
     }, 1500);
   };
 
   const moveCandidateStage = (id: string, newStage: string) => {
+    cyberAudio.playBlip();
     setKanbanCandidates(kanbanCandidates.map(c => (c.id === id ? { ...c, stage: newStage } : c)));
   };
 
@@ -459,9 +552,18 @@ export default function CampusNexPlatform() {
           <span>LATENCY: 12ms</span>
           <span>MODEL: NEURAL-v4.2</span>
         </div>
-        <div className="hidden sm:flex items-center gap-4 text-slate-400">
-          <span>GPU ACCELERATION: ON</span>
-          <span className="text-emerald-400">TIER-1 VERIFIED: 94.2%</span>
+        <div className="flex items-center gap-4 text-slate-400">
+          <button
+            onClick={toggleSound}
+            className={`px-2 py-0.5 rounded border transition text-[10px] ${
+              soundEnabled
+                ? 'bg-cyan-950/60 border-cyan-700/60 text-cyan-300'
+                : 'bg-slate-900 border-slate-700 text-slate-500'
+            }`}
+          >
+            {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
+          </button>
+          <span className="hidden sm:inline text-emerald-400">TIER-1 VERIFIED: 94.2%</span>
         </div>
       </div>
 
@@ -487,19 +589,28 @@ export default function CampusNexPlatform() {
         <div className="flex items-center gap-2">
           <div className="flex bg-[#0f172a] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
             <button
-              onClick={() => setActiveTab('student')}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setActiveTab('student');
+              }}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               🎓 Student Portal
             </button>
             <button
-              onClick={() => setActiveTab('recruiter')}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setActiveTab('recruiter');
+              }}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               💼 Recruiter ATS
             </button>
             <button
-              onClick={() => setActiveTab('tpo')}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setActiveTab('tpo');
+              }}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               📊 TPO Analytics
@@ -507,7 +618,10 @@ export default function CampusNexPlatform() {
           </div>
 
           <button
-            onClick={() => setShowWelcomeModal(true)}
+            onClick={() => {
+              cyberAudio.playWarp();
+              setShowWelcomeModal(true);
+            }}
             className="p-2 rounded-xl bg-[#0f172a] border border-cyan-800/40 text-cyan-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition"
           >
             <span>✨</span> Daily Spark
@@ -648,7 +762,10 @@ export default function CampusNexPlatform() {
                       </div>
 
                       <button
-                        onClick={() => setSelectedAtsJob(job)}
+                        onClick={() => {
+                          cyberAudio.playBlip();
+                          setSelectedAtsJob(job);
+                        }}
                         className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"
                       >
                         <span>🎯 {job.matchScore}% ATS Match</span>
@@ -669,6 +786,7 @@ export default function CampusNexPlatform() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
+                            cyberAudio.playWarp();
                             setInterviewJob(job);
                             setIsInterviewModalOpen(true);
                             setInterviewStep(1);
@@ -714,7 +832,10 @@ export default function CampusNexPlatform() {
                 </div>
 
                 <button
-                  onClick={() => setHologramActive(!hologramActive)}
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setHologramActive(!hologramActive);
+                  }}
                   className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
                 >
                   <span>🌐</span> {hologramActive ? 'Collapse 3D Skill Vector' : 'View Holographic 3D Skill Radar'}
@@ -791,7 +912,10 @@ export default function CampusNexPlatform() {
                 <p className="text-xs text-slate-400">Automated ATS applicant tracking board with one-click stage movements.</p>
               </div>
               <button
-                onClick={() => setIsPostModalOpen(true)}
+                onClick={() => {
+                  cyberAudio.playWarp();
+                  setIsPostModalOpen(true);
+                }}
                 className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-600/30"
               >
                 + Post New Drive
@@ -903,7 +1027,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* TAB 3: TPO ADMIN (FEATURE 4: QUANTUM GLOBAL TECH PULSE & PREDICTIVE RADAR) */}
+        {/* TAB 3: TPO ADMIN */}
         {activeTab === 'tpo' && (
           <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
@@ -916,7 +1040,6 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Feature 4: Tech Demand Heatmap & Threat Alert */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
               <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-900/50 space-y-2">
                 <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
@@ -946,7 +1069,6 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Department Conversion & Predictive Package Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
               <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
                 <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
@@ -1010,7 +1132,10 @@ export default function CampusNexPlatform() {
               <span className="font-bold text-cyan-300 tracking-wider">AI_AGENT_MATRIX_v4.2</span>
             </div>
             <button
-              onClick={() => setTerminalOpen(!terminalOpen)}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setTerminalOpen(!terminalOpen);
+              }}
               className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-[10px] bg-slate-800"
             >
               {terminalOpen ? 'MINIMIZE ▾' : 'EXPAND ▴'}
@@ -1036,7 +1161,10 @@ export default function CampusNexPlatform() {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setIsPostModalOpen(true)}
+        onClick={() => {
+          cyberAudio.playWarp();
+          setIsPostModalOpen(true);
+        }}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-cyan-300/40 shadow-cyan-500/50"
       >
         +
@@ -1050,7 +1178,10 @@ export default function CampusNexPlatform() {
             <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-pink-500/20 rounded-full blur-2xl pointer-events-none" />
 
             <button
-              onClick={() => setShowWelcomeModal(false)}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setShowWelcomeModal(false);
+              }}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
             >
               ✕
@@ -1099,7 +1230,10 @@ export default function CampusNexPlatform() {
                     ⚡ Scan & Benchmark Resume
                   </button>
                   <button
-                    onClick={() => setShowWelcomeModal(false)}
+                    onClick={() => {
+                      cyberAudio.playBlip();
+                      setShowWelcomeModal(false);
+                    }}
                     className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
                   >
                     Explore Drives →
@@ -1110,6 +1244,7 @@ export default function CampusNexPlatform() {
                   <button
                     onClick={() => {
                       setShowWelcomeModal(false);
+                      cyberAudio.playWarp();
                       setIsPostModalOpen(true);
                     }}
                     className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
@@ -1117,7 +1252,10 @@ export default function CampusNexPlatform() {
                     🚀 Post Urgent Drive
                   </button>
                   <button
-                    onClick={() => setShowWelcomeModal(false)}
+                    onClick={() => {
+                      cyberAudio.playBlip();
+                      setShowWelcomeModal(false);
+                    }}
                     className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
                   >
                     View Pipeline
@@ -1134,7 +1272,10 @@ export default function CampusNexPlatform() {
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-cyan-800/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl">
             <button
-              onClick={() => setIsInterviewModalOpen(false)}
+              onClick={() => {
+                cyberAudio.playBlip();
+                setIsInterviewModalOpen(false);
+              }}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
             >
               ✕
@@ -1202,7 +1343,10 @@ export default function CampusNexPlatform() {
                   />
                 </div>
                 <button
-                  onClick={() => setInterviewStep(2)}
+                  onClick={() => {
+                    cyberAudio.playLaser();
+                    setInterviewStep(2);
+                  }}
                   className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 font-bold text-white shadow-lg shadow-cyan-600/30 hover:opacity-95 transition"
                 >
                   Submit Response for Neural Biometric & ATS Scoring →
@@ -1224,7 +1368,10 @@ export default function CampusNexPlatform() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setIsInterviewModalOpen(false)}
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsInterviewModalOpen(false);
+                  }}
                   className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-white font-bold transition"
                 >
                   Complete Biometric Session & Save Transcript
@@ -1239,7 +1386,13 @@ export default function CampusNexPlatform() {
       {isPostModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button onClick={() => setIsPostModalOpen(false)} className="absolute top-4 right-4 text-slate-400 text-lg">
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setIsPostModalOpen(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 text-lg"
+            >
               ✕
             </button>
             <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
@@ -1279,7 +1432,10 @@ export default function CampusNexPlatform() {
               <div className="pt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsPostModalOpen(false)}
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsPostModalOpen(false);
+                  }}
                   className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
                 >
                   Cancel
@@ -1297,7 +1453,13 @@ export default function CampusNexPlatform() {
       {selectedAtsJob && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button onClick={() => setSelectedAtsJob(null)} className="absolute top-4 right-4 text-slate-400 text-lg">
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setSelectedAtsJob(null);
+              }}
+              className="absolute top-4 right-4 text-slate-400 text-lg"
+            >
               ✕
             </button>
             <div className="flex items-center gap-3 mb-3">
