@@ -121,7 +121,7 @@ function Neural3DCanvas() {
   return <canvas ref={canvasRef} className="w-full h-full block opacity-75" />;
 }
 
-// Feature 2: Real-time Biometric EKG / Brain-Wave Oscilloscope Canvas
+// Biometric EKG Pulse Oscilloscope
 function BiometricPulseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -139,7 +139,6 @@ function BiometricPulseCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Grid Lines
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += 20) {
@@ -155,7 +154,6 @@ function BiometricPulseCanvas() {
         ctx.stroke();
       }
 
-      // Sinusoidal EKG Neural Wave
       ctx.beginPath();
       ctx.lineWidth = 2;
       ctx.strokeStyle = '#22d3ee';
@@ -189,6 +187,120 @@ function BiometricPulseCanvas() {
   return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20] border border-cyan-900/50" />;
 }
 
+// Feature 3: Holographic Hexagonal 3D Skill Vector Radar
+function HexagonSkillRadar() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let sweepAngle = 0;
+    const width = (canvas.width = canvas.offsetWidth);
+    const height = (canvas.height = canvas.offsetHeight);
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxRadius = Math.min(width, height) * 0.38;
+
+    const skills = [
+      { label: 'DSA / Algo', value: 0.96 },
+      { label: 'Sys Design', value: 0.91 },
+      { label: 'Full Stack', value: 0.94 },
+      { label: 'Cloud / K8s', value: 0.82 },
+      { label: 'Neural AI', value: 0.95 },
+      { label: 'Stress EQ', value: 0.98 },
+    ];
+
+    const sides = 6;
+    const angleStep = (2 * Math.PI) / sides;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Concentric Hexagonal Rings
+      for (let level = 1; level <= 4; level++) {
+        const r = (maxRadius / 4) * level;
+        ctx.beginPath();
+        for (let i = 0; i < sides; i++) {
+          const a = i * angleStep - Math.PI / 2;
+          const x = centerX + r * Math.cos(a);
+          const y = centerY + r * Math.sin(a);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Draw Spokes from center
+      for (let i = 0; i < sides; i++) {
+        const a = i * angleStep - Math.PI / 2;
+        const x = centerX + maxRadius * Math.cos(a);
+        const y = centerY + maxRadius * Math.sin(a);
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+        ctx.stroke();
+
+        // Label
+        const lx = centerX + (maxRadius + 16) * Math.cos(a);
+        const ly = centerY + (maxRadius + 14) * Math.sin(a);
+        ctx.fillStyle = '#67e8f9';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(skills[i].label, lx, ly);
+      }
+
+      // Draw Candidate Vector Skill Shape
+      ctx.beginPath();
+      for (let i = 0; i < sides; i++) {
+        const a = i * angleStep - Math.PI / 2;
+        const r = maxRadius * skills[i].value;
+        const x = centerX + r * Math.cos(a);
+        const y = centerY + r * Math.sin(a);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(168, 85, 247, 0.25)';
+      ctx.fill();
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#c084fc';
+      ctx.stroke();
+
+      // Radar Sweep Line
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      const sx = centerX + maxRadius * Math.cos(sweepAngle);
+      const sy = centerY + maxRadius * Math.sin(sweepAngle);
+      ctx.lineTo(sx, sy);
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      sweepAngle += 0.03;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-56 block rounded-2xl bg-[#080f24] border border-cyan-900/60" />;
+}
+
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,7 +319,7 @@ export default function CampusNexPlatform() {
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
-  // Feature 1: Autonomous AI Matrix Stream Console
+  // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     '⚡ [INIT]: Quantum Vector Embeddings Initialized for 412 candidates.',
@@ -234,7 +346,6 @@ export default function CampusNexPlatform() {
     return () => clearInterval(interval);
   }, []);
 
-  // Kanban Candidates
   const [kanbanCandidates, setKanbanCandidates] = useState([
     { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'interview', score: 94, branch: 'CSE' },
     { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'shortlist', score: 85, branch: 'ECE' },
@@ -589,7 +700,7 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Hologram Profile & Pipeline */}
+            {/* Right Column: Hologram Profile & Feature 3: Hexagonal Skill Radar */}
             <div className="space-y-5">
               <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
@@ -607,20 +718,25 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
+                {/* Feature 3: Holographic Hexagonal 3D Radar Toggle */}
                 <button
                   onClick={() => setHologramActive(!hologramActive)}
                   className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
                 >
-                  <span>🌐</span> {hologramActive ? 'Close 3D Holographic Telemetry' : 'Launch 3D Holographic Telemetry'}
+                  <span>🌐</span> {hologramActive ? 'Collapse 3D Skill Vector' : 'View Holographic 3D Skill Radar'}
                 </button>
 
                 {hologramActive && (
-                  <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 text-center animate-in fade-in duration-200">
-                    <div className="w-16 h-16 mx-auto rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center animate-spin">
-                      <span className="text-xs text-cyan-300">AI</span>
+                  <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
+                    <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-2">
+                      <span>HEXAGONAL NEURAL VECTOR</span>
+                      <span className="text-purple-300 font-bold">AVG: 93.4%</span>
                     </div>
-                    <span className="text-[10px] font-mono text-cyan-400 block mt-2">Holographic Neural Identity #8942</span>
-                    <span className="text-[10px] text-slate-400 block">Candidate Rank: Top 1.2% in Tier-1 Region</span>
+                    {/* Render Hexagon Radar Canvas */}
+                    <HexagonSkillRadar />
+                    <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
+                      Live Telemetry: Algorithmic rating + stress resilience mapped in real-time.
+                    </div>
                   </div>
                 )}
 
@@ -984,7 +1100,7 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* FEATURE 2: AI TECHNICAL MOCK INTERVIEW ROOM WITH BIOMETRIC PULSE & STRESS TELEMETRY */}
+      {/* AI Mock Interview Room With Biometrics */}
       {isInterviewModalOpen && interviewJob && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-cyan-800/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl">
@@ -1007,7 +1123,6 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Feature 2: Real-time Oscilloscope & Telemetry Strip */}
             <div className="my-3 space-y-2">
               <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
                 <span className="flex items-center gap-1.5 text-cyan-400">
@@ -1017,10 +1132,8 @@ export default function CampusNexPlatform() {
                 <span className="text-emerald-400 font-bold">STABILITY: 98.4%</span>
               </div>
 
-              {/* Oscilloscope Canvas Component */}
               <BiometricPulseCanvas />
 
-              {/* 4 Biometric Counters */}
               <div className="grid grid-cols-4 gap-2 text-center font-mono">
                 <div className="p-2 bg-[#081024] rounded-xl border border-cyan-950">
                   <span className="text-[9px] text-slate-400 block">HEART RATE</span>
