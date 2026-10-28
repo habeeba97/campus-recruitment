@@ -19,7 +19,7 @@ interface Job {
 }
 
 // ============================================================================
-// 1. FULL-PAGE 3D HOLOVERSE BACKGROUND CANVAS (PARALLAX, RINGS, CRYSTALS & TRON GRID)
+// 1. TABLET-OPTIMIZED FULL-PAGE 3D HOLOVERSE (AUTO-SWAY + TOUCH PARALLAX)
 // ============================================================================
 function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -46,38 +46,38 @@ function MasterHoloverseCanvas() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      targetMouseX = (e.clientX - width / 2) * 0.0006;
-      targetMouseY = (e.clientY - height / 2) * 0.0006;
+      targetMouseX = (e.clientX - width / 2) * 0.0007;
+      targetMouseY = (e.clientY - height / 2) * 0.0007;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches[0]) {
-        targetMouseX = (e.touches[0].clientX - width / 2) * 0.0006;
-        targetMouseY = (e.touches[0].clientY - height / 2) * 0.0006;
+        targetMouseX = (e.touches[0].clientX - width / 2) * 0.0007;
+        targetMouseY = (e.touches[0].clientY - height / 2) * 0.0007;
       }
     };
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     // Deep space stars
-    const starCount = 85;
+    const starCount = 80;
     const stars: { x: number; y: number; z: number; size: number }[] = [];
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: (Math.random() - 0.5) * 1600,
         y: (Math.random() - 0.5) * 1600,
         z: Math.random() * 1200 + 100,
-        size: Math.random() * 1.5 + 0.6,
+        size: Math.random() * 1.5 + 0.8,
       });
     }
 
-    // 3D Floating Crystals
+    // Floating 3D Geometric Crystals
     const crystals = [
-      { x: -340, y: -160, z: 420, rx: 0, ry: 0, scale: 50, color: 'rgba(6, 182, 212, ' },
-      { x: 380, y: 140, z: 380, rx: 0.5, ry: 0.8, scale: 62, color: 'rgba(168, 85, 247, ' },
-      { x: 140, y: -280, z: 520, rx: 1.2, ry: 0.3, scale: 36, color: 'rgba(236, 72, 153, ' }
+      { x: -280, y: -150, z: 400, rx: 0, ry: 0, scale: 50, color: 'rgba(6, 182, 212, ' },
+      { x: 320, y: 130, z: 360, rx: 0.5, ry: 0.8, scale: 60, color: 'rgba(168, 85, 247, ' },
+      { x: 100, y: -240, z: 480, rx: 1.2, ry: 0.3, scale: 35, color: 'rgba(236, 72, 153, ' }
     ];
 
     const octVerts = [
@@ -94,26 +94,30 @@ function MasterHoloverseCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      mouseX += (targetMouseX - mouseX) * 0.04;
-      mouseY += (targetMouseY - mouseY) * 0.04;
+      // Auto-sway so tablets without mouse movement still feel dynamically alive
+      const autoSwayX = Math.sin(t * 0.6) * 0.08;
+      const autoSwayY = Math.cos(t * 0.5) * 0.05;
+
+      mouseX += (targetMouseX + autoSwayX - mouseX) * 0.05;
+      mouseY += (targetMouseY + autoSwayY - mouseY) * 0.05;
 
       const cx = width / 2;
       const cy = height / 2;
       const fov = 420;
 
-      // 1. Perspective Horizon Tron Grid
-      const gridPitch = 220 + mouseY * 250;
+      // 1. High-Contrast Perspective Tron Floor
+      const gridPitch = 180 + mouseY * 200;
       ctx.save();
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
       ctx.lineWidth = 1;
       const gridY = cy + gridPitch;
-      for (let x = -width; x < width * 2; x += 100) {
+      for (let x = -width; x < width * 2; x += 80) {
         ctx.beginPath();
-        ctx.moveTo(cx + mouseX * 400, cy - 60);
+        ctx.moveTo(cx + mouseX * 360, cy - 40);
         ctx.lineTo(x, height);
         ctx.stroke();
       }
-      for (let y = gridY; y < height; y += (y - gridY) * 0.4 + 18) {
+      for (let y = gridY; y < height; y += (y - gridY) * 0.42 + 16) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
@@ -121,11 +125,11 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // 2. Stars & Depth Constellations
+      // 2. Stars & Dimensional Constellations
       const projectedStars: { px: number; py: number; alpha: number }[] = [];
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
-        s.z -= 0.6;
+        s.z -= 0.7;
         if (s.z <= 20) s.z = 1200;
 
         const rotX = s.x * Math.cos(mouseX) - s.z * Math.sin(mouseX);
@@ -137,63 +141,63 @@ function MasterHoloverseCanvas() {
           const scale = fov / (fov + finalZ);
           const px = cx + rotX * scale;
           const py = cy + rotY * scale;
-          const alpha = Math.min(1, Math.max(0.1, 1 - finalZ / 1200));
+          const alpha = Math.min(1, Math.max(0.15, 1 - finalZ / 1200));
 
           projectedStars.push({ px, py, alpha });
 
           ctx.beginPath();
           ctx.arc(px, py, s.size * scale, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(147, 197, 253, ${alpha * 0.7})`;
+          ctx.fillStyle = `rgba(167, 139, 250, ${alpha * 0.85})`;
+          ctx.shadowBlur = 6 * scale;
+          ctx.shadowColor = '#818cf8';
           ctx.fill();
         }
       }
 
-      // Constellation connectors
+      // Constellation Links
       for (let i = 0; i < projectedStars.length; i++) {
         for (let j = i + 1; j < Math.min(i + 4, projectedStars.length); j++) {
           const dx = projectedStars[i].px - projectedStars[j].px;
           const dy = projectedStars[i].py - projectedStars[j].py;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 80) {
+          if (dist < 85) {
             ctx.beginPath();
             ctx.moveTo(projectedStars[i].px, projectedStars[i].py);
             ctx.lineTo(projectedStars[j].px, projectedStars[j].py);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 80) * 0.2})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 85) * 0.35})`;
+            ctx.lineWidth = 0.6;
             ctx.stroke();
           }
         }
       }
 
-      // 3. Central Dimensional Gyroscope Rings in Background
-      const ringRadius = Math.min(width, height) * 0.3;
+      // 3. Central Ambient Gyroscope Rings in Background
+      const ringRadius = Math.min(width, height) * 0.32;
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1 (Cyan Axis)
       ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius, ringRadius * Math.abs(Math.cos(t * 0.4 + mouseX * 2)), t * 0.5, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.2)';
-      ctx.lineWidth = 1.3;
-      ctx.shadowBlur = 10;
+      ctx.ellipse(0, 0, ringRadius, ringRadius * Math.abs(Math.cos(t * 0.45 + mouseX * 2)), t * 0.5, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.28)';
+      ctx.lineWidth = 1.4;
+      ctx.shadowBlur = 12;
       ctx.shadowColor = '#06b6d4';
       ctx.stroke();
 
-      // Ring 2 (Purple Axis)
       ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius * 0.78, ringRadius * 0.78 * Math.abs(Math.sin(t * 0.35 + mouseY * 2)), -t * 0.35, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(192, 132, 252, 0.22)';
+      ctx.ellipse(0, 0, ringRadius * 0.78, ringRadius * 0.78 * Math.abs(Math.sin(t * 0.4 + mouseY * 2)), -t * 0.4, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(216, 70, 239, 0.3)';
       ctx.lineWidth = 1.2;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#d946ef';
       ctx.stroke();
 
       ctx.restore();
 
       // 4. Floating 3D Octahedron Crystals
       crystals.forEach(c => {
-        c.rx += 0.007;
-        c.ry += 0.01;
+        c.rx += 0.008;
+        c.ry += 0.012;
 
         const transformed = octVerts.map(v => {
           const x = v[0] * c.scale;
@@ -214,7 +218,7 @@ function MasterHoloverseCanvas() {
             px: cx + wx * scale,
             py: cy + wy * scale,
             scale,
-            alpha: Math.min(1, Math.max(0.15, 1 - wz / 900))
+            alpha: Math.min(1, Math.max(0.2, 1 - wz / 900))
           };
         });
 
@@ -224,13 +228,13 @@ function MasterHoloverseCanvas() {
           ctx.beginPath();
           ctx.moveTo(p1.px, p1.py);
           ctx.lineTo(p2.px, p2.py);
-          ctx.strokeStyle = `${c.color}${p1.alpha * 0.55})`;
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = `${c.color}${p1.alpha * 0.75})`;
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         });
       });
 
-      t += 0.015;
+      t += 0.016;
       animId = requestAnimationFrame(render);
     };
 
@@ -248,9 +252,9 @@ function MasterHoloverseCanvas() {
 }
 
 // ============================================================================
-// 2. HERO BANNER RIGHT: 3D ROTATING NEON PINK/PURPLE PARTICLE SPHERE
+// 2. HERO BANNER: THE 3D CYBER-SINGULARITY DYSON REACTOR (TABLET-GUARANTEED)
 // ============================================================================
-function Neural3DHeroSphere() {
+function CyberSingularityReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -259,96 +263,168 @@ function Neural3DHeroSphere() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
-    const width = 300;
+    let animId: number;
+    const width = 320;
     const height = 220;
     canvas.width = width;
     canvas.height = height;
 
-    const particleCount = 75;
-    const particles: { x: number; y: number; z: number; sx: number; sy: number }[] = [];
-    const radius = 72;
-
-    for (let i = 0; i < particleCount; i++) {
-      const theta = Math.random() * 2 * Math.PI;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      particles.push({
-        x: radius * Math.sin(phi) * Math.cos(theta),
-        y: radius * Math.sin(phi) * Math.sin(theta),
-        z: radius * Math.cos(phi),
-        sx: 0,
-        sy: 0,
+    const sparkCount = 34;
+    const sparks: { angle: number; dist: number; speed: number; size: number; alpha: number }[] = [];
+    for (let i = 0; i < sparkCount; i++) {
+      sparks.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: Math.random() * 55 + 10,
+        speed: Math.random() * 0.7 + 0.4,
+        size: Math.random() * 2.2 + 0.8,
+        alpha: Math.random() * 0.8 + 0.2,
       });
     }
 
-    let angleX = 0.004;
-    let angleY = 0.007;
+    let t = 0;
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      const cosX = Math.cos(angleX);
-      const sinX = Math.sin(angleX);
-      const cosY = Math.cos(angleY);
-      const sinY = Math.sin(angleY);
+      const cx = width / 2;
+      const cy = height / 2;
+      const maxR = 86;
 
-      for (let i = 0; i < particleCount; i++) {
-        const p = particles[i];
-        const x1 = p.x * cosY - p.z * sinY;
-        const z1 = p.z * cosY + p.x * sinY;
-        const y1 = p.y * cosX - z1 * sinX;
-        const z2 = z1 * cosX + p.y * sinX;
+      // 1. Central Singularity Core Plasma Glow
+      const corePulse = Math.sin(t * 3.4) * 4.5;
+      const coreR = 20 + corePulse;
+      const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 2.8);
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.25, '#f43f5e'); // Neon Pink/Rose
+      coreGrad.addColorStop(0.65, '#c026d3'); // Radiant Fuchsia
+      coreGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
 
-        p.x = x1;
-        p.y = y1;
-        p.z = z2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
 
-        const fov = 300;
-        const scale = fov / (fov + z2);
-        p.sx = width / 2 + p.x * scale;
-        p.sy = height / 2 + p.y * scale;
+      // High-Density White Nucleus
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 0.65, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 24;
+      ctx.shadowColor = '#f43f5e';
+      ctx.fill();
+      ctx.restore();
 
-        const alpha = Math.max(0.15, (z2 + radius) / (2 * radius));
+      // 2. Radiating Photon Energy Sparks
+      sparks.forEach(s => {
+        s.dist += s.speed;
+        if (s.dist > maxR * 1.08) {
+          s.dist = 12;
+          s.angle = Math.random() * Math.PI * 2;
+        }
+        const sx = cx + Math.cos(s.angle + t * 0.25) * s.dist;
+        const sy = cy + Math.sin(s.angle + t * 0.25) * s.dist;
+        const fade = 1 - s.dist / (maxR * 1.08);
+
         ctx.beginPath();
-        ctx.arc(p.sx, p.sy, 2.5 * scale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`;
-        ctx.shadowBlur = 10 * scale;
+        ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244, 114, 182, ${s.alpha * fade})`;
+        ctx.shadowBlur = 6;
         ctx.shadowColor = '#ec4899';
         ctx.fill();
-      }
+      });
 
-      for (let i = 0; i < particleCount; i++) {
-        for (let j = i + 1; j < particleCount; j++) {
-          const dx = particles[i].sx - particles[j].sx;
-          const dy = particles[i].sy - particles[j].sy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+      // 3. Tri-Axis Gyroscope Concentric Gimbal Rings
+      ctx.save();
+      ctx.translate(cx, cy);
 
-          if (dist < 65) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].sx, particles[i].sy);
-            ctx.lineTo(particles[j].sx, particles[j].sy);
-            ctx.strokeStyle = `rgba(236, 72, 153, ${1 - dist / 65})`;
-            ctx.lineWidth = 0.8;
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = '#f43f5e';
-            ctx.stroke();
-          }
-        }
-      }
+      // --- Ring 1: Equatorial Outer Accelerator (Neon Pink) ---
+      const r1 = maxR * 0.95;
+      ctx.save();
+      ctx.rotate(t * 0.45);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r1, r1 * Math.abs(Math.cos(t * 0.75)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#f43f5e';
+      ctx.stroke();
 
-      animationFrameId = requestAnimationFrame(render);
+      // Orbital Node 1
+      const a1 = t * 2.2;
+      const x1 = Math.cos(a1) * r1;
+      const y1 = Math.sin(a1) * (r1 * Math.abs(Math.cos(t * 0.75)));
+      ctx.beginPath();
+      ctx.arc(x1, y1, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = '#ffffff';
+      ctx.fill();
+      ctx.restore();
+
+      // --- Ring 2: Polar Dyson Gyro Ring (Neon Purple) ---
+      const r2 = maxR * 0.75;
+      ctx.save();
+      ctx.rotate(-t * 0.55 + 1.2);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r2, r2 * Math.abs(Math.sin(t * 0.6)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.8;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#a855f7';
+      ctx.stroke();
+
+      // Orbital Node 2
+      const a2 = -t * 2.5;
+      const x2 = Math.cos(a2) * r2;
+      const y2 = Math.sin(a2) * (r2 * Math.abs(Math.sin(t * 0.6)));
+      ctx.beginPath();
+      ctx.arc(x2, y2, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#f0abfc';
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#c084fc';
+      ctx.fill();
+      ctx.restore();
+
+      // --- Ring 3: Hyper-Frequency Inner Ring (Cyan) ---
+      const r3 = maxR * 0.52;
+      ctx.save();
+      ctx.rotate(t * 0.75 - 0.7);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r3, r3 * Math.abs(Math.cos(t * 1.05)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.6;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#06b6d4';
+      ctx.stroke();
+
+      // Orbital Node 3
+      const a3 = t * 3.2;
+      const x3 = Math.cos(a3) * r3;
+      const y3 = Math.sin(a3) * (r3 * Math.abs(Math.cos(t * 1.05)));
+      ctx.beginPath();
+      ctx.arc(x3, y3, 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#67e8f9';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#22d3ee';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+
+      t += 0.016;
+      animId = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(animId);
     };
   }, []);
 
   return (
-    <div className="w-[300px] h-[220px] flex items-center justify-center relative pointer-events-none">
-      <canvas ref={canvasRef} className="block w-[300px] h-[220px]" />
+    <div className="w-[320px] h-[220px] flex items-center justify-center relative pointer-events-none shrink-0">
+      <canvas ref={canvasRef} className="block w-[320px] h-[220px]" />
     </div>
   );
 }
@@ -616,7 +692,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN DASHBOARD COMPONENT WITH COMBINED 3D BACKGROUND + HERO SPHERE
+// 4. MAIN DASHBOARD
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -935,18 +1011,18 @@ export default function CampusNexPlatform() {
   );
 
   return (
-    <div className="min-h-screen bg-[#030611] text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden">
-      {/* 1. DEEP-SPACE 3D BACKGROUND CANVAS (PARALLAX + RINGS + CRYSTALS + TRON FLOOR) */}
+    <div className="min-h-screen text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden bg-transparent">
+      {/* 1. TABLET-READY 3D HOLOVERSE CANVAS (ALWAYS VISIBLE) */}
       <MasterHoloverseCanvas />
 
-      {/* 2. FOREGROUND CONTENT LAYER */}
+      {/* 2. TRANSLUCENT FOREGROUND CONTAINER */}
       <div className="relative z-10">
         {/* Top Cyber Telemetry Matrix Bar */}
-        <div className="bg-[#070d1e]/85 backdrop-blur-md border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
+        <div className="bg-[#070d1e]/80 backdrop-blur-md border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PROOF-OF-EXECUTION CONSENSUS ACTIVE
+              DYSON SINGULARITY REACTOR ACTIVE
             </span>
             <span>EUSI STRESS TOLERANCE: 98.4%</span>
             <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
@@ -967,7 +1043,7 @@ export default function CampusNexPlatform() {
         </div>
 
         {/* Main Glass Navigation Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/80 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
+        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/75 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
               ✦
@@ -1030,9 +1106,9 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: FEATURING GUARANTEED PINK/PURPLE 3D ROTATING PARTICLE SPHERE */}
+        {/* HERO BANNER: FEATURING GUARANTEED CYBER-SINGULARITY DYSON REACTOR ON THE RIGHT */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
-          <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/85 via-[#091129]/85 to-[#04091a]/85 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
+          <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
@@ -1072,9 +1148,9 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* HERE IS YOUR VIBRANT 3D PINK/PURPLE ROTATING PARTICLE SPHERE RESTORED! */}
+            {/* THE CYBER-SINGULARITY DYSON REACTOR ON THE RIGHT */}
             <div className="relative z-20 shrink-0">
-              <Neural3DHeroSphere />
+              <CyberSingularityReactor />
             </div>
           </div>
         </div>
@@ -1083,22 +1159,22 @@ export default function CampusNexPlatform() {
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
           {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
+            <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
               <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
               <div className="text-2xl font-black text-white mt-1">#0x8942-APEX</div>
               <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
             </div>
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+            <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
               <div className="text-2xl font-black text-emerald-400 mt-1">98.4%</div>
               <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
             </div>
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
+            <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Zero-Knowledge Bids</span>
               <div className="text-2xl font-black text-white mt-1">14 MNC Offers</div>
               <span className="text-amber-400 font-bold mt-1 block">Blind Talent Auction Active</span>
             </div>
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
+            <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Resume Fraud Filter</span>
               <div className="text-2xl font-black text-white mt-1">100.0%</div>
               <span className="text-emerald-400 font-bold mt-1 block">Zero Unverified Claims Allowed</span>
@@ -1110,7 +1186,7 @@ export default function CampusNexPlatform() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
                 {/* Proof-of-Execution Ledger Banner */}
-                <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                <div className="bg-[#0e122b]/75 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
                       📜
@@ -1136,7 +1212,7 @@ export default function CampusNexPlatform() {
                 </div>
 
                 {/* Resume Scanner */}
-                <div className="bg-gradient-to-r from-cyan-950/50 via-indigo-950/40 to-[#0e1629]/70 backdrop-blur-xl border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
+                <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629]/60 backdrop-blur-xl border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-2xl">
@@ -1193,7 +1269,7 @@ export default function CampusNexPlatform() {
                   {filteredJobs.map(job => (
                     <div
                       key={job.id}
-                      className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800/90 hover:border-purple-800/80 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
+                      className="bg-[#0b1021]/70 backdrop-blur-xl border border-slate-800/90 hover:border-purple-800/80 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
                     >
                       {job.minClearance === 'Tier-1 Apex' && (
                         <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-indigo-600 text-[9px] font-mono font-bold px-3 py-0.5 rounded-bl-xl text-white shadow">
@@ -1272,7 +1348,7 @@ export default function CampusNexPlatform() {
 
               {/* Right Column: Hologram Profile & Neurometric Telemetry */}
               <div className="space-y-5">
-                <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
@@ -1342,7 +1418,7 @@ export default function CampusNexPlatform() {
                 </div>
 
                 {/* Neurometric Stress & Latency Vector Box */}
-                <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
+                <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
                     <span className="text-emerald-400 font-bold">98.4% CALM</span>
@@ -1365,7 +1441,7 @@ export default function CampusNexPlatform() {
 
           {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW) */}
           {activeTab === 'recruiter' && (
-            <div className="bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <div className="flex items-center gap-2">
@@ -1398,7 +1474,7 @@ export default function CampusNexPlatform() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
                     <span>📥 Filtered Pool</span>
                     <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[10px]">
@@ -1425,7 +1501,7 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-cyan-300 mb-3 flex justify-between items-center">
                     <span>⚡ Rigor Shortlist</span>
                     <span className="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full text-[10px]">
@@ -1452,7 +1528,7 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
                     <span>🚨 Outage War-Room</span>
                     <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
@@ -1480,7 +1556,7 @@ export default function CampusNexPlatform() {
                 </div>
 
                 {/* Instant Placed Column */}
-                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
                     <span>🎉 Direct Placed Bids</span>
                     <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
@@ -1524,7 +1600,7 @@ export default function CampusNexPlatform() {
 
           {/* TAB 3: TPO ADMIN */}
           {activeTab === 'tpo' && (
-            <div className="bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-white">Quantum Placement Intelligence & Economic Threat Radar</h2>
@@ -1536,7 +1612,7 @@ export default function CampusNexPlatform() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-cyan-900/50 space-y-2 backdrop-blur-md">
+                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-cyan-900/50 space-y-2 backdrop-blur-md">
                   <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
                   <div className="text-lg font-bold text-white">AI Infrastructure & LLM Ops</div>
                   <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge</div>
@@ -1545,7 +1621,7 @@ export default function CampusNexPlatform() {
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-purple-900/50 space-y-2 backdrop-blur-md">
+                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-purple-900/50 space-y-2 backdrop-blur-md">
                   <span className="text-[10px] text-purple-400 block font-bold">HIGH PERFORMANCE SYSTEMS</span>
                   <div className="text-lg font-bold text-white">Rust & Low-Latency Go Core</div>
                   <div className="text-cyan-300 font-bold">↑ +34.6% Microservices Demand</div>
@@ -1554,7 +1630,7 @@ export default function CampusNexPlatform() {
                   </p>
                 </div>
 
-                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-amber-900/50 space-y-2 backdrop-blur-md">
+                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-amber-900/50 space-y-2 backdrop-blur-md">
                   <span className="text-[10px] text-amber-400 block font-bold">DEPRECATION / RISK INDEX</span>
                   <div className="text-lg font-bold text-white">Monolithic PHP & Legacy Web</div>
                   <div className="text-rose-400 font-bold">↓ -14.2% Market Reduction</div>
@@ -1565,7 +1641,7 @@ export default function CampusNexPlatform() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                <div className="p-4 bg-[#0f172a]/80 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
+                <div className="p-4 bg-[#0f172a]/75 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
                   <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
                   <div>
                     <div className="flex justify-between mb-1">
@@ -1598,7 +1674,7 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-[#0f172a]/80 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
+                <div className="p-4 bg-[#0f172a]/75 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
                   <h4 className="font-bold text-white text-sm">CTC Package Tier Breakdown</h4>
                   <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
                     <span>Super Dream Tier (&gt; ₹16 LPA)</span>
@@ -1624,7 +1700,7 @@ export default function CampusNexPlatform() {
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">HOLODIMENSION_CLI_v7.0</span>
+                <span className="font-bold text-cyan-300 tracking-wider">DYSON_REACTOR_CLI_v8.0</span>
               </div>
               <button
                 onClick={() => {
