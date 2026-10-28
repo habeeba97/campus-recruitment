@@ -606,7 +606,7 @@ export default function CampusNexPlatform() {
                 cyberAudio.playBlip();
                 setActiveTab('recruiter');
               }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               💼 Pre-Vetted Apex Vault
             </button>
@@ -615,7 +615,7 @@ export default function CampusNexPlatform() {
                 cyberAudio.playBlip();
                 setActiveTab('tpo');
               }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               📊 TPO Analytics
             </button>
@@ -1242,7 +1242,7 @@ export default function CampusNexPlatform() {
         +
       </button>
 
-      {/* CODE BATTLEFIELD ARENA MODAL */}
+      {/* CODE BATTLEFIELD ARENA MODAL (High-Bar Filtration) */}
       {isArenaOpen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
