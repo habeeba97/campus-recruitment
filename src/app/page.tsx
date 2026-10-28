@@ -18,6 +18,21 @@ interface Job {
   minClearance: 'Tier-1 Apex' | 'Tier-2 Verified';
 }
 
+interface CandidateProfile {
+  name: string;
+  role: string;
+  department: string;
+  institution: string;
+  batch: string;
+  clearance: string;
+  poeHash: string;
+  eusiScore: string;
+  dsaRank: string;
+  verifiedCommits: string;
+  preferredRole: string;
+  locationPreference: string;
+}
+
 // ============================================================================
 // 1. TABLET-OPTIMIZED FULL-PAGE 3D HOLOVERSE (AUTO-SWAY + TOUCH PARALLAX)
 // ============================================================================
@@ -102,7 +117,7 @@ function MasterHoloverseCanvas() {
       const cy = height / 2;
       const fov = 420;
 
-      // 1. High-Contrast Perspective Tron Floor
+      // Perspective Tron Floor
       const gridPitch = 180 + mouseY * 200;
       ctx.save();
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
@@ -122,8 +137,7 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // 2. Stars & Dimensional Constellations
-      const projectedStars: { px: number; py: number; alpha: number }[] = [];
+      // Stars
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
         s.z -= 0.7;
@@ -140,8 +154,6 @@ function MasterHoloverseCanvas() {
           const py = cy + rotY * scale;
           const alpha = Math.min(1, Math.max(0.15, 1 - finalZ / 1200));
 
-          projectedStars.push({ px, py, alpha });
-
           ctx.beginPath();
           ctx.arc(px, py, s.size * scale, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(167, 139, 250, ${alpha * 0.85})`;
@@ -151,47 +163,7 @@ function MasterHoloverseCanvas() {
         }
       }
 
-      // Constellation Links
-      for (let i = 0; i < projectedStars.length; i++) {
-        for (let j = i + 1; j < Math.min(i + 4, projectedStars.length); j++) {
-          const dx = projectedStars[i].px - projectedStars[j].px;
-          const dy = projectedStars[i].py - projectedStars[j].py;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 85) {
-            ctx.beginPath();
-            ctx.moveTo(projectedStars[i].px, projectedStars[i].py);
-            ctx.lineTo(projectedStars[j].px, projectedStars[j].py);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 85) * 0.35})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // 3. Central Ambient Gyroscope Rings in Background
-      const ringRadius = Math.min(width, height) * 0.32;
-      ctx.save();
-      ctx.translate(cx, cy);
-
-      ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius, ringRadius * Math.abs(Math.cos(t * 0.45 + mouseX * 2)), t * 0.5, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.28)';
-      ctx.lineWidth = 1.4;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#06b6d4';
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius * 0.78, ringRadius * 0.78 * Math.abs(Math.sin(t * 0.4 + mouseY * 2)), -t * 0.4, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(216, 70, 239, 0.3)';
-      ctx.lineWidth = 1.2;
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = '#d946ef';
-      ctx.stroke();
-
-      ctx.restore();
-
-      // 4. Floating 3D Octahedron Crystals
+      // Floating 3D Octahedron Crystals
       crystals.forEach(c => {
         c.rx += 0.008;
         c.ry += 0.012;
@@ -249,7 +221,7 @@ function MasterHoloverseCanvas() {
 }
 
 // ============================================================================
-// 2. HERO BANNER: THE 3D CYBER-SINGULARITY DYSON REACTOR (TABLET-GUARANTEED)
+// 2. HERO BANNER: THE 3D CYBER-SINGULARITY DYSON REACTOR
 // ============================================================================
 function CyberSingularityReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -330,7 +302,7 @@ function CyberSingularityReactor() {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1
+      // Ring 1 (Neon Pink)
       const r1 = maxR * 0.95;
       ctx.save();
       ctx.rotate(t * 0.45);
@@ -341,19 +313,9 @@ function CyberSingularityReactor() {
       ctx.shadowBlur = 14;
       ctx.shadowColor = '#f43f5e';
       ctx.stroke();
-
-      const a1 = t * 2.2;
-      const x1 = Math.cos(a1) * r1;
-      const y1 = Math.sin(a1) * (r1 * Math.abs(Math.cos(t * 0.75)));
-      ctx.beginPath();
-      ctx.arc(x1, y1, 4, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = '#ffffff';
-      ctx.fill();
       ctx.restore();
 
-      // Ring 2
+      // Ring 2 (Purple)
       const r2 = maxR * 0.75;
       ctx.save();
       ctx.rotate(-t * 0.55 + 1.2);
@@ -364,19 +326,9 @@ function CyberSingularityReactor() {
       ctx.shadowBlur = 14;
       ctx.shadowColor = '#a855f7';
       ctx.stroke();
-
-      const a2 = -t * 2.5;
-      const x2 = Math.cos(a2) * r2;
-      const y2 = Math.sin(a2) * (r2 * Math.abs(Math.sin(t * 0.6)));
-      ctx.beginPath();
-      ctx.arc(x2, y2, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#f0abfc';
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = '#c084fc';
-      ctx.fill();
       ctx.restore();
 
-      // Ring 3
+      // Ring 3 (Cyan)
       const r3 = maxR * 0.52;
       ctx.save();
       ctx.rotate(t * 0.75 - 0.7);
@@ -387,16 +339,6 @@ function CyberSingularityReactor() {
       ctx.shadowBlur = 12;
       ctx.shadowColor = '#06b6d4';
       ctx.stroke();
-
-      const a3 = t * 3.2;
-      const x3 = Math.cos(a3) * r3;
-      const y3 = Math.sin(a3) * (r3 * Math.abs(Math.cos(t * 1.05)));
-      ctx.beginPath();
-      ctx.arc(x3, y3, 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#67e8f9';
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#22d3ee';
-      ctx.fill();
       ctx.restore();
 
       ctx.restore();
@@ -682,7 +624,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN DASHBOARD PLATFORM WITH APEX ENGINEERING SANDBOX
+// 4. MAIN PLATFORM CORE (PHASE 1 INTEGRATED)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -694,10 +636,23 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Holographic ID Badge Modal
-  const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
+  // Phase 1 - Generalized Dynamic Candidate Profile State (Non-Hardcoded demo state)
+  const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>({
+    name: 'Candidate (Verified ID #APEX-01)',
+    role: 'Full Stack Systems Engineer',
+    department: 'Computer Science & Engineering',
+    institution: 'Autonomous Tech Institute',
+    batch: 'Batch 2026',
+    clearance: 'Tier-1 Apex (Top 0.8%)',
+    poeHash: '#0x8942-APEX',
+    eusiScore: '98.4%',
+    dsaRank: '1840+ Hard Rank',
+    verifiedCommits: '120+ Commits',
+    preferredRole: 'Backend Core / High Concurrency',
+    locationPreference: 'Hyderabad / Bengaluru / Remote',
+  });
 
-  // Sovereign Offer Letter Modal
+  const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [selectedCandidateOffer, setSelectedCandidateOffer] = useState<{
     name: string;
@@ -706,7 +661,7 @@ export default function CampusNexPlatform() {
     company: string;
   } | null>(null);
 
-  // Autonomous Incident War-Room Simulation State
+  // Phase 1 - Practical Assessment: Live Incident War-Room
   const [isWarRoomOpen, setIsWarRoomOpen] = useState(false);
   const [warRoomSeconds, setWarRoomSeconds] = useState(180);
   const [warRoomLogs, setWarRoomLogs] = useState<string[]>([
@@ -717,42 +672,31 @@ export default function CampusNexPlatform() {
   const [warRoomInput, setWarRoomInput] = useState('');
   const [warRoomSolved, setWarRoomSolved] = useState(false);
 
-  // Reverse Zero-Knowledge Blind Headhunter Mode
+  // Phase 1 - Skill Verification: Reverse ZK Blind Meritocracy Mode
   const [zkBlindMode, setZkBlindMode] = useState(true);
 
   // Interactive Command Line Input
   const [cliInput, setCliInput] = useState('');
-
-  // Autonomous Digital Twin Sync Status
   const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
 
-  // Apex 1% Protocol State
-  const [candidateClearance] = useState<'Tier-1 Apex' | 'Tier-2 Verified'>('Tier-1 Apex');
+  // Phase 1 - Practical Assessment: Code Battlefield Arena
   const [isArenaOpen, setIsArenaOpen] = useState(false);
   const [arenaSubmitted, setArenaSubmitted] = useState(false);
 
-  // Resume Scanner State
+  // Phase 1 - Skill Verification: Proof-of-Execution Static Resume/Code Parser
   const [isScanning, setIsScanning] = useState(false);
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
-  // ==========================================================================
-  // NEW FEATURE: APEX NEURAL TRAINING DOJO (ENGINEERING SANDBOX)
-  // ==========================================================================
+  // Phase 1 - Practical Assessment & Skill Verification: Engineering Sandbox
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [activeSandboxTrack, setActiveSandboxTrack] = useState<'concurrency' | 'git' | 'database'>('concurrency');
-  
-  // Track 1 States: Concurrency
   const [redisEnabled, setRedisEnabled] = useState(false);
   const [rateLimiterEnabled, setRateLimiterEnabled] = useState(false);
   const [concurrencySolved, setConcurrencySolved] = useState(false);
-
-  // Track 2 States: Git & CI/CD
   const [conflictResolved, setConflictResolved] = useState(false);
   const [envSecretSecured, setEnvSecretSecured] = useState(false);
   const [gitSolved, setGitSolved] = useState(false);
-
-  // Track 3 States: Database Tuning
   const [bTreeIndexEnabled, setBTreeIndexEnabled] = useState(false);
   const [batchingEnabled, setBatchingEnabled] = useState(false);
   const [databaseSolved, setDatabaseSolved] = useState(false);
@@ -760,7 +704,7 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [SANDBOX_DOJO]: Practical software engineering laboratory ready.',
+    '⚡ [PHASE_1_CORE]: Candidate Dashboard, Verification Ledger & Assessment Engine Online.',
     '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
     '✓ [NEUROMETRICS]: Execution Under Stress Index (EUSI) locked at 98.4%.'
   ]);
@@ -777,10 +721,10 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🧪 [APEX_SANDBOX]: Interactive hands-on skill lab deployed.',
-      '⚡ [PROOF_LEDGER]: 2,840 CPU cycles benchmarked for lock-free queue commit.',
-      '✦ [ZERO_KNOWLEDGE]: Bid extended anonymously for candidate #APEX-01.',
-      '✓ [STRESS_VECTOR]: Keystroke latency variance: 12ms (Optimal Calmness).'
+      '📊 [RECRUITMENT_ANALYTICS]: Placement conversion at 96% in Core Engineering.',
+      '⚡ [PROOF_OF_EXECUTION]: 2,840 CPU cycles benchmarked on lock-free consensus ledger.',
+      '🧪 [PRACTICAL_ASSESSMENT]: Proctored Code Battlefield and Incident War-Room ready.',
+      '✓ [SKILL_VERIFICATION]: Keystroke latency variance: 12ms (Optimal Calmness).'
     ];
 
     const interval = setInterval(() => {
@@ -794,7 +738,7 @@ export default function CampusNexPlatform() {
   const [kanbanCandidates, setKanbanCandidates] = useState([
     { 
       id: 'c1', 
-      name: 'Habeeba Fatima', 
+      name: 'Candidate #APEX-01', 
       anonId: 'ANON-CANDIDATE-01 (TOP 0.8%)', 
       role: 'Full Stack Engineer (Elite Core)', 
       stage: 'offer', 
@@ -808,7 +752,7 @@ export default function CampusNexPlatform() {
     },
     { 
       id: 'c2', 
-      name: 'Rahul Verma', 
+      name: 'Candidate #APEX-02', 
       anonId: 'ANON-CANDIDATE-02 (TOP 1.2%)', 
       role: 'Data Analyst & ML', 
       stage: 'interview', 
@@ -822,7 +766,7 @@ export default function CampusNexPlatform() {
     },
     { 
       id: 'c3', 
-      name: 'Pooja Nair', 
+      name: 'Candidate #APEX-03', 
       anonId: 'ANON-CANDIDATE-03 (TOP 2.0%)', 
       role: 'Backend Systems', 
       stage: 'shortlist', 
@@ -836,7 +780,7 @@ export default function CampusNexPlatform() {
     },
     { 
       id: 'c4', 
-      name: 'Zaid Khan', 
+      name: 'Candidate #APEX-04', 
       anonId: 'ANON-CANDIDATE-04 (TOP 0.9%)', 
       role: 'Full Stack Engineer', 
       stage: 'offer', 
@@ -1003,7 +947,7 @@ export default function CampusNexPlatform() {
       setTerminalLogs(prev => ['⚡ [CLI]: Executing Proof-of-Execution static verification...', ...prev]);
       handleSimulateResumeScan();
     } else if (cmd === '/apex') {
-      setTerminalLogs(prev => ['✓ [LEDGER]: Habeeba Fatima Tier-1 Apex #0x8942-APEX confirmed on consensus chain.', ...prev]);
+      setTerminalLogs(prev => ['✓ [LEDGER]: Verified ID #APEX-01 confirmed on consensus chain.', ...prev]);
     } else if (cmd === '/sandbox') {
       cyberAudio.playWarp();
       setIsSandboxOpen(true);
@@ -1036,7 +980,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              DYSON SINGULARITY REACTOR ACTIVE
+              PHASE 1: CANDIDATE DASHBOARD & VERIFICATION ACTIVE
             </span>
             <span>EUSI STRESS TOLERANCE: 98.4%</span>
             <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
@@ -1068,10 +1012,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  ZERO-TRUST APEX OS
+                  PHASE 1 CORE PLATFORM
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Proof-of-Execution & Autonomous Incident War-Room Verification</p>
+              <p className="text-[11px] text-slate-400">Candidate Dashboard • Recruitment Analytics • Assessment & Verification</p>
             </div>
           </div>
 
@@ -1084,7 +1028,7 @@ export default function CampusNexPlatform() {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
               >
-                🎓 Candidate Hub
+                🎓 Candidate Dashboard
               </button>
               <button
                 onClick={() => {
@@ -1102,11 +1046,10 @@ export default function CampusNexPlatform() {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'}`}
               >
-                📊 TPO Analytics
+                📊 Recruitment Analytics
               </button>
             </div>
 
-            {/* NEW: Clean Non-Interruptive Sandbox Entry in Header */}
             <button
               onClick={() => {
                 cyberAudio.playWarp();
@@ -1131,23 +1074,23 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: FEATURING GUARANTEED CYBER-SINGULARITY DYSON REACTOR ON THE RIGHT */}
+        {/* HERO BANNER: 3D DYSON REACTOR + METRICS */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  Zero-Trust Portfolio Verification
+                  Phase 1 Assessment & Skill Verification
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
-                  Mathematical Proof Active
+                  Consensus Active
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Where Resumes Are Obsolete & Proof of Execution Speaks
+                Proof-of-Execution Consensus Ledger & High-Concurrency Architecture
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                No more prompt-engineered claims or memorized questions. Candidates prove competence through cryptographic execution hashes, production outage triage, and real-time neurometric stress resilience.
+                Objective evaluation driven by runtime memory footprint, live incident war-room triage, and verifiable neurometric resilience.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
                 <button
@@ -1173,7 +1116,6 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* THE CYBER-SINGULARITY DYSON REACTOR ON THE RIGHT */}
             <div className="relative z-20 shrink-0">
               <CyberSingularityReactor />
             </div>
@@ -1182,16 +1124,16 @@ export default function CampusNexPlatform() {
 
         {/* Main Container */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* KPI Cards */}
+          {/* Phase 1 - Recruitment Analytics High-Level KPI Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
               <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
-              <div className="text-2xl font-black text-white mt-1">#0x8942-APEX</div>
+              <div className="text-2xl font-black text-white mt-1">{candidateProfile.poeHash}</div>
               <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
-              <div className="text-2xl font-black text-emerald-400 mt-1">98.4%</div>
+              <div className="text-2xl font-black text-emerald-400 mt-1">{candidateProfile.eusiScore}</div>
               <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
@@ -1206,7 +1148,7 @@ export default function CampusNexPlatform() {
             </div>
           </div>
 
-          {/* TAB 1: CANDIDATE HUB */}
+          {/* TAB 1: PHASE 1 CANDIDATE DASHBOARD */}
           {activeTab === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
@@ -1220,7 +1162,7 @@ export default function CampusNexPlatform() {
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          VERIFIED HASH #0x8942-APEX
+                          VERIFIED {candidateProfile.poeHash}
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1236,7 +1178,7 @@ export default function CampusNexPlatform() {
                   </button>
                 </div>
 
-                {/* Resume Scanner */}
+                {/* Practical Assessment: Static Code & Skill Parser */}
                 <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629]/60 backdrop-blur-xl border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -1277,7 +1219,7 @@ export default function CampusNexPlatform() {
                   )}
                 </div>
 
-                {/* Search Bar */}
+                {/* Job Search & Matching */}
                 <div className="relative">
                   <input
                     type="text"
@@ -1371,21 +1313,33 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Right Column: Hologram Profile & Neurometric Telemetry */}
+              {/* Right Column: Candidate Profile & Neurometrics */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
-                        HF
+                        {candidateProfile.name.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
-                        <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
+                        <h4 className="font-bold text-white text-sm">{candidateProfile.name}</h4>
+                        <p className="text-xs text-slate-400">{candidateProfile.department} • {candidateProfile.batch}</p>
                         <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
-                          RANK #1 IN CAMPUS • TOP 0.8% APEX
+                          {candidateProfile.clearance}
                         </span>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Candidate Quick Preferences */}
+                  <div className="p-2.5 bg-[#081024]/80 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1 mt-2">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">PREFERRED ROLE:</span>
+                      <span className="text-cyan-300 font-bold">{candidateProfile.preferredRole}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">LOCATION:</span>
+                      <span className="text-emerald-300">{candidateProfile.locationPreference}</span>
                     </div>
                   </div>
 
@@ -1430,10 +1384,10 @@ export default function CampusNexPlatform() {
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
-                        <span>⚡</span> LeetCode Hard Rank: 1840+
+                        <span>⚡</span> {candidateProfile.dsaRank}
                       </span>
                       <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
-                        <span>🐙</span> GitHub: 120+ Verified Commits
+                        <span>🐙</span> {candidateProfile.verifiedCommits}
                       </span>
                       <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
                         <span>✓</span> Next.js Full Stack Certified
@@ -1628,7 +1582,7 @@ export default function CampusNexPlatform() {
             </div>
           )}
 
-          {/* TAB 3: TPO ADMIN */}
+          {/* TAB 3: PHASE 1 RECRUITMENT ANALYTICS (TPO & INSTITUTION VIEW) */}
           {activeTab === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
@@ -1730,7 +1684,7 @@ export default function CampusNexPlatform() {
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">DYSON_REACTOR_CLI_v8.0</span>
+                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE1_CLI</span>
               </div>
               <button
                 onClick={() => {
@@ -1784,7 +1738,7 @@ export default function CampusNexPlatform() {
         </button>
 
         {/* ==================================================================== */}
-        {/* NEW FEATURE MODAL: APEX NEURAL TRAINING DOJO (ENGINEERING SANDBOX) */}
+        {/* PRACTICAL ASSESSMENT: APEX ENGINEERING TRAINING DOJO (SANDBOX) */}
         {/* ==================================================================== */}
         {isSandboxOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5">
@@ -1805,13 +1759,13 @@ export default function CampusNexPlatform() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    Apex Engineering Training Dojo
+                    Phase 1 Practical Skill Assessment Dojo
                     <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
                       HANDS-ON SIMULATION
                     </span>
                   </h3>
                   <p className="text-[11px] text-slate-400 font-sans">
-                    Zero-theory practical lab: Solve real production bottlenecks before stepping into Tier-1 company drives.
+                    Demonstrate architectural readiness through interactive runtime stress mitigation.
                   </p>
                 </div>
               </div>
@@ -2062,7 +2016,7 @@ export default function CampusNexPlatform() {
                     </div>
 
                     <p className="text-[11px] text-slate-300 font-sans">
-                      Task: Replace brutal full sequential table scan with composite B-Tree indexing and solve the N+1 query loop.
+                      Task: Replace full sequential table scan with composite B-Tree indexing and solve the N+1 query loop.
                     </p>
                   </div>
 
@@ -2146,7 +2100,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* BREAKTHROUGH 2 MODAL: AUTONOMOUS INCIDENT WAR-ROOM */}
+        {/* PRACTICAL ASSESSMENT: AUTONOMOUS INCIDENT WAR-ROOM */}
         {isWarRoomOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b0716] border border-rose-600/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200">
@@ -2245,33 +2199,33 @@ export default function CampusNexPlatform() {
               </button>
 
               <span className="text-[9px] text-cyan-300 bg-cyan-950/80 border border-cyan-800/60 px-3 py-0.5 rounded-full uppercase tracking-widest inline-block mb-3">
-                PROOF-OF-EXECUTION HASH #0x8942
+                PROOF-OF-EXECUTION {candidateProfile.poeHash}
               </span>
 
               <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 p-0.5 shadow-xl shadow-cyan-500/30 mb-3 relative group">
                 <div className="w-full h-full bg-[#080f24] rounded-2xl flex items-center justify-center font-black text-2xl text-white">
-                  HF
+                  {candidateProfile.name.slice(0, 2).toUpperCase()}
                 </div>
                 <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0b1021] flex items-center justify-center text-[10px] text-black font-bold">
                   ✓
                 </span>
               </div>
 
-              <h3 className="text-lg font-black text-white">Habeeba Fatima</h3>
-              <p className="text-slate-400 text-[11px] font-sans">B.Tech Computer Science • Batch 2026</p>
+              <h3 className="text-lg font-black text-white">{candidateProfile.name}</h3>
+              <p className="text-slate-400 text-[11px] font-sans">{candidateProfile.department} • {candidateProfile.batch}</p>
 
               <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
-                ⚡ TIER-1 APEX CLEARANCE (TOP 0.8%)
+                ⚡ {candidateProfile.clearance}
               </div>
 
               <div className="grid grid-cols-2 gap-2 my-3 text-left">
                 <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
                   <span className="text-[9px] text-slate-500 block">DSA BENCHMARK</span>
-                  <span className="text-cyan-300 font-bold text-xs mt-0.5 block">1840+ Hard Rank</span>
+                  <span className="text-cyan-300 font-bold text-xs mt-0.5 block">{candidateProfile.dsaRank}</span>
                 </div>
                 <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
                   <span className="text-[9px] text-slate-500 block">STRESS INDEX</span>
-                  <span className="text-emerald-400 font-bold text-xs mt-0.5 block">98.4% (EUSI)</span>
+                  <span className="text-emerald-400 font-bold text-xs mt-0.5 block">{candidateProfile.eusiScore} (EUSI)</span>
                 </div>
                 <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
                   <span className="text-[9px] text-slate-500 block">CODE PURITY</span>
@@ -2279,7 +2233,7 @@ export default function CampusNexPlatform() {
                 </div>
                 <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
                   <span className="text-[9px] text-slate-500 block">CONSENSUS HASH</span>
-                  <span className="text-slate-300 font-bold text-xs mt-0.5 block">#0x8942-APEX</span>
+                  <span className="text-slate-300 font-bold text-xs mt-0.5 block">{candidateProfile.poeHash}</span>
                 </div>
               </div>
 
@@ -2332,7 +2286,7 @@ export default function CampusNexPlatform() {
                   Dear <strong className="text-white">{selectedCandidateOffer.name}</strong>,
                 </p>
                 <p>
-                  Following your outstanding performance in the CampusNex Proof-of-Execution Ledger benchmark and Incident War-Room Outage triage, we are pleased to extend an offer for:
+                  Following your performance in the CampusNex Proof-of-Execution Ledger benchmark and Incident War-Room Outage triage, we are pleased to extend an offer for:
                 </p>
 
                 <div className="p-3.5 bg-[#0f172a] rounded-2xl border border-slate-800 font-mono">
@@ -2380,7 +2334,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* CODE BATTLEFIELD ARENA MODAL */}
+        {/* PRACTICAL ASSESSMENT: CODE BATTLEFIELD ARENA MODAL */}
         {isArenaOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
@@ -2426,230 +2380,228 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
   const quorum = Math.floor(nodes.length / 2) + 1;
   // Enter lock-free atomic CAS logic here...
 }`}
-                    className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
-                  />
+                      className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      cyberAudio.playLaser();
+                      setArenaSubmitted(true);
+                    }}
+                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
+                  >
+                    Submit Code for Deep Static & Memory Rigor Analysis →
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => {
-                    cyberAudio.playLaser();
-                    setArenaSubmitted(true);
-                  }}
-                  className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
-                >
-                  Submit Code for Deep Static & Memory Rigor Analysis →
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3 py-4 text-center">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
-                  ✓
+              ) : (
+                <div className="space-y-3 py-4 text-center">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
+                    ✓
+                  </div>
+                  <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
+                  <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
+                    Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
+                  </p>
+                  <button
+                    onClick={() => {
+                      cyberAudio.playBlip();
+                      setIsArenaOpen(false);
+                      setArenaSubmitted(false);
+                    }}
+                    className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
+                  >
+                    Return to Dashboard
+                  </button>
                 </div>
-                <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
-                <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
-                  Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
-                </p>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setIsArenaOpen(false);
-                    setArenaSubmitted(false);
-                  }}
-                  className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
-                >
-                  Return to Dashboard
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Post Drive Modal */}
-      {isPostModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setIsPostModalOpen(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 text-lg"
-            >
-              ✕
-            </button>
-            <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
-            <form onSubmit={handleCreateJob} className="space-y-3">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Job Role *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. AI Cloud Architect"
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Company Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Google India"
-                  value={newCompany}
-                  onChange={e => setNewCompany(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Package Offered</label>
-                <input
-                  type="text"
-                  placeholder="e.g. ₹16 - ₹20 LPA"
-                  value={newSalary}
-                  onChange={e => setNewSalary(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-              </div>
-              <div className="pt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setIsPostModalOpen(false);
-                  }}
-                  className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="flex-1 py-2 rounded-xl bg-purple-600 text-white font-bold">
-                  Publish Opening
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ATS Match Modal */}
-      {selectedAtsJob && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setSelectedAtsJob(null);
-              }}
-              className="absolute top-4 right-4 text-slate-400 text-lg"
-            >
-              ✕
-            </button>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
-                {selectedAtsJob.matchScore}%
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-base">Proof-of-Execution Compatibility</h3>
-                <p className="text-slate-400">
-                  {selectedAtsJob.title} • {selectedAtsJob.company}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3 mt-4">
-              <div>
-                <span className="text-emerald-400 font-bold block mb-1">✓ Validated Execution Capabilities:</span>
-                <div className="flex flex-wrap gap-1">
-                  {selectedAtsJob.matched.map((m, i) => (
-                    <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-md">
-                      {m}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
-                <span className="text-cyan-300 font-bold block mb-1">✦ Architectural War-Room Metric:</span>
-                {selectedAtsJob.tip}
-              </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Welcome Momentum Modal */}
-      {showWelcomeModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setShowWelcomeModal(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-            >
-              ✕
-            </button>
-
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🔥</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                The Zero-Trust Apex Standard
-              </span>
-            </div>
-
-            <h3 className="text-xl font-black text-white tracking-tight mt-1">
-              {activeTab === 'student' ? 'Mathematical Proof of Competence.' : 'Zero-Knowledge Blind Talent Auction.'}
-            </h3>
-
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              {activeTab === 'student'
-                ? 'Campus recruitment is no longer a standard placement form. Prove your architecture under fire in the Incident War-Room and mint your cryptographic Proof-of-Execution hash.'
-                : 'Every candidate in the Apex Vault has bypassed traditional screening stages through validated code execution and cognitive stress testing.'}
-            </p>
-
-            <div className="grid grid-cols-2 gap-3 my-4">
-              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                <span className="text-slate-400 text-[10px] block">Filtration Standard</span>
-                <span className="text-base font-black text-purple-400 mt-0.5 block">0.8% Acceptance</span>
-                <span className="text-[10px] text-slate-400">Class of 2026</span>
-              </div>
-              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                <span className="text-slate-400 text-[10px] block">Average Apex CTC</span>
-                <span className="text-base font-black text-cyan-300 mt-0.5 block">₹18.6 LPA</span>
-                <span className="text-[10px] text-slate-400">High-Package Tier</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+        {/* Post Drive Modal */}
+        {isPostModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
               <button
                 onClick={() => {
-                  setShowWelcomeModal(false);
-                  cyberAudio.playAlarm();
-                  setIsWarRoomOpen(true);
-                  setWarRoomSeconds(180);
-                  setWarRoomSolved(false);
+                  cyberAudio.playBlip();
+                  setIsPostModalOpen(false);
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                className="absolute top-4 right-4 text-slate-400 text-lg"
               >
-                🚨 Launch Incident War-Room
+                ✕
               </button>
+              <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
+              <form onSubmit={handleCreateJob} className="space-y-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Job Role *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. AI Cloud Architect"
+                    value={newTitle}
+                    onChange={e => setNewTitle(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Company Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Google India"
+                    value={newCompany}
+                    onChange={e => setNewCompany(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Package Offered</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ₹16 - ₹20 LPA"
+                    value={newSalary}
+                    onChange={e => setNewSalary(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      cyberAudio.playBlip();
+                      setIsPostModalOpen(false);
+                    }}
+                    className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="flex-1 py-2 rounded-xl bg-purple-600 text-white font-bold">
+                    Publish Opening
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ATS Match Modal */}
+        {selectedAtsJob && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setSelectedAtsJob(null);
+                }}
+                className="absolute top-4 right-4 text-slate-400 text-lg"
+              >
+                ✕
+              </button>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
+                  {selectedAtsJob.matchScore}%
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-base">Proof-of-Execution Compatibility</h3>
+                  <p className="text-slate-400">
+                    {selectedAtsJob.title} • {selectedAtsJob.company}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mt-4">
+                <div>
+                  <span className="text-emerald-400 font-bold block mb-1">✓ Validated Execution Capabilities:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedAtsJob.matched.map((m, i) => (
+                      <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-md">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
+                  <span className="text-cyan-300 font-bold block mb-1">✦ Architectural War-Room Metric:</span>
+                  {selectedAtsJob.tip}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Welcome Momentum Modal */}
+        {showWelcomeModal && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
+
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
                   setShowWelcomeModal(false);
                 }}
-                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
-                Explore Vault →
+                ✕
               </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">🔥</span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
+                  Phase 1 Integration Active
+                </span>
+              </div>
+
+              <h3 className="text-xl font-black text-white tracking-tight mt-1">
+                Candidate Dashboard & Practical Verification System
+              </h3>
+
+              <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+                Seamlessly integrated Phase 1 core pillars: Dynamic Candidate Dashboard, Recruitment Analytics, Code Battlefield, and Verification Ledgers.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 my-4">
+                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                  <span className="text-slate-400 text-[10px] block">Filtration Standard</span>
+                  <span className="text-base font-black text-purple-400 mt-0.5 block">0.8% Acceptance</span>
+                  <span className="text-[10px] text-slate-400">Class of 2026</span>
+                </div>
+                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                  <span className="text-slate-400 text-[10px] block">Average Apex CTC</span>
+                  <span className="text-base font-black text-cyan-300 mt-0.5 block">₹18.6 LPA</span>
+                  <span className="text-[10px] text-slate-400">High-Package Tier</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <button
+                  onClick={() => {
+                    setShowWelcomeModal(false);
+                    cyberAudio.playAlarm();
+                    setIsWarRoomOpen(true);
+                    setWarRoomSeconds(180);
+                    setWarRoomSolved(false);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                >
+                  🚨 Launch Incident War-Room
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setShowWelcomeModal(false);
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
+                >
+                  Explore Dashboard →
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );
