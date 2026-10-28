@@ -130,8 +130,8 @@ function Neural3DCanvas() {
       });
     }
 
-    let angleX = 0.003;
-    let angleY = 0.005;
+    const angleX = 0.003;
+    const angleY = 0.005;
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
@@ -386,6 +386,24 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  // Exceptional Feature 1: Live Holographic ID Badge
+  const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
+
+  // Exceptional Feature 2: Sovereign Offer Letter Minting Modal
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [selectedCandidateOffer, setSelectedCandidateOffer] = useState<{
+    name: string;
+    role: string;
+    salary: string;
+    company: string;
+  } | null>(null);
+
+  // Exceptional Feature 3: Voice Speech Recognition Bot
+  const [isListening, setIsListening] = useState(false);
+
+  // Exceptional Feature 4: Interactive Command Line Input
+  const [cliInput, setCliInput] = useState('');
+
   // Apex 1% Protocol State
   const [candidateClearance] = useState<'Tier-1 Apex' | 'Tier-2 Verified'>('Tier-1 Apex');
   const [isArenaOpen, setIsArenaOpen] = useState(false);
@@ -417,16 +435,16 @@ export default function CampusNexPlatform() {
     const interval = setInterval(() => {
       const nextLog = logPool[Math.floor(Math.random() * logPool.length)];
       setTerminalLogs(prev => [nextLog, ...prev.slice(0, 5)]);
-    }, 4000);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, []);
 
   const [kanbanCandidates, setKanbanCandidates] = useState([
-    { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'offer', score: 98, branch: 'CSE', clearance: 'Tier-1 Apex (0.8%)' },
-    { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'interview', score: 91, branch: 'ECE', clearance: 'Tier-1 Apex (1.2%)' },
-    { id: 'c3', name: 'Pooja Nair', role: 'Backend Systems', stage: 'shortlist', score: 85, branch: 'IT', clearance: 'Tier-2 Verified' },
-    { id: 'c4', name: 'Zaid Khan', role: 'Full Stack Engineer', stage: 'offer', score: 97, branch: 'CSE', clearance: 'Tier-1 Apex (0.9%)' },
+    { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer (Elite Core)', stage: 'offer', score: 98, branch: 'CSE', clearance: 'Tier-1 Apex (0.8%)', company: 'TechCorp India', salary: '₹18.5 LPA' },
+    { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'interview', score: 91, branch: 'ECE', clearance: 'Tier-1 Apex (1.2%)', company: 'DataMetrics AI', salary: '₹14.0 LPA' },
+    { id: 'c3', name: 'Pooja Nair', role: 'Backend Systems', stage: 'shortlist', score: 85, branch: 'IT', clearance: 'Tier-2 Verified', company: 'CloudScale Global', salary: '₹12.0 LPA' },
+    { id: 'c4', name: 'Zaid Khan', role: 'Full Stack Engineer', stage: 'offer', score: 97, branch: 'CSE', clearance: 'Tier-1 Apex (0.9%)', company: 'TechCorp India', salary: '₹16.8 LPA' },
   ]);
 
   const [jobs, setJobs] = useState<Job[]>([
@@ -538,6 +556,70 @@ export default function CampusNexPlatform() {
     setKanbanCandidates(kanbanCandidates.map(c => (c.id === id ? { ...c, stage: newStage } : c)));
   };
 
+  // Live Speech Recognition Engine
+  const startSpeechRecognition = () => {
+    cyberAudio.playBlip();
+    type SpeechRecognitionType = new () => {
+      lang: string;
+      interimResults: boolean;
+      onstart: () => void;
+      onresult: (e: { results: Array<Array<{ transcript: string }>> }) => void;
+      onerror: () => void;
+      onend: () => void;
+      start: () => void;
+    };
+
+    const SpeechRec = (window as unknown as {
+      SpeechRecognition?: SpeechRecognitionType;
+      webkitSpeechRecognition?: SpeechRecognitionType;
+    }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionType }).webkitSpeechRecognition;
+
+    if (!SpeechRec) {
+      alert("Speech recognition not supported in this browser. Dictation simulated: 'Client-Side Rendering (CSR) hydrates in the browser, while SSR pre-renders HTML on the edge server for instant first-contentful paint.'");
+      setInterviewAnswer("Client-Side Rendering (CSR) hydrates on browser runtime, while Next.js Server Components compile on the Edge node to slash latency and ensure SEO efficiency.");
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRec();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        setInterviewAnswer(prev => prev ? `${prev} ${transcript}` : transcript);
+        cyberAudio.playLaser();
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
+  };
+
+  // Interactive CLI Command Handler
+  const handleExecuteCli = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cliInput.trim()) return;
+    cyberAudio.playBlip();
+    const cmd = cliInput.trim().toLowerCase();
+
+    if (cmd === '/clear') {
+      setTerminalLogs([]);
+    } else if (cmd === '/scan') {
+      setTerminalLogs(prev => ['⚡ [CLI]: Executing deep static portfolio verification...', ...prev]);
+      handleSimulateResumeScan();
+    } else if (cmd === '/apex') {
+      setTerminalLogs(prev => ['✓ [LEDGER]: Habeeba Fatima Tier-1 Apex #0x8942-APEX confirmed on consensus chain.', ...prev]);
+    } else {
+      setTerminalLogs(prev => [`[CLI_EXEC]: "${cliInput}" processed by Neural-v5.0 cluster.`, ...prev]);
+    }
+    setCliInput('');
+  };
+
   const filteredJobs = jobs.filter(
     j =>
       j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -606,7 +688,7 @@ export default function CampusNexPlatform() {
                 cyberAudio.playBlip();
                 setActiveTab('recruiter');
               }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               💼 Pre-Vetted Apex Vault
             </button>
@@ -615,7 +697,7 @@ export default function CampusNexPlatform() {
                 cyberAudio.playBlip();
                 setActiveTab('tpo');
               }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'}`}
             >
               📊 TPO Analytics
             </button>
@@ -864,7 +946,7 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Hologram Profile & Campus Gladiator Leaderboard */}
+            {/* Right Column: Hologram Profile & Exceptional Feature 1: Quantum Holographic ID Badge */}
             <div className="space-y-5">
               <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
@@ -882,15 +964,27 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setHologramActive(!hologramActive);
-                  }}
-                  className="w-full mt-3 py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
-                >
-                  <span>🌐</span> {hologramActive ? 'Collapse 3D Skill Vector' : 'View Holographic 3D Skill Radar'}
-                </button>
+                <div className="grid grid-cols-2 gap-2 mt-3">
+                  <button
+                    onClick={() => {
+                      cyberAudio.playWarp();
+                      setShowIdBadgeModal(true);
+                    }}
+                    className="py-1.5 bg-gradient-to-r from-purple-900/50 to-indigo-900/50 hover:from-purple-800/60 hover:to-indigo-800/60 border border-purple-500/50 text-purple-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40"
+                  >
+                    <span>🪪</span> Hologram ID
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      cyberAudio.playBlip();
+                      setHologramActive(!hologramActive);
+                    }}
+                    className="py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
+                  >
+                    <span>🌐</span> {hologramActive ? 'Collapse Radar' : '3D Radar'}
+                  </button>
+                </div>
 
                 {hologramActive && (
                   <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
@@ -1072,6 +1166,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
+              {/* Instant Placed Column with MINT SOVEREIGN OFFER BUTTON */}
               <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
                   <span>🎉 Instant Placed</span>
@@ -1084,12 +1179,27 @@ export default function CampusNexPlatform() {
                     <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-emerald-500/40 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
-                      <div className="text-[10px] text-emerald-300 font-mono mt-1">{cand.clearance}</div>
-                      <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-emerald-400 font-bold">{cand.score}% Benchmark</span>
+                      <div className="text-[10px] text-emerald-300 font-mono mt-0.5">{cand.salary} • {cand.company}</div>
+
+                      <div className="mt-2.5 pt-2 border-t border-slate-700 flex items-center justify-between">
                         <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
-                          Accepted
+                          ✓ Verified
                         </span>
+                        <button
+                          onClick={() => {
+                            cyberAudio.playLaser();
+                            setSelectedCandidateOffer({
+                              name: cand.name,
+                              role: cand.role,
+                              salary: cand.salary,
+                              company: cand.company
+                            });
+                            setShowOfferModal(true);
+                          }}
+                          className="text-[10px] bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold px-2 py-1 rounded shadow hover:scale-105 transition"
+                        >
+                          📄 Mint Offer Letter
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1195,13 +1305,13 @@ export default function CampusNexPlatform() {
         )}
       </main>
 
-      {/* Autonomous AI Matrix Console Widget */}
+      {/* Exceptional Feature 4: Interactive CLI Developer Console */}
       <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
         <div className="bg-[#070b16]/95 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden font-mono text-[11px]">
           <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-cyan-300 tracking-wider">APEX_GATEKEEPER_v5.0</span>
+              <span className="font-bold text-cyan-300 tracking-wider">APEX_CLI_v5.2</span>
             </div>
             <button
               onClick={() => {
@@ -1215,17 +1325,29 @@ export default function CampusNexPlatform() {
           </div>
 
           {terminalOpen && (
-            <div className="p-3 space-y-1.5 max-h-36 overflow-y-auto text-slate-300 bg-black/40">
-              {terminalLogs.map((log, index) => (
-                <div
-                  key={index}
-                  className={`leading-relaxed text-[10px] ${
-                    index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
-                  }`}
-                >
-                  {log}
-                </div>
-              ))}
+            <div className="p-3 bg-black/50">
+              <div className="space-y-1 max-h-28 overflow-y-auto text-slate-300 mb-2">
+                {terminalLogs.map((log, index) => (
+                  <div
+                    key={index}
+                    className={`leading-relaxed text-[10px] ${
+                      index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
+                    }`}
+                  >
+                    {log}
+                  </div>
+                ))}
+              </div>
+              <form onSubmit={handleExecuteCli} className="flex gap-1 border-t border-slate-800 pt-2">
+                <span className="text-cyan-400 font-bold">&gt;</span>
+                <input
+                  type="text"
+                  placeholder="Type /scan, /apex, /clear..."
+                  value={cliInput}
+                  onChange={e => setCliInput(e.target.value)}
+                  className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
+                />
+              </form>
             </div>
           )}
         </div>
@@ -1242,7 +1364,161 @@ export default function CampusNexPlatform() {
         +
       </button>
 
-      {/* CODE BATTLEFIELD ARENA MODAL (High-Bar Filtration) */}
+      {/* Exceptional Feature 1 Modal: Quantum Holographic 3D Identity Badge */}
+      {showIdBadgeModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-sm p-6 text-xs relative shadow-2xl overflow-hidden font-mono text-center animate-in zoom-in-95 duration-200">
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setShowIdBadgeModal(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            <span className="text-[9px] text-cyan-300 bg-cyan-950/80 border border-cyan-800/60 px-3 py-0.5 rounded-full uppercase tracking-widest inline-block mb-3">
+              SOVEREIGN QUANTUM IDENTITY #0x8942
+            </span>
+
+            <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 p-0.5 shadow-xl shadow-cyan-500/30 mb-3 relative group">
+              <div className="w-full h-full bg-[#080f24] rounded-2xl flex items-center justify-center font-black text-2xl text-white">
+                HF
+              </div>
+              <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0b1021] flex items-center justify-center text-[10px] text-black font-bold">
+                ✓
+              </span>
+            </div>
+
+            <h3 className="text-lg font-black text-white">Habeeba Fatima</h3>
+            <p className="text-slate-400 text-[11px] font-sans">B.Tech Computer Science • Batch 2026</p>
+
+            <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
+              ⚡ TIER-1 APEX CLEARANCE (TOP 0.8%)
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 my-3 text-left">
+              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                <span className="text-[9px] text-slate-500 block">DSA BENCHMARK</span>
+                <span className="text-cyan-300 font-bold text-xs mt-0.5 block">1840+ Hard Rank</span>
+              </div>
+              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                <span className="text-[9px] text-slate-500 block">ARCH RESILIENCE</span>
+                <span className="text-emerald-400 font-bold text-xs mt-0.5 block">99.1% Stable</span>
+              </div>
+              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                <span className="text-[9px] text-slate-500 block">CODE PURITY</span>
+                <span className="text-purple-300 font-bold text-xs mt-0.5 block">99.4th Pctl</span>
+              </div>
+              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                <span className="text-[9px] text-slate-500 block">MINT HASH</span>
+                <span className="text-slate-300 font-bold text-xs mt-0.5 block">#0x8942-APEX</span>
+              </div>
+            </div>
+
+            <div className="p-2 bg-black/40 rounded-xl border border-dashed border-slate-800 text-[9px] text-slate-500">
+              CAMPUS RECRUITMENT CONSENSUS PROOF • CRYPTOGRAPHICALLY VALIDATED
+            </div>
+
+            <button
+              onClick={() => {
+                cyberAudio.playLaser();
+                setShowIdBadgeModal(false);
+              }}
+              className="w-full mt-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg transition"
+            >
+              Close Hologram HUD
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Exceptional Feature 2 Modal: Sovereign Offer Letter */}
+      {showOfferModal && selectedCandidateOffer && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setShowOfferModal(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            {/* Letter Header */}
+            <div className="flex justify-between items-start border-b border-slate-800 pb-4 mb-4">
+              <div>
+                <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
+                  OFFICIAL APPOINTMENT DISPATCH
+                </span>
+                <h3 className="text-xl font-black text-white mt-0.5">{selectedCandidateOffer.company}</h3>
+                <p className="text-[11px] text-slate-400 font-mono">Consensus Proof: #0x8942-APEX-OFFER</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
+                📜
+              </div>
+            </div>
+
+            <div className="space-y-3 leading-relaxed text-slate-300">
+              <p>
+                Dear <strong className="text-white">{selectedCandidateOffer.name}</strong>,
+              </p>
+              <p>
+                Following your outstanding performance in the CampusNex Apex 1% Technical Screening and architecture reviews, we are pleased to extend an offer for the position of:
+              </p>
+
+              <div className="p-3.5 bg-[#0f172a] rounded-2xl border border-slate-800 font-mono">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-400">Designation:</span>
+                  <span className="text-white font-bold">{selectedCandidateOffer.role}</span>
+                </div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-400">Annual Compensation (CTC):</span>
+                  <span className="text-emerald-400 font-black">{selectedCandidateOffer.salary}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Verification Status:</span>
+                  <span className="text-cyan-300 font-bold">Day-1 Direct Joining Clearance</span>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-400">
+                This document is cryptographically verified by CampusNex AI and minted on the institution placement ledger.
+              </p>
+            </div>
+
+            <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  cyberAudio.playLaser();
+                  alert("Official PDF Offer Document successfully compiled and queued for print!");
+                  setShowOfferModal(false);
+                }}
+                className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:opacity-95 transition"
+              >
+                📥 Download Cryptographic PDF
+              </button>
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowOfferModal(false);
+                }}
+                className="px-4 py-2.5 bg-slate-800 rounded-xl text-slate-300 font-bold text-xs hover:bg-slate-700 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CODE BATTLEFIELD ARENA MODAL */}
       {isArenaOpen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
@@ -1327,7 +1603,7 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
         </div>
       )}
 
-      {/* AI Mock Interview Room With Biometrics */}
+      {/* AI Mock Interview Room with Live Microphone Voice Bot */}
       {isInterviewModalOpen && interviewJob && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-cyan-800/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl">
@@ -1345,7 +1621,7 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
               <div className="flex items-center gap-2">
                 <span className="text-xl">🎙️</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">Quantum Neural Biometric Interview Lab</h3>
+                  <h3 className="text-base font-bold text-white">Quantum Neural Biometric Voice Lab</h3>
                   <p className="text-[11px] text-cyan-300 font-mono">
                     Candidate Evaluation: {interviewJob.title} • {interviewJob.company}
                   </p>
@@ -1393,10 +1669,23 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
                   </p>
                 </div>
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Your Voice / Written Response:</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-slate-300 font-semibold">Your Response (Voice Dictation / Written):</label>
+                    <button
+                      type="button"
+                      onClick={startSpeechRecognition}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition ${
+                        isListening
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : 'bg-cyan-950 text-cyan-300 border border-cyan-800 hover:bg-cyan-900'
+                      }`}
+                    >
+                      <span>🎙️</span> {isListening ? 'Listening Live...' : 'Start Voice Recognition'}
+                    </button>
+                  </div>
                   <textarea
                     rows={3}
-                    placeholder="Type or dictate your technical response..."
+                    placeholder="Click 'Start Voice Recognition' to speak your answer, or type manually..."
                     value={interviewAnswer}
                     onChange={e => setInterviewAnswer(e.target.value)}
                     className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 font-sans"
