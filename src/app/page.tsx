@@ -15,9 +15,10 @@ interface Job {
   matched: string[];
   missing: string[];
   tip: string;
+  minClearance: 'Tier-1 Apex' | 'Tier-2 Verified';
 }
 
-// Phase 5: Browser Native Web Audio Synthesizer Engine
+// Browser Native Web Audio Synthesizer Engine
 class CyberAudioEngine {
   private ctx: AudioContext | null = null;
   public enabled: boolean = true;
@@ -32,7 +33,6 @@ class CyberAudioEngine {
     }
   }
 
-  // Futuristic Click / Blip Sound
   playBlip() {
     if (!this.enabled) return;
     try {
@@ -49,12 +49,9 @@ class CyberAudioEngine {
       gain.connect(this.ctx.destination);
       osc.start();
       osc.stop(this.ctx.currentTime + 0.08);
-    } catch {
-      // Audio fallback silent
-    }
+    } catch {}
   }
 
-  // Laser Confirmation Chime
   playLaser() {
     if (!this.enabled) return;
     try {
@@ -74,7 +71,6 @@ class CyberAudioEngine {
     } catch {}
   }
 
-  // Resonant Warp Pulse (For Scans & Modals)
   playWarp() {
     if (!this.enabled) return;
     try {
@@ -390,6 +386,11 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  // Apex 1% Protocol State
+  const [candidateClearance] = useState<'Tier-1 Apex' | 'Tier-2 Verified'>('Tier-1 Apex');
+  const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [arenaSubmitted, setArenaSubmitted] = useState(false);
+
   // Resume Scanner State
   const [isScanning, setIsScanning] = useState(false);
   const [resumeParsed, setResumeParsed] = useState(false);
@@ -398,20 +399,19 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [INIT]: Quantum Vector Embeddings Initialized for 412 candidates.',
-    '✦ [AGENT_01]: Parsing Habeeba Fatima (CSE) vs TechCorp Full-Stack node.',
-    '✓ [MATCH_SUCCESS]: 92% semantic alignment verified in distributed systems.'
+    '⚡ [APEX_GATE]: 1,240 applicants evaluated -> Only top 0.8% granted Tier-1 clearance.',
+    '✦ [AGENT_01]: Habeeba Fatima cryptographic proof minted #0x8942-APEX.',
+    '✓ [SECURITY]: Anti-cheat keystroke dynamics confirmed 99.8% human authentic.'
   ]);
 
   useEffect(() => {
     setShowWelcomeModal(true);
 
     const logPool = [
+      '🔥 [APEX_DISPATCH]: Top 1% pool prioritized for Google & TechCorp Day-1 slots.',
+      '⚡ [AI_ATS]: Candidate algorithmic purity index: 99.4th Percentile verified.',
       '✦ [AGENT_03]: Extracting GitHub activity: 120+ contributions verified.',
-      '⚡ [AI_ATS]: Parsing leetcode rating #1840 -> Top 5% tier assigned.',
-      '🔥 [DISPATCH]: Automated technical interview pipeline opened with TechCorp.',
-      '✦ [AGENT_02]: High-velocity candidate pool ranked for DataMetrics AI.',
-      '✓ [SMART_CONTRACT]: Campus placement verification proof minted #0x8942.'
+      '✓ [AUDIT]: Cryptographic proof of competence validated on campus ledger.'
     ];
 
     const interval = setInterval(() => {
@@ -423,54 +423,57 @@ export default function CampusNexPlatform() {
   }, []);
 
   const [kanbanCandidates, setKanbanCandidates] = useState([
-    { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'interview', score: 94, branch: 'CSE' },
-    { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'shortlist', score: 85, branch: 'ECE' },
-    { id: 'c3', name: 'Pooja Nair', role: 'Backend Systems', stage: 'applied', score: 71, branch: 'IT' },
-    { id: 'c4', name: 'Zaid Khan', role: 'Full Stack Engineer', stage: 'offer', score: 96, branch: 'CSE' },
+    { id: 'c1', name: 'Habeeba Fatima', role: 'Full Stack Engineer', stage: 'offer', score: 98, branch: 'CSE', clearance: 'Tier-1 Apex (0.8%)' },
+    { id: 'c2', name: 'Rahul Verma', role: 'Data Analyst & ML', stage: 'interview', score: 91, branch: 'ECE', clearance: 'Tier-1 Apex (1.2%)' },
+    { id: 'c3', name: 'Pooja Nair', role: 'Backend Systems', stage: 'shortlist', score: 85, branch: 'IT', clearance: 'Tier-2 Verified' },
+    { id: 'c4', name: 'Zaid Khan', role: 'Full Stack Engineer', stage: 'offer', score: 97, branch: 'CSE', clearance: 'Tier-1 Apex (0.9%)' },
   ]);
 
   const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
-      title: 'Full Stack Engineer',
+      title: 'Full Stack Engineer (Elite Core)',
       company: 'TechCorp India',
       location: 'Hyderabad / Remote',
-      salary: '₹12 - ₹16 LPA',
+      salary: '₹16 - ₹24 LPA',
       skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind'],
-      matchScore: 92,
-      applicants: 42,
-      type: 'On-Campus Placement',
+      matchScore: 94,
+      applicants: 12,
+      type: 'Apex 1% Exclusive',
       matched: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
       missing: ['Docker', 'AWS ECS'],
-      tip: 'Distributed caching (Redis) aur Next.js App Router projects highlight karne se selection chance 35% badh jayenge.'
+      tip: 'Requires Tier-1 Apex Clearance. Direct entry into architecture review round.',
+      minClearance: 'Tier-1 Apex'
     },
     {
       id: '2',
       title: 'Data Analyst & ML Associate',
       company: 'DataMetrics AI',
       location: 'Bengaluru',
-      salary: '₹10 - ₹14 LPA',
+      salary: '₹12 - ₹16 LPA',
       skills: ['Python', 'SQL', 'Tableau', 'Pandas', 'FastAPI'],
-      matchScore: 78,
-      applicants: 68,
+      matchScore: 82,
+      applicants: 34,
       type: 'Dream Drive',
       matched: ['Python', 'SQL', 'Pandas'],
       missing: ['PowerBI', 'MLOps CI/CD'],
-      tip: 'End-to-end data pipeline ka live streamlit link resume header me highlight karein.'
+      tip: 'Open for Tier-1 & Tier-2 Verified candidates.',
+      minClearance: 'Tier-2 Verified'
     },
     {
       id: '3',
-      title: 'Backend Systems Developer',
+      title: 'Backend Systems Core Architect',
       company: 'CloudScale Global',
       location: 'Pune / Hybrid',
-      salary: '₹14 - ₹18 LPA',
+      salary: '₹22 - ₹30 LPA',
       skills: ['Go', 'Kubernetes', 'Microservices', 'PostgreSQL'],
-      matchScore: 64,
-      applicants: 29,
-      type: 'Super Dream Drive',
+      matchScore: 71,
+      applicants: 8,
+      type: 'Apex 1% Super Dream',
       matched: ['PostgreSQL'],
       missing: ['Golang', 'Kubernetes', 'gRPC'],
-      tip: 'Microservices architecture aur Dockerized setup GitHub repository me attach karein.'
+      tip: 'High-bar concurrency evaluation. Tier-1 clearance strictly enforced.',
+      minClearance: 'Tier-1 Apex'
     }
   ]);
 
@@ -502,14 +505,15 @@ export default function CampusNexPlatform() {
       title: newTitle,
       company: newCompany,
       location: 'Hyderabad',
-      salary: newSalary || '₹10 - ₹15 LPA',
+      salary: newSalary || '₹16 - ₹22 LPA',
       skills: ['Next.js', 'React', 'Database', 'Node.js'],
       matchScore: 88,
       applicants: 1,
-      type: 'Campus Drive',
+      type: 'Apex 1% Exclusive',
       matched: ['React', 'Node.js'],
       missing: ['Cloud Deployments'],
-      tip: 'Eligible for Direct Placement Day 1 slot.'
+      tip: 'Eligible for Direct Placement Day 1 slot.',
+      minClearance: 'Tier-1 Apex'
     };
     setJobs([newEntry, ...jobs]);
     setIsPostModalOpen(false);
@@ -524,7 +528,7 @@ export default function CampusNexPlatform() {
     setTimeout(() => {
       setIsScanning(false);
       setResumeParsed(true);
-      setParsedScore(95);
+      setParsedScore(98);
       cyberAudio.playLaser();
     }, 1500);
   };
@@ -547,10 +551,10 @@ export default function CampusNexPlatform() {
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-cyan-400">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            QUANTUM ATS ENGINE ACTIVE
+            APEX 1% PROTOCOL: ENFORCED
           </span>
-          <span>LATENCY: 12ms</span>
-          <span>MODEL: NEURAL-v4.2</span>
+          <span>ACCEPTANCE RATE: 0.8%</span>
+          <span>SECURITY HASH: 0x8942-APEX</span>
         </div>
         <div className="flex items-center gap-4 text-slate-400">
           <button
@@ -563,7 +567,7 @@ export default function CampusNexPlatform() {
           >
             {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
           </button>
-          <span className="hidden sm:inline text-emerald-400">TIER-1 VERIFIED: 94.2%</span>
+          <span className="hidden sm:inline text-emerald-400">HIGH-BAR GATEKEEPING: ACTIVE</span>
         </div>
       </div>
 
@@ -578,11 +582,11 @@ export default function CampusNexPlatform() {
               <span className="text-xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                 CampusNex AI
               </span>
-              <span className="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                HYPERSCALE ATS
+              <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                THE 1% APEX FORTRESS
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Neural Intelligence & Campus Recruitment Ecosystem</p>
+            <p className="text-[11px] text-slate-400">Ultra-Selective Campus Hiring & High-Bar Competence Ecosystem</p>
           </div>
         </div>
 
@@ -595,7 +599,7 @@ export default function CampusNexPlatform() {
               }}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
-              🎓 Student Portal
+              🎓 Elite Candidate
             </button>
             <button
               onClick={() => {
@@ -604,7 +608,7 @@ export default function CampusNexPlatform() {
               }}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
             >
-              💼 Recruiter ATS
+              💼 Pre-Vetted Apex Vault
             </button>
             <button
               onClick={() => {
@@ -629,22 +633,37 @@ export default function CampusNexPlatform() {
         </div>
       </header>
 
-      {/* Futuristic 3D Constellation Hero Banner */}
+      {/* Hero Banner: The Apex Filtration Chamber */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
-        <div className="relative h-44 sm:h-52 w-full rounded-3xl overflow-hidden border border-cyan-900/50 bg-gradient-to-r from-[#070e24] via-[#0b1229] to-[#120b24] shadow-2xl flex items-center justify-between p-6">
-          <div className="z-10 max-w-lg">
-            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60 uppercase tracking-widest">
-              Live Quantum Cluster • 412 Verified Nodes
-            </span>
+        <div className="relative h-48 sm:h-56 w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720] via-[#091129] to-[#04091a] shadow-2xl flex items-center justify-between p-6">
+          <div className="z-10 max-w-xl">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
+                Zero-Tolerance Filtration Funnel
+              </span>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
+                Top 0.8% Selected
+              </span>
+            </div>
             <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-              Enterprise Neural Placement Core
+              Where Only The Top 1% Unlock Tier-1 Placement
             </h2>
-            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-              Real-time deep learning ATS vector matching analyzing syllabus depth, live GitHub commits, and competitive DSA ranks.
+            <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+              We do not distribute crowds of resumes. Every candidate here has cleared ruthless multi-tier system architecture checks, anti-cheat live arenas, and biometric stress tests.
             </p>
-            <div className="flex gap-2 mt-3 text-[11px] font-mono text-cyan-300">
-              <span className="bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">★ 91.2% Success</span>
-              <span className="bg-slate-900/80 px-2 py-0.5 rounded border border-slate-700">⚡ 42 MNCs Active</span>
+            <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
+              <button
+                onClick={() => {
+                  cyberAudio.playWarp();
+                  setIsArenaOpen(true);
+                }}
+                className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+              >
+                ⚔️ Enter Proctored Code Battlefield
+              </button>
+              <span className="bg-slate-900/80 px-2.5 py-1 rounded border border-slate-700 text-cyan-300">
+                L8 Engineering Standard
+              </span>
             </div>
           </div>
 
@@ -658,25 +677,25 @@ export default function CampusNexPlatform() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
         {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-cyan-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Placement Rate</span>
-            <div className="text-2xl font-black text-white mt-1">91.2%</div>
-            <span className="text-emerald-400 font-bold flex items-center gap-1 mt-1">↑ +8.4% this season</span>
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
+            <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Acceptance Bar</span>
+            <div className="text-2xl font-black text-white mt-1">0.8%</div>
+            <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">Top 12 of 1,500 Cleared</span>
           </div>
           <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Average CTC</span>
-            <div className="text-2xl font-black text-white mt-1">₹12.8 LPA</div>
+            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Average Apex CTC</span>
+            <div className="text-2xl font-black text-white mt-1">₹18.6 LPA</div>
             <span className="text-cyan-400 font-bold mt-1 block">Highest: ₹44.5 LPA</span>
           </div>
           <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Active Drives</span>
+            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Tier-1 Exclusive Drives</span>
             <div className="text-2xl font-black text-white mt-1">{jobs.length} Companies</div>
-            <span className="text-amber-400 font-bold mt-1 block">3 drives closing today</span>
+            <span className="text-amber-400 font-bold mt-1 block">High-bar slots</span>
           </div>
           <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Total Candidates</span>
-            <div className="text-2xl font-black text-white mt-1">412</div>
-            <span className="text-pink-400 font-bold mt-1 block">94% AI Profile Verified</span>
+            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Recruiter Trust Index</span>
+            <div className="text-2xl font-black text-white mt-1">99.8%</div>
+            <span className="text-emerald-400 font-bold mt-1 block">Direct Final Round Pass</span>
           </div>
         </div>
 
@@ -684,6 +703,32 @@ export default function CampusNexPlatform() {
         {activeTab === 'student' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
+              {/* Clearance Status Notification Card */}
+              <div className="bg-[#0e122b] border border-purple-800/50 p-4 rounded-2xl shadow-xl flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
+                    🛡️
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white">Your Clearance Status:</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        {candidateClearance} (0.8th Percentile)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      All high-package drives (&gt; ₹16 LPA) unlocked. Cryptographic proof verified on campus ledger.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsArenaOpen(true)}
+                  className="hidden sm:block px-3 py-1.5 bg-[#171f3d] border border-purple-500/40 text-purple-300 rounded-xl font-bold font-mono hover:bg-purple-900/30 transition text-[11px]"
+                >
+                  Retake Benchmark
+                </button>
+              </div>
+
               {/* Resume Scanner */}
               <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629] border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -692,8 +737,8 @@ export default function CampusNexPlatform() {
                       📄
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-sm">AI ATS Resume Scanner & Parser</h3>
-                      <p className="text-xs text-slate-400">Upload PDF resume for automated skill extraction & match ranking</p>
+                      <h3 className="font-bold text-white text-sm">AI ATS Rigorous Code & Resume Parser</h3>
+                      <p className="text-xs text-slate-400">Extracts system architecture depth and validates LeetCode/GitHub commits</p>
                     </div>
                   </div>
 
@@ -703,7 +748,7 @@ export default function CampusNexPlatform() {
                     className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2"
                   >
                     {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
-                    {isScanning ? 'Parsing Resume...' : 'Scan Resume PDF'}
+                    {isScanning ? 'Verifying Integrity...' : 'Validate Candidate Portfolio'}
                   </button>
                 </div>
 
@@ -714,12 +759,12 @@ export default function CampusNexPlatform() {
                         {parsedScore}%
                       </div>
                       <div>
-                        <div className="font-bold text-white">Resume ATS Quality: Exceptional</div>
-                        <div className="text-[11px] text-slate-400">Extracted: React, Node.js, SQL, TypeScript, Supabase</div>
+                        <div className="font-bold text-white">Competence Rigor: Top 0.8% Benchmark Cleared</div>
+                        <div className="text-[11px] text-slate-400">Verified: React, Node.js, SQL, TypeScript, Concurrency Architecture</div>
                       </div>
                     </div>
                     <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-lg font-bold">
-                      ✓ Ready for Tier-1 Applications
+                      ✓ Instant Shortlist Guarantee Minted
                     </span>
                   </div>
                 )}
@@ -729,7 +774,7 @@ export default function CampusNexPlatform() {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search campus drives by role, skills, or company..."
+                  placeholder="Filter drives by role, stack, or clearance level..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className="w-full bg-[#0b1021] border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner"
@@ -742,13 +787,19 @@ export default function CampusNexPlatform() {
                 {filteredJobs.map(job => (
                   <div
                     key={job.id}
-                    className="bg-[#0b1021] border border-slate-800 hover:border-cyan-800/60 p-5 rounded-2xl shadow-xl transition-all"
+                    className="bg-[#0b1021] border border-slate-800 hover:border-purple-800/60 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
                   >
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                    {job.minClearance === 'Tier-1 Apex' && (
+                      <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-indigo-600 text-[9px] font-mono font-bold px-3 py-0.5 rounded-bl-xl text-white shadow">
+                        🔒 APEX 1% STRICT CLEARANCE REQUIRED
+                      </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mt-1">
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-bold text-lg text-white">{job.title}</h3>
-                          <span className="text-[10px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full font-semibold">
+                          <span className="text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-semibold">
                             {job.type}
                           </span>
                         </div>
@@ -768,7 +819,7 @@ export default function CampusNexPlatform() {
                         }}
                         className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"
                       >
-                        <span>🎯 {job.matchScore}% ATS Match</span>
+                        <span>🎯 {job.matchScore}% Match Rigor</span>
                         <span className="text-[10px] underline decoration-dotted text-slate-400">View</span>
                       </button>
                     </div>
@@ -782,7 +833,7 @@ export default function CampusNexPlatform() {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                      <span className="text-slate-500">👥 {job.applicants} students applied</span>
+                      <span className="text-slate-500 font-mono">👥 {job.applicants} candidates qualified</span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
@@ -793,7 +844,7 @@ export default function CampusNexPlatform() {
                           }}
                           className="px-3.5 py-1.5 rounded-xl border border-purple-500/40 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 font-bold transition flex items-center gap-1"
                         >
-                          <span>🎙️</span> Practice AI Interview
+                          <span>🎙️</span> Practice Rigorous AI Interview
                         </button>
                         <button
                           onClick={() => handleApply(job.id)}
@@ -801,10 +852,10 @@ export default function CampusNexPlatform() {
                           className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
                             appliedJobs.includes(job.id)
                               ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-600/30'
+                              : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30'
                           }`}
                         >
-                          {appliedJobs.includes(job.id) ? '✓ Applied' : 'Quick Apply'}
+                          {appliedJobs.includes(job.id) ? '✓ Applied' : 'Submit Apex Profile'}
                         </button>
                       </div>
                     </div>
@@ -813,7 +864,7 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Hologram Profile & Hexagonal Skill Radar */}
+            {/* Right Column: Hologram Profile & Campus Gladiator Leaderboard */}
             <div className="space-y-5">
               <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
@@ -824,8 +875,8 @@ export default function CampusNexPlatform() {
                     <div>
                       <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
                       <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
-                      <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                        CGPA: 8.9 • Verified Candidate
+                      <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
+                        RANK #1 IN CAMPUS • TOP 0.8% APEX
                       </span>
                     </div>
                   </div>
@@ -845,7 +896,7 @@ export default function CampusNexPlatform() {
                   <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
                     <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-2">
                       <span>HEXAGONAL NEURAL VECTOR</span>
-                      <span className="text-purple-300 font-bold">AVG: 93.4%</span>
+                      <span className="text-purple-300 font-bold">AVG: 95.8%</span>
                     </div>
                     <HexagonSkillRadar />
                     <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
@@ -855,47 +906,57 @@ export default function CampusNexPlatform() {
                 )}
 
                 <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block">
-                    Verified Skill Assessments
+                  <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
+                    Cryptographic Verified Credentials
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
-                      <span>⚡</span> LeetCode Top 5% (1840+)
+                      <span>⚡</span> LeetCode Hard Rank: 1840+
                     </span>
                     <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
-                      <span>🐙</span> GitHub: 120+ Commits
+                      <span>🐙</span> GitHub: 120+ Verified Commits
                     </span>
                     <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
-                      <span>✓</span> Next.js Certified
+                      <span>✓</span> Next.js Full Stack Certified
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Live Application Pipeline */}
-              <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
-                  <span>⚡</span> Live Placement Pipeline
-                </h4>
-                <div className="space-y-4">
-                  <div className="p-3 bg-[#11192e] rounded-xl border border-slate-800 text-xs">
-                    <div className="flex justify-between items-center font-bold">
-                      <span className="text-white">TechCorp India</span>
-                      <span className="text-emerald-400 text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded-full">Round 2: Technical</span>
+              {/* Campus Gladiator Live Leaderboard */}
+              <div className="bg-[#0b1021] border border-purple-900/60 rounded-2xl p-5 shadow-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5 font-mono">
+                    <span>🏆</span> CAMPUS GLADIATOR LEADERBOARD
+                  </h4>
+                  <span className="text-[9px] font-mono text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/60">
+                    TOP 0.8% APEX
+                  </span>
+                </div>
+
+                <div className="space-y-2 text-xs font-mono">
+                  <div className="p-2.5 bg-gradient-to-r from-purple-950/40 to-indigo-950/30 border border-purple-500/50 rounded-xl flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-white">#1 Habeeba Fatima (CSE)</div>
+                      <div className="text-[10px] text-slate-400">Score: 99.4th Percentile • 4 Offers Chasing</div>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1">Full Stack Engineer</p>
-                    <div className="flex items-center gap-1 mt-3">
-                      <div className="h-1.5 flex-1 bg-emerald-500 rounded-full" />
-                      <div className="h-1.5 flex-1 bg-emerald-500 rounded-full" />
-                      <div className="h-1.5 flex-1 bg-cyan-500 rounded-full animate-pulse" />
-                      <div className="h-1.5 flex-1 bg-slate-700 rounded-full" />
+                    <span className="text-emerald-400 font-black">98.4 APEX</span>
+                  </div>
+
+                  <div className="p-2.5 bg-[#0f172a] border border-slate-800 rounded-xl flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-slate-300">#2 Zaid Khan (CSE)</div>
+                      <div className="text-[10px] text-slate-400">Score: 98.2th Percentile</div>
                     </div>
-                    <div className="flex justify-between text-[9px] text-slate-400 mt-1.5">
-                      <span>Applied</span>
-                      <span>Shortlisted</span>
-                      <span className="text-cyan-300 font-bold">Technical</span>
-                      <span>Offer</span>
+                    <span className="text-purple-300 font-bold">96.8 APEX</span>
+                  </div>
+
+                  <div className="p-2.5 bg-[#0f172a] border border-slate-800 rounded-xl flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-slate-300">#3 Rahul Verma (ECE)</div>
+                      <div className="text-[10px] text-slate-400">Score: 96.5th Percentile</div>
                     </div>
+                    <span className="text-purple-300 font-bold">94.1 APEX</span>
                   </div>
                 </div>
               </div>
@@ -903,29 +964,36 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* TAB 2: RECRUITER ATS */}
+        {/* TAB 2: PRE-VETTED APEX VAULT (RECRUITER VIEW) */}
         {activeTab === 'recruiter' && (
           <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-white">Kanban Recruitment Pipeline & Screening</h2>
-                <p className="text-xs text-slate-400">Automated ATS applicant tracking board with one-click stage movements.</p>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-white">Pre-Vetted Apex Vault (Zero Screening Fatigue)</h2>
+                  <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
+                    DAY-1 DIRECT HIRE
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Every candidate below has proven runtime competence. No first-round technical screening required.
+                </p>
               </div>
               <button
                 onClick={() => {
                   cyberAudio.playWarp();
                   setIsPostModalOpen(true);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-cyan-600/30"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/30"
               >
-                + Post New Drive
+                + Post Apex Drive Opening
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
               <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
-                  <span>📥 Applied</span>
+                  <span>📥 Filtered Pool</span>
                   <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[10px]">
                     {kanbanCandidates.filter(c => c.stage === 'applied').length}
                   </span>
@@ -935,13 +1003,14 @@ export default function CampusNexPlatform() {
                     <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-slate-700/60 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
+                      <div className="text-[10px] text-purple-300 font-mono mt-1">{cand.clearance}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-amber-400 font-bold">{cand.score}% ATS</span>
+                        <span className="text-[10px] text-amber-400 font-bold">{cand.score}% Score</span>
                         <button
                           onClick={() => moveCandidateStage(cand.id, 'shortlist')}
                           className="text-[10px] text-cyan-300 hover:text-white underline font-bold"
                         >
-                          Shortlist →
+                          Verify →
                         </button>
                       </div>
                     </div>
@@ -951,7 +1020,7 @@ export default function CampusNexPlatform() {
 
               <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-cyan-300 mb-3 flex justify-between items-center">
-                  <span>⚡ Shortlisted</span>
+                  <span>⚡ Rigor Shortlist</span>
                   <span className="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full text-[10px]">
                     {kanbanCandidates.filter(c => c.stage === 'shortlist').length}
                   </span>
@@ -961,13 +1030,14 @@ export default function CampusNexPlatform() {
                     <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-cyan-500/30 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
+                      <div className="text-[10px] text-purple-300 font-mono mt-1">{cand.clearance}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% ATS</span>
+                        <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% Score</span>
                         <button
                           onClick={() => moveCandidateStage(cand.id, 'interview')}
                           className="text-[10px] text-purple-300 hover:text-white underline font-bold"
                         >
-                          Interview →
+                          Architecture Call →
                         </button>
                       </div>
                     </div>
@@ -977,7 +1047,7 @@ export default function CampusNexPlatform() {
 
               <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
-                  <span>🎙️ Technical Round</span>
+                  <span>🎙️ Director Round</span>
                   <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
                     {kanbanCandidates.filter(c => c.stage === 'interview').length}
                   </span>
@@ -987,13 +1057,14 @@ export default function CampusNexPlatform() {
                     <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-purple-500/30 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
+                      <div className="text-[10px] text-purple-300 font-mono mt-1">{cand.clearance}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-purple-400 font-bold">{cand.score}% ATS</span>
+                        <span className="text-[10px] text-purple-400 font-bold">{cand.score}% Score</span>
                         <button
                           onClick={() => moveCandidateStage(cand.id, 'offer')}
                           className="text-[10px] text-emerald-300 hover:text-white underline font-bold"
                         >
-                          Roll Offer →
+                          Mint Offer →
                         </button>
                       </div>
                     </div>
@@ -1003,7 +1074,7 @@ export default function CampusNexPlatform() {
 
               <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
                 <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
-                  <span>🎉 Offer Extended</span>
+                  <span>🎉 Instant Placed</span>
                   <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
                     {kanbanCandidates.filter(c => c.stage === 'offer').length}
                   </span>
@@ -1013,8 +1084,9 @@ export default function CampusNexPlatform() {
                     <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-emerald-500/40 shadow">
                       <div className="font-bold text-white">{cand.name}</div>
                       <div className="text-[11px] text-slate-400">{cand.role} • {cand.branch}</div>
+                      <div className="text-[10px] text-emerald-300 font-mono mt-1">{cand.clearance}</div>
                       <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-emerald-400 font-bold">{cand.score}% Matched</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">{cand.score}% Benchmark</span>
                         <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
                           Accepted
                         </span>
@@ -1129,7 +1201,7 @@ export default function CampusNexPlatform() {
           <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-cyan-300 tracking-wider">AI_AGENT_MATRIX_v4.2</span>
+              <span className="font-bold text-cyan-300 tracking-wider">APEX_GATEKEEPER_v5.0</span>
             </div>
             <button
               onClick={() => {
@@ -1148,7 +1220,7 @@ export default function CampusNexPlatform() {
                 <div
                   key={index}
                   className={`leading-relaxed text-[10px] ${
-                    index === 0 ? 'text-cyan-300 font-bold' : 'text-slate-400'
+                    index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
                   }`}
                 >
                   {log}
@@ -1165,104 +1237,92 @@ export default function CampusNexPlatform() {
           cyberAudio.playWarp();
           setIsPostModalOpen(true);
         }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-pink-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-cyan-300/40 shadow-cyan-500/50"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-purple-300/40 shadow-indigo-500/50"
       >
         +
       </button>
 
-      {/* Welcome Momentum Modal */}
-      {showWelcomeModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-cyan-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="absolute -top-14 -right-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-pink-500/20 rounded-full blur-2xl pointer-events-none" />
-
+      {/* CODE BATTLEFIELD ARENA MODAL (High-Bar Filtration) */}
+      {isArenaOpen && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
             <button
               onClick={() => {
                 cyberAudio.playBlip();
-                setShowWelcomeModal(false);
+                setIsArenaOpen(false);
+                setArenaSubmitted(false);
               }}
               className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
             >
               ✕
             </button>
 
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">🔥</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase tracking-wider font-mono">
-                Placement Velocity Core
-              </span>
-            </div>
-
-            <h3 className="text-xl font-black text-white tracking-tight mt-1">
-              {activeTab === 'student' ? 'Your Dream Career Begins Today.' : 'High-Potential Campus Talent Awaits.'}
-            </h3>
-
-            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              {activeTab === 'student'
-                ? 'Consistency beats talent when talent stops practicing. Over 42 companies are actively parsing candidate portfolios on CampusNex this week.'
-                : 'Campus recruitment velocity is up +8.4% this cycle. Access AI-vetted candidate benchmarks, LeetCode rank verifications, and streamlined pipeline trackers.'}
-            </p>
-
-            <div className="grid grid-cols-2 gap-3 my-4">
-              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                <span className="text-slate-400 text-[10px] block">Placement Momentum</span>
-                <span className="text-base font-black text-emerald-400 mt-0.5 block">91.2% Success</span>
-                <span className="text-[10px] text-slate-400">Class of 2026</span>
-              </div>
-              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                <span className="text-slate-400 text-[10px] block">Top Offer Tier</span>
-                <span className="text-base font-black text-cyan-300 mt-0.5 block">₹44.5 LPA CTC</span>
-                <span className="text-[10px] text-slate-400">Verified Benchmarks</span>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">⚔️</span>
+              <div>
+                <h3 className="text-base font-bold text-white">The Apex 1% Proctored Code Battlefield</h3>
+                <p className="text-[11px] text-purple-300">
+                  Anti-Cheat Active • Keystroke Dynamics Monitored • Time-Limit: 15:00
+                </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-              {activeTab === 'student' ? (
-                <>
-                  <button
-                    onClick={() => {
-                      setShowWelcomeModal(false);
-                      handleSimulateResumeScan();
-                    }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
-                  >
-                    ⚡ Scan & Benchmark Resume
-                  </button>
-                  <button
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setShowWelcomeModal(false);
-                    }}
-                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
-                  >
-                    Explore Drives →
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      setShowWelcomeModal(false);
-                      cyberAudio.playWarp();
-                      setIsPostModalOpen(true);
-                    }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
-                  >
-                    🚀 Post Urgent Drive
-                  </button>
-                  <button
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setShowWelcomeModal(false);
-                    }}
-                    className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
-                  >
-                    View Pipeline
-                  </button>
-                </>
-              )}
-            </div>
+            {!arenaSubmitted ? (
+              <div className="space-y-4">
+                <div className="p-3.5 bg-black/60 border border-slate-800 rounded-xl text-slate-300 font-sans text-xs">
+                  <div className="font-bold text-white mb-1 font-mono text-[13px]">
+                    Problem #942: Distributed Cache Invalidation with Raft Concurrency
+                  </div>
+                  Design a zero-downtime distributed consensus state machine with exponential backoff and lock-free thread coordination.
+                </div>
+
+                <div className="bg-[#070a18] p-3 rounded-xl border border-slate-800">
+                  <div className="text-[10px] text-slate-400 mb-1 flex justify-between">
+                    <span>LIVE_ARENA.ts</span>
+                    <span className="text-cyan-400">Proctored Keystroke Sensor: Active</span>
+                  </div>
+                  <textarea
+                    rows={6}
+                    defaultValue={`// Implement Thread-Safe Concurrency
+async function resolveConsensus(nodes: string[]): Promise<boolean> {
+  const quorum = Math.floor(nodes.length / 2) + 1;
+  // Enter lock-free atomic CAS logic here...
+}`}
+                    className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    cyberAudio.playLaser();
+                    setArenaSubmitted(true);
+                  }}
+                  className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
+                >
+                  Submit Code for Deep Static & Memory Rigor Analysis →
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 py-4 text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
+                  ✓
+                </div>
+                <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
+                <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
+                  Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
+                </p>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsArenaOpen(false);
+                    setArenaSubmitted(false);
+                  }}
+                  className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1440,7 +1500,7 @@ export default function CampusNexPlatform() {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 py-2 rounded-xl bg-cyan-600 text-white font-bold">
+                <button type="submit" className="flex-1 py-2 rounded-xl bg-purple-600 text-white font-bold">
                   Publish Opening
                 </button>
               </div>
@@ -1499,6 +1559,77 @@ export default function CampusNexPlatform() {
                 <span className="text-cyan-300 font-bold block mb-1">✦ AI Resume Optimization Tip:</span>
                 {selectedAtsJob.tip}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome Momentum Modal */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
+
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setShowWelcomeModal(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-2xl">🔥</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
+                The Apex 1% Standard
+              </span>
+            </div>
+
+            <h3 className="text-xl font-black text-white tracking-tight mt-1">
+              {activeTab === 'student' ? 'High-Rigor Engineering Awaits.' : 'Zero-Noise Pre-Vetted Talent Pool.'}
+            </h3>
+
+            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+              {activeTab === 'student'
+                ? 'Campus recruitment is no longer a standard placement form. Prove your distributed systems capability, pass the anti-cheat arena, and earn Day-1 enterprise clearance.'
+                : 'Every candidate in the Apex Vault has bypassed traditional screening stages through validated code execution and cognitive stress testing.'}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 my-4">
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Filtration Standard</span>
+                <span className="text-base font-black text-purple-400 mt-0.5 block">0.8% Acceptance</span>
+                <span className="text-[10px] text-slate-400">Class of 2026</span>
+              </div>
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Average Apex CTC</span>
+                <span className="text-base font-black text-cyan-300 mt-0.5 block">₹18.6 LPA</span>
+                <span className="text-[10px] text-slate-400">High-Package Tier</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+              <button
+                onClick={() => {
+                  setShowWelcomeModal(false);
+                  setIsArenaOpen(true);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+              >
+                ⚔️ Enter Code Battlefield
+              </button>
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowWelcomeModal(false);
+                }}
+                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
+              >
+                Explore Vault →
+              </button>
             </div>
           </div>
         </div>
