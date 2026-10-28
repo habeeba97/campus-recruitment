@@ -61,7 +61,6 @@ function MasterHoloverseCanvas() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
-    // Deep space stars
     const starCount = 80;
     const stars: { x: number; y: number; z: number; size: number }[] = [];
     for (let i = 0; i < starCount; i++) {
@@ -73,7 +72,6 @@ function MasterHoloverseCanvas() {
       });
     }
 
-    // Floating 3D Geometric Crystals
     const crystals = [
       { x: -280, y: -150, z: 400, rx: 0, ry: 0, scale: 50, color: 'rgba(6, 182, 212, ' },
       { x: 320, y: 130, z: 360, rx: 0.5, ry: 0.8, scale: 60, color: 'rgba(168, 85, 247, ' },
@@ -94,7 +92,6 @@ function MasterHoloverseCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Auto-sway so tablets without mouse movement still feel dynamically alive
       const autoSwayX = Math.sin(t * 0.6) * 0.08;
       const autoSwayY = Math.cos(t * 0.5) * 0.05;
 
@@ -290,13 +287,12 @@ function CyberSingularityReactor() {
       const cy = height / 2;
       const maxR = 86;
 
-      // 1. Central Singularity Core Plasma Glow
       const corePulse = Math.sin(t * 3.4) * 4.5;
       const coreR = 20 + corePulse;
       const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 2.8);
       coreGrad.addColorStop(0, '#ffffff');
-      coreGrad.addColorStop(0.25, '#f43f5e'); // Neon Pink/Rose
-      coreGrad.addColorStop(0.65, '#c026d3'); // Radiant Fuchsia
+      coreGrad.addColorStop(0.25, '#f43f5e');
+      coreGrad.addColorStop(0.65, '#c026d3');
       coreGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
 
       ctx.save();
@@ -305,7 +301,6 @@ function CyberSingularityReactor() {
       ctx.fillStyle = coreGrad;
       ctx.fill();
 
-      // High-Density White Nucleus
       ctx.beginPath();
       ctx.arc(cx, cy, coreR * 0.65, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
@@ -314,7 +309,6 @@ function CyberSingularityReactor() {
       ctx.fill();
       ctx.restore();
 
-      // 2. Radiating Photon Energy Sparks
       sparks.forEach(s => {
         s.dist += s.speed;
         if (s.dist > maxR * 1.08) {
@@ -333,11 +327,10 @@ function CyberSingularityReactor() {
         ctx.fill();
       });
 
-      // 3. Tri-Axis Gyroscope Concentric Gimbal Rings
       ctx.save();
       ctx.translate(cx, cy);
 
-      // --- Ring 1: Equatorial Outer Accelerator (Neon Pink) ---
+      // Ring 1
       const r1 = maxR * 0.95;
       ctx.save();
       ctx.rotate(t * 0.45);
@@ -349,7 +342,6 @@ function CyberSingularityReactor() {
       ctx.shadowColor = '#f43f5e';
       ctx.stroke();
 
-      // Orbital Node 1
       const a1 = t * 2.2;
       const x1 = Math.cos(a1) * r1;
       const y1 = Math.sin(a1) * (r1 * Math.abs(Math.cos(t * 0.75)));
@@ -361,7 +353,7 @@ function CyberSingularityReactor() {
       ctx.fill();
       ctx.restore();
 
-      // --- Ring 2: Polar Dyson Gyro Ring (Neon Purple) ---
+      // Ring 2
       const r2 = maxR * 0.75;
       ctx.save();
       ctx.rotate(-t * 0.55 + 1.2);
@@ -373,7 +365,6 @@ function CyberSingularityReactor() {
       ctx.shadowColor = '#a855f7';
       ctx.stroke();
 
-      // Orbital Node 2
       const a2 = -t * 2.5;
       const x2 = Math.cos(a2) * r2;
       const y2 = Math.sin(a2) * (r2 * Math.abs(Math.sin(t * 0.6)));
@@ -385,7 +376,7 @@ function CyberSingularityReactor() {
       ctx.fill();
       ctx.restore();
 
-      // --- Ring 3: Hyper-Frequency Inner Ring (Cyan) ---
+      // Ring 3
       const r3 = maxR * 0.52;
       ctx.save();
       ctx.rotate(t * 0.75 - 0.7);
@@ -397,7 +388,6 @@ function CyberSingularityReactor() {
       ctx.shadowColor = '#06b6d4';
       ctx.stroke();
 
-      // Orbital Node 3
       const a3 = t * 3.2;
       const x3 = Math.cos(a3) * r3;
       const y3 = Math.sin(a3) * (r3 * Math.abs(Math.cos(t * 1.05)));
@@ -692,7 +682,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN DASHBOARD
+// 4. MAIN DASHBOARD PLATFORM WITH APEX ENGINEERING SANDBOX
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -746,10 +736,31 @@ export default function CampusNexPlatform() {
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
+  // ==========================================================================
+  // NEW FEATURE: APEX NEURAL TRAINING DOJO (ENGINEERING SANDBOX)
+  // ==========================================================================
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
+  const [activeSandboxTrack, setActiveSandboxTrack] = useState<'concurrency' | 'git' | 'database'>('concurrency');
+  
+  // Track 1 States: Concurrency
+  const [redisEnabled, setRedisEnabled] = useState(false);
+  const [rateLimiterEnabled, setRateLimiterEnabled] = useState(false);
+  const [concurrencySolved, setConcurrencySolved] = useState(false);
+
+  // Track 2 States: Git & CI/CD
+  const [conflictResolved, setConflictResolved] = useState(false);
+  const [envSecretSecured, setEnvSecretSecured] = useState(false);
+  const [gitSolved, setGitSolved] = useState(false);
+
+  // Track 3 States: Database Tuning
+  const [bTreeIndexEnabled, setBTreeIndexEnabled] = useState(false);
+  const [batchingEnabled, setBatchingEnabled] = useState(false);
+  const [databaseSolved, setDatabaseSolved] = useState(false);
+
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [HOLODIMENSION]: Real-time 3D universe renderer initialized.',
+    '⚡ [SANDBOX_DOJO]: Practical software engineering laboratory ready.',
     '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
     '✓ [NEUROMETRICS]: Execution Under Stress Index (EUSI) locked at 98.4%.'
   ]);
@@ -766,7 +777,7 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🔥 [WAR_ROOM_SIM]: Active chaos injection ready: Distributed deadlock test.',
+      '🧪 [APEX_SANDBOX]: Interactive hands-on skill lab deployed.',
       '⚡ [PROOF_LEDGER]: 2,840 CPU cycles benchmarked for lock-free queue commit.',
       '✦ [ZERO_KNOWLEDGE]: Bid extended anonymously for candidate #APEX-01.',
       '✓ [STRESS_VECTOR]: Keystroke latency variance: 12ms (Optimal Calmness).'
@@ -993,6 +1004,9 @@ export default function CampusNexPlatform() {
       handleSimulateResumeScan();
     } else if (cmd === '/apex') {
       setTerminalLogs(prev => ['✓ [LEDGER]: Habeeba Fatima Tier-1 Apex #0x8942-APEX confirmed on consensus chain.', ...prev]);
+    } else if (cmd === '/sandbox') {
+      cyberAudio.playWarp();
+      setIsSandboxOpen(true);
     } else if (cmd === '/warroom') {
       cyberAudio.playAlarm();
       setIsWarRoomOpen(true);
@@ -1092,6 +1106,17 @@ export default function CampusNexPlatform() {
               </button>
             </div>
 
+            {/* NEW: Clean Non-Interruptive Sandbox Entry in Header */}
+            <button
+              onClick={() => {
+                cyberAudio.playWarp();
+                setIsSandboxOpen(true);
+              }}
+              className="p-2 rounded-xl bg-purple-950/70 border border-purple-500/50 text-purple-300 hover:bg-purple-900/80 text-xs font-semibold flex items-center gap-1.5 transition"
+            >
+              <span>🧪</span> Dojo Sandbox
+            </button>
+
             <button
               onClick={() => {
                 cyberAudio.playAlarm();
@@ -1139,11 +1164,11 @@ export default function CampusNexPlatform() {
                 <button
                   onClick={() => {
                     cyberAudio.playWarp();
-                    setIsArenaOpen(true);
+                    setIsSandboxOpen(true);
                   }}
-                  className="bg-slate-900/80 hover:bg-slate-800 px-2.5 py-1 rounded border border-slate-700 text-cyan-300 transition"
+                  className="bg-purple-950/80 hover:bg-purple-900 px-2.5 py-1 rounded border border-purple-500/60 text-purple-200 transition font-bold"
                 >
-                  ⚔️ Anti-Cheat Code Battlefield
+                  🧪 Practice in Dojo Sandbox
                 </button>
               </div>
             </div>
@@ -1413,6 +1438,11 @@ export default function CampusNexPlatform() {
                       <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
                         <span>✓</span> Next.js Full Stack Certified
                       </span>
+                      {concurrencySolved && (
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs font-semibold flex items-center gap-1 animate-in zoom-in-95">
+                          <span>🏆</span> Cache Architect (Dojo Certified)
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1731,7 +1761,7 @@ export default function CampusNexPlatform() {
                   <span className="text-cyan-400 font-bold">&gt;</span>
                   <input
                     type="text"
-                    placeholder="Type /warroom, /scan, /apex, /clear..."
+                    placeholder="Type /sandbox, /warroom, /scan, /apex, /clear..."
                     value={cliInput}
                     onChange={e => setCliInput(e.target.value)}
                     className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
@@ -1752,6 +1782,369 @@ export default function CampusNexPlatform() {
         >
           +
         </button>
+
+        {/* ==================================================================== */}
+        {/* NEW FEATURE MODAL: APEX NEURAL TRAINING DOJO (ENGINEERING SANDBOX) */}
+        {/* ==================================================================== */}
+        {isSandboxOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5">
+            <div className="bg-[#090e24] border border-cyan-500/70 rounded-3xl w-full max-w-3xl p-5 sm:p-7 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200 overflow-hidden">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setIsSandboxOpen(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
+                  🧪
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    Apex Engineering Training Dojo
+                    <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
+                      HANDS-ON SIMULATION
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-sans">
+                    Zero-theory practical lab: Solve real production bottlenecks before stepping into Tier-1 company drives.
+                  </p>
+                </div>
+              </div>
+
+              {/* Sandbox 3-Track Navigation Bar */}
+              <div className="grid grid-cols-3 gap-2 p-1.5 bg-[#05091a] border border-slate-800 rounded-2xl mb-5 text-[11px] font-bold">
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveSandboxTrack('concurrency');
+                  }}
+                  className={`py-2 px-1 rounded-xl transition text-center ${
+                    activeSandboxTrack === 'concurrency'
+                      ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  ⚡ Concurrency & Caching
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveSandboxTrack('git');
+                  }}
+                  className={`py-2 px-1 rounded-xl transition text-center ${
+                    activeSandboxTrack === 'git'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🐙 Git & Production CI/CD
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveSandboxTrack('database');
+                  }}
+                  className={`py-2 px-1 rounded-xl transition text-center ${
+                    activeSandboxTrack === 'database'
+                      ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🗄️ Query Optimization
+                </button>
+              </div>
+
+              {/* TRACK 1: HIGH CONCURRENCY & CACHING */}
+              {activeSandboxTrack === 'concurrency' && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#05091a] border border-cyan-900/60 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-rose-400 font-bold uppercase tracking-wider">
+                        Scenario: Flash Sale Spike (10,000 req/sec)
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${concurrencySolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300 animate-pulse'}`}>
+                        {concurrencySolved ? 'SYSTEM STABLE' : 'CRITICAL BOTTLENECK'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 py-2 font-mono">
+                      <div className="p-3 bg-[#0d1430] rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">POSTGRESQL DISK I/O</span>
+                        <span className={`text-lg font-black block mt-0.5 ${concurrencySolved ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {concurrencySolved ? '12% Load (Optimal)' : '98% Load (Saturated)'}
+                        </span>
+                      </div>
+                      <div className="p-3 bg-[#0d1430] rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">P99 API LATENCY</span>
+                        <span className={`text-lg font-black block mt-0.5 ${concurrencySolved ? 'text-cyan-300' : 'text-rose-400'}`}>
+                          {concurrencySolved ? '4.2 ms (Sub-ms Cache)' : '1,420 ms (Timeout)'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      Task: Wire in-memory Redis Read-Through caching and Token-Bucket rate limiting to prevent disk saturation and server collapse.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !redisEnabled;
+                        setRedisEnabled(next);
+                        if (next && rateLimiterEnabled) {
+                          setConcurrencySolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        redisEnabled
+                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg shadow-cyan-900/30'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">1. Redis In-Memory Cache</div>
+                        <div className="text-[10px] text-slate-400 font-sans">Bypasses 88% of DB reads</div>
+                      </div>
+                      <span className="text-base">{redisEnabled ? '✅' : '⚪'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !rateLimiterEnabled;
+                        setRateLimiterEnabled(next);
+                        if (next && redisEnabled) {
+                          setConcurrencySolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        rateLimiterEnabled
+                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg shadow-purple-900/30'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">2. Token-Bucket Rate Limiter</div>
+                        <div className="text-[10px] text-slate-400 font-sans">Cap max 100 req/sec per IP</div>
+                      </div>
+                      <span className="text-base">{rateLimiterEnabled ? '✅' : '⚪'}</span>
+                    </button>
+                  </div>
+
+                  {concurrencySolved && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
+                      <div>
+                        <div className="font-bold text-emerald-300">✓ Concurrency Lab Passed!</div>
+                        <div className="text-[10px] text-slate-300 font-sans">
+                          Redis cache absorbed the read surge and rate limiting halted DDoS bots. Badge unlocked.
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
+                        COMPETENCE VERIFIED
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TRACK 2: REAL-WORLD GIT & CI/CD */}
+              {activeSandboxTrack === 'git' && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#05091a] border border-purple-900/60 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-purple-300 font-bold uppercase tracking-wider">
+                        Scenario: Production Deployment Conflict & Secret Security
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${gitSolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                        {gitSolved ? 'PIPELINE GREEN' : 'PIPELINE BLOCKED'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#0d1430] rounded-xl font-mono text-[10px] text-slate-300 space-y-1">
+                      <div className="text-rose-400 font-bold">&gt;&gt;&gt;&gt;&gt;&gt;&gt; CONFLICT (content): Merge conflict in src/config/payment.ts</div>
+                      <div className="text-slate-400">WARNING: Plaintext STRIPE_SECRET_KEY found committed in repository root.</div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      Task: Resolve branch conflict with main and safely inject credentials through `.env` secret vaults before merging.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !conflictResolved;
+                        setConflictResolved(next);
+                        if (next && envSecretSecured) {
+                          setGitSolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        conflictResolved
+                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">1. Fast-Forward Rebase & Resolve</div>
+                        <div className="text-[10px] text-slate-400 font-sans">Accept upstream changes cleanly</div>
+                      </div>
+                      <span className="text-base">{conflictResolved ? '✅' : '⚪'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !envSecretSecured;
+                        setEnvSecretSecured(next);
+                        if (next && conflictResolved) {
+                          setGitSolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        envSecretSecured
+                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">2. Secret Rotation & .env Vault</div>
+                        <div className="text-[10px] text-slate-400 font-sans">Purge raw API keys from git history</div>
+                      </div>
+                      <span className="text-base">{envSecretSecured ? '✅' : '⚪'}</span>
+                    </button>
+                  </div>
+
+                  {gitSolved && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
+                      <div>
+                        <div className="font-bold text-emerald-300">✓ CI/CD Build Passed!</div>
+                        <div className="text-[10px] text-slate-300 font-sans">
+                          GitHub Action deployed zero-downtime container to production edge safely.
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
+                        DEVOPS VERIFIED
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TRACK 3: DATABASE INDEXING & QUERY SURGERY */}
+              {activeSandboxTrack === 'database' && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#05091a] border border-emerald-900/60 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-emerald-400 font-bold uppercase tracking-wider">
+                        Scenario: 5,000,000 Record Table Scan
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${databaseSolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                        {databaseSolved ? 'OPTIMIZED (4ms)' : 'SLOW QUERY (850ms)'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#0d1430] rounded-xl font-mono text-[10px] text-slate-300 space-y-1">
+                      <div className="text-amber-300">EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 942 AND status = 'COMPLETE';</div>
+                      <div className="text-slate-400">{databaseSolved ? 'Index Scan using idx_orders_user_status (Cost: 0.28..4.02)' : 'Seq Scan on orders (cost=0.00..89240.00 rows=5000000)'}</div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      Task: Replace brutal full sequential table scan with composite B-Tree indexing and solve the N+1 query loop.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !bTreeIndexEnabled;
+                        setBTreeIndexEnabled(next);
+                        if (next && batchingEnabled) {
+                          setDatabaseSolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        bTreeIndexEnabled
+                          ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">1. Composite B-Tree Index</div>
+                        <div className="text-[10px] text-slate-400 font-sans">INDEX ON (user_id, status)</div>
+                      </div>
+                      <span className="text-base">{bTreeIndexEnabled ? '✅' : '⚪'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        const next = !batchingEnabled;
+                        setBatchingEnabled(next);
+                        if (next && bTreeIndexEnabled) {
+                          setDatabaseSolved(true);
+                          cyberAudio.playLaser();
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
+                        batchingEnabled
+                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-white text-[11px]">2. Batch Fetch (Kill N+1 Loop)</div>
+                        <div className="text-[10px] text-slate-400 font-sans">Single query with WHERE IN (...)</div>
+                      </div>
+                      <span className="text-base">{batchingEnabled ? '✅' : '⚪'}</span>
+                    </button>
+                  </div>
+
+                  {databaseSolved && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
+                      <div>
+                        <div className="font-bold text-emerald-300">✓ Database Surgery Completed!</div>
+                        <div className="text-[10px] text-slate-300 font-sans">
+                          Execution time dropped from 850ms to 4.1ms. Database load down to 11%.
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
+                        DATA RIGOR VERIFIED
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-5 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400 font-sans">
+                <span>Practiced skills automatically reflect as Proof-of-Competence hashes on recruiter profiles.</span>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsSandboxOpen(false);
+                  }}
+                  className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* BREAKTHROUGH 2 MODAL: AUTONOMOUS INCIDENT WAR-ROOM */}
         {isWarRoomOpen && (
