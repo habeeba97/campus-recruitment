@@ -20,7 +20,6 @@ interface Job {
   eligibilityStatus: 'Eligible' | 'Criteria Mismatch';
 }
 
-// Phase 3: Comprehensive Candidate Profile Entity (User-Modifiable & Privacy-Preserved)
 interface CandidateProfile {
   name: string;
   institution: string;
@@ -37,6 +36,15 @@ interface CandidateProfile {
   dsaRank: string;
   verifiedCommits: string;
   currentStep: number;
+}
+
+interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  timestamp: string;
+  type: 'alert' | 'success' | 'info';
+  read: boolean;
 }
 
 const LIFECYCLE_STAGES = [
@@ -642,7 +650,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN PLATFORM (PHASE 1 + PHASE 2 + PHASE 3 PROFILE PRIVACY & INTEGRATION)
+// 4. MAIN PLATFORM (PHASE 1-2-3-4 FULL PRODUCTION-GRADE ARCHITECTURE)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -654,11 +662,39 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Phase 3: Profile Verification & Edit Modal
+  // Phase 4: Live Notifications Drawer State
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([
+    {
+      id: 'n1',
+      title: '🚨 Incident War-Room Assessment Ready',
+      message: 'TechCorp India initiated distributed cluster outage simulation.',
+      timestamp: 'Just now',
+      type: 'alert',
+      read: false
+    },
+    {
+      id: 'n2',
+      title: '⚡ Eligibility Clearance Approved',
+      message: 'CGPA 8.85 verified for ₹24 LPA Super Dream Drive.',
+      timestamp: '12m ago',
+      type: 'success',
+      read: false
+    },
+    {
+      id: 'n3',
+      title: '📜 Cryptographic PoE Hash Minted',
+      message: 'Consensus Proof #0x8942-APEX recorded on institutional ledger.',
+      timestamp: '1h ago',
+      type: 'info',
+      read: true
+    }
+  ]);
+
+  // Phase 3 & 4: Comprehensive Candidate Profile State (User-Modifiable & Privacy-Preserved)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [newSkillInput, setNewSkillInput] = useState('');
 
-  // Phase 3: Comprehensive Candidate State (User Sovereignty & Zero Hardcoded Data)
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>({
     name: 'Verified Candidate (#APEX-01)',
     institution: 'Deccan College of Engineering & Technology',
@@ -686,7 +722,7 @@ export default function CampusNexPlatform() {
     company: string;
   } | null>(null);
 
-  // Phase 1 Practical Assessment: Live Incident War-Room
+  // Practical Assessment: Live Incident War-Room
   const [isWarRoomOpen, setIsWarRoomOpen] = useState(false);
   const [warRoomSeconds, setWarRoomSeconds] = useState(180);
   const [warRoomLogs, setWarRoomLogs] = useState<string[]>([
@@ -697,7 +733,7 @@ export default function CampusNexPlatform() {
   const [warRoomInput, setWarRoomInput] = useState('');
   const [warRoomSolved, setWarRoomSolved] = useState(false);
 
-  // Phase 1 Skill Verification: Reverse ZK Blind Mode
+  // Phase 4: Security & Privacy - Zero-Knowledge Blind Talent Auction
   const [zkBlindMode, setZkBlindMode] = useState(true);
 
   // Interactive Command Line Input
@@ -729,9 +765,9 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_3_PRIVACY]: User-driven profile entity & security parameters active.',
-    '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
-    '✓ [APPLICATION_HISTORY]: Drive #1 status: Stage 4 (Applied).'
+    '⚡ [PHASE_4_SECURITY]: Cryptographic Zero-Knowledge Consensus active.',
+    '✦ [NOTIFICATIONS]: Live dispatch channel listening for recruiter updates.',
+    '✓ [APPLICATION_REGISTRY]: Drive #1 synchronized at Stage 4 (Applied).'
   ]);
 
   useEffect(() => {
@@ -746,7 +782,7 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '📊 [PHASE_3]: Candidate profile fields synchronized with zero-trust ledger.',
+      '📊 [PHASE_4_ANALYTICS]: Placement conversion at 96% in Core Engineering.',
       '⚡ [WORKFLOW]: Active application queue: 1 drive under active assessment.',
       '✦ [PLACEMENT_TRACK]: 4 Offers minted on cryptographic consensus ledger.',
       '✓ [VERIFICATION]: Continuous telemetry monitoring active.'
@@ -819,6 +855,7 @@ export default function CampusNexPlatform() {
     },
   ]);
 
+  // Phase 4: Job Drives with Eligibility Rules Engine
   const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
@@ -890,6 +927,17 @@ export default function CampusNexPlatform() {
       setAppliedJobs([...appliedJobs, id]);
       setJobs(jobs.map(j => (j.id === id ? { ...j, applicants: j.applicants + 1 } : j)));
       setCandidateProfile(prev => ({ ...prev, currentStep: 5 })); // Advance to Assessment
+      
+      const newNotif: AppNotification = {
+        id: Date.now().toString(),
+        title: '🎯 Application Dispatched',
+        message: `Applied to ${jobs.find(j => j.id === id)?.title}. Stage 5 Assessment Queued.`,
+        timestamp: 'Just now',
+        type: 'info',
+        read: false
+      };
+      setNotifications(prev => [newNotif, ...prev]);
+
       setTerminalLogs(prev => [
         `✓ [APPLICATION_HISTORY]: Applied to ${jobs.find(j => j.id === id)?.title}. Stage 5 Assessment Queued.`,
         ...prev
@@ -923,6 +971,16 @@ export default function CampusNexPlatform() {
     setNewTitle('');
     setNewCompany('');
     setNewSalary('');
+
+    const newNotif: AppNotification = {
+      id: Date.now().toString(),
+      title: '📢 New Apex Drive Posted',
+      message: `${newTitle} opening published by ${newCompany}.`,
+      timestamp: 'Just now',
+      type: 'success',
+      read: false
+    };
+    setNotifications(prev => [newNotif, ...prev]);
   };
 
   const handleSimulateResumeScan = () => {
@@ -968,6 +1026,16 @@ export default function CampusNexPlatform() {
       ]);
       setWarRoomSolved(true);
       setCandidateProfile(prev => ({ ...prev, currentStep: 7 }));
+
+      const newNotif: AppNotification = {
+        id: Date.now().toString(),
+        title: '🎉 War-Room Triage Passed',
+        message: 'Redis OOM solved in 42s. Execution Under Stress: 98.4%.',
+        timestamp: 'Just now',
+        type: 'success',
+        read: false
+      };
+      setNotifications(prev => [newNotif, ...prev]);
     } else {
       cyberAudio.playAlarm();
       setWarRoomLogs(prev => [`WARN: Command "${warRoomInput}" did not solve the consensus partition. Check memory policies.`, ...prev]);
@@ -1040,7 +1108,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PHASE 3: PROFILE PRIVACY & RECRUITMENT VERIFICATION
+              PHASE 4 PRODUCTION ENGINE: STAGE {candidateProfile.currentStep}/9
             </span>
             <span>EUSI STRESS TOLERANCE: {candidateProfile.eusiScore}</span>
             <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
@@ -1072,10 +1140,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 1-2-3 ENGINE
+                  PRODUCTION APEX OS
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Candidate Dashboard • Verified Lifecycle • Assessment & Privacy Shield</p>
+              <p className="text-[11px] text-slate-400">Candidate Dashboard • Verified Lifecycle • Assessment & Notifications</p>
             </div>
           </div>
 
@@ -1110,6 +1178,56 @@ export default function CampusNexPlatform() {
               </button>
             </div>
 
+            {/* Phase 4: Notification Bell with Live Unread Indicator */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowNotificationDrawer(!showNotificationDrawer);
+                }}
+                className="p-2 rounded-xl bg-[#0e162e] border border-cyan-800/60 text-cyan-300 hover:bg-cyan-900/60 text-xs font-semibold flex items-center justify-center transition relative"
+                title="Notifications"
+              >
+                <span>🔔</span>
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
+                )}
+              </button>
+
+              {/* Notification Drawer Dropdown */}
+              {showNotificationDrawer && (
+                <div className="absolute right-0 mt-2 w-80 bg-[#070d1e]/95 border border-cyan-500/60 rounded-2xl p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-800 text-xs font-mono">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <span>⚡</span> System Alerts & Updates
+                    </span>
+                    <button
+                      onClick={() => setNotifications(notifications.map(n => ({ ...n, read: true })))}
+                      className="text-[10px] text-cyan-400 hover:text-white"
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+                  <div className="space-y-2 max-h-56 overflow-y-auto">
+                    {notifications.map(notif => (
+                      <div
+                        key={notif.id}
+                        className={`p-2.5 rounded-xl border text-[11px] transition ${
+                          notif.read ? 'bg-[#0a1126]/60 border-slate-800/80 text-slate-400' : 'bg-[#101b3d] border-cyan-500/40 text-slate-200 font-medium'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-white">{notif.title}</span>
+                          <span className="text-[9px] text-slate-500">{notif.timestamp}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-300 mt-1 font-sans">{notif.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => {
                 cyberAudio.playWarp();
@@ -1134,16 +1252,16 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 IDENTITY & PRIVACY BANNER */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 4 MASTER SYSTEM SUMMARY */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  Candidate Data Sovereignty Active
+                  Phase 4 Production Ecosystem Active
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
-                  Privacy-First Profile Shield
+                  Full 10-Point Integration
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
@@ -1184,7 +1302,7 @@ export default function CampusNexPlatform() {
 
         {/* Main Container */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* Phase 1 & 2 KPI Telemetry */}
+          {/* Phase 1-4 KPI Telemetry */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
               <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
@@ -1208,7 +1326,7 @@ export default function CampusNexPlatform() {
             </div>
           </div>
 
-          {/* TAB 1: CANDIDATE HUB WITH PHASE 3 ENHANCED PROFILE */}
+          {/* TAB 1: CANDIDATE HUB WITH PHASE 4 ENHANCED LIFECYCLE */}
           {activeTab === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
@@ -1422,7 +1540,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: PHASE 3 COMPREHENSIVE CANDIDATE PROFILE CARD */}
+              {/* RIGHT COLUMN: PHASE 3 & 4 COMPREHENSIVE CANDIDATE PROFILE CARD */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1440,7 +1558,7 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Phase 3: Comprehensive Profile Detail Box */}
+                  {/* Detail Box */}
                   <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5 mt-3">
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">INSTITUTION:</span>
@@ -1503,7 +1621,7 @@ export default function CampusNexPlatform() {
                     </div>
                   )}
 
-                  {/* Phase 3: Relevant Competencies & Skill Matrix */}
+                  {/* Competencies */}
                   <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
@@ -1552,7 +1670,7 @@ export default function CampusNexPlatform() {
             </div>
           )}
 
-          {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW) */}
+          {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW - PHASE 4 SECURITY & WORKFLOW) */}
           {activeTab === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1712,7 +1830,7 @@ export default function CampusNexPlatform() {
             </div>
           )}
 
-          {/* TAB 3: RECRUITMENT ANALYTICS (TPO & INSTITUTION VIEW) */}
+          {/* TAB 3: RECRUITMENT ANALYTICS (TPO & INSTITUTION PLACEMENT CONTROL) */}
           {activeTab === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
@@ -1808,7 +1926,7 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* PHASE 3: COMPREHENSIVE PROFILE EDIT & VERIFICATION MODAL */}
+        {/* PHASE 3 & 4: PROFILE CONFIGURATION MODAL */}
         {isEditProfileOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
             <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
@@ -1826,7 +1944,7 @@ export default function CampusNexPlatform() {
                 <span>✏️</span> Candidate Profile Configuration & Security Vault
               </h3>
               <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Phase 3: Self-manage your academic parameters, course credentials, and portfolio assets. Sensitive identifiers are never publicly exposed.
+                Self-manage your academic parameters, course credentials, and portfolio assets. Sensitive identifiers are never publicly exposed.
               </p>
 
               <form
@@ -1941,7 +2059,6 @@ export default function CampusNexPlatform() {
                   />
                 </div>
 
-                {/* Skills Tag Management */}
                 <div>
                   <label className="text-slate-300 block mb-1 font-semibold">9. Relevant Competencies / Skills (Press Enter to add)</label>
                   <input
@@ -1988,7 +2105,7 @@ export default function CampusNexPlatform() {
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE3_CLI</span>
+                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE4_CLI</span>
               </div>
               <button
                 onClick={() => {
@@ -2853,22 +2970,22 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">🔥</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 3 Security & Verification Live
+                  Full 4-Phase System Live
                 </span>
               </div>
 
               <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                Candidate Sovereignty & Comprehensive Verification
+                Zero-Trust Hiring & Verification Standard
               </h3>
 
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Full user-driven profile configuration across courses (B.Tech, B.Pharm, MBA), location preferences, and verified portfolio proofs, safeguarded under strict privacy controls.
+                Full 10-point production deployment: Candidate Dashboard, Recruitment Analytics, Code Battlefield, Live Incident Outage Triage, Zero-Knowledge Blind Auction, and Real-Time Notifications.
               </p>
 
               <div className="grid grid-cols-2 gap-3 my-4">
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Profile Privacy Shield</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">Zero Identifiers Leaked</span>
+                  <span className="text-slate-400 text-[10px] block">Placement Security</span>
+                  <span className="text-base font-black text-purple-400 mt-0.5 block">Zero Identity Leaks</span>
                   <span className="text-[10px] text-slate-400">Class of 2026</span>
                 </div>
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
