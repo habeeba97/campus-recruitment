@@ -143,10 +143,10 @@ function Neural3DCanvas() {
 
       for (let i = 0; i < particleCount; i++) {
         const p = particles[i];
-        let x1 = p.x * cosY - p.z * sinY;
-        let z1 = p.z * cosY + p.x * sinY;
-        let y1 = p.y * cosX - z1 * sinX;
-        let z2 = z1 * cosX + p.y * sinX;
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.z * cosY + p.x * sinY;
+        const y1 = p.y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + p.y * sinX;
 
         p.x = x1;
         p.y = y1;
@@ -386,10 +386,10 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Exceptional Feature 1: Live Holographic ID Badge
+  // Holographic ID Badge Modal
   const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
 
-  // Exceptional Feature 2: Sovereign Offer Letter Minting Modal
+  // Sovereign Offer Letter Minting Modal
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [selectedCandidateOffer, setSelectedCandidateOffer] = useState<{
     name: string;
@@ -398,11 +398,14 @@ export default function CampusNexPlatform() {
     company: string;
   } | null>(null);
 
-  // Exceptional Feature 3: Voice Speech Recognition Bot
+  // Live Speech Recognition Bot
   const [isListening, setIsListening] = useState(false);
 
-  // Exceptional Feature 4: Interactive Command Line Input
+  // Interactive Command Line Input
   const [cliInput, setCliInput] = useState('');
+
+  // Autonomous Digital Twin Sync Status
+  const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
 
   // Apex 1% Protocol State
   const [candidateClearance] = useState<'Tier-1 Apex' | 'Tier-2 Verified'>('Tier-1 Apex');
@@ -417,19 +420,19 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [APEX_GATE]: 1,240 applicants evaluated -> Only top 0.8% granted Tier-1 clearance.',
-    '✦ [AGENT_01]: Habeeba Fatima cryptographic proof minted #0x8942-APEX.',
-    '✓ [SECURITY]: Anti-cheat keystroke dynamics confirmed 99.8% human authentic.'
+    '⚡ [CYBERSYNC]: Society 5.0 Autonomous Core synchronized.',
+    '✦ [DIGITAL_TWIN]: Habeeba Fatima neural avatar validated in distributed sandbox.',
+    '✓ [PRECISION]: Monozukuri micro-tolerance index: 0.0001% memory variance.'
   ]);
 
   useEffect(() => {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🔥 [APEX_DISPATCH]: Top 1% pool prioritized for Google & TechCorp Day-1 slots.',
-      '⚡ [AI_ATS]: Candidate algorithmic purity index: 99.4th Percentile verified.',
-      '✦ [AGENT_03]: Extracting GitHub activity: 120+ contributions verified.',
-      '✓ [AUDIT]: Cryptographic proof of competence validated on campus ledger.'
+      '🔥 [SYNAPSE]: Autonomous AI agents matching candidate twin with global cluster.',
+      '⚡ [MICRORANK]: Microsecond concurrency benchmarking active for Tier-1 nodes.',
+      '✦ [CYBER_LEDGER]: Cryptographic consensus minted #0x8942-APEX-CORE.',
+      '✓ [BIOMETRICS]: Zero cognitive jitter detected across neural stress sensors.'
     ];
 
     const interval = setInterval(() => {
@@ -556,6 +559,17 @@ export default function CampusNexPlatform() {
     setKanbanCandidates(kanbanCandidates.map(c => (c.id === id ? { ...c, stage: newStage } : c)));
   };
 
+  // Digital Twin Sync Trigger
+  const triggerDigitalTwinSync = () => {
+    cyberAudio.playWarp();
+    setDigitalTwinSyncing(true);
+    setTimeout(() => {
+      setDigitalTwinSyncing(false);
+      cyberAudio.playLaser();
+      setTerminalLogs(prev => ['✓ [TWIN_SYNC]: Digital Avatar synchronized with 42 global MNC sandbox challenges.', ...prev]);
+    }, 1200);
+  };
+
   // Live Speech Recognition Engine
   const startSpeechRecognition = () => {
     cyberAudio.playBlip();
@@ -575,7 +589,7 @@ export default function CampusNexPlatform() {
     }).SpeechRecognition || (window as unknown as { webkitSpeechRecognition?: SpeechRecognitionType }).webkitSpeechRecognition;
 
     if (!SpeechRec) {
-      alert("Speech recognition not supported in this browser. Dictation simulated: 'Client-Side Rendering (CSR) hydrates in the browser, while SSR pre-renders HTML on the edge server for instant first-contentful paint.'");
+      alert("Dictation simulated: 'Client-Side Rendering (CSR) hydrates on browser runtime, while Next.js Server Components compile on the Edge node to slash latency and ensure SEO efficiency.'");
       setInterviewAnswer("Client-Side Rendering (CSR) hydrates on browser runtime, while Next.js Server Components compile on the Edge node to slash latency and ensure SEO efficiency.");
       return;
     }
@@ -614,6 +628,8 @@ export default function CampusNexPlatform() {
       handleSimulateResumeScan();
     } else if (cmd === '/apex') {
       setTerminalLogs(prev => ['✓ [LEDGER]: Habeeba Fatima Tier-1 Apex #0x8942-APEX confirmed on consensus chain.', ...prev]);
+    } else if (cmd === '/twin') {
+      triggerDigitalTwinSync();
     } else {
       setTerminalLogs(prev => [`[CLI_EXEC]: "${cliInput}" processed by Neural-v5.0 cluster.`, ...prev]);
     }
@@ -633,10 +649,10 @@ export default function CampusNexPlatform() {
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-cyan-400">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            APEX 1% PROTOCOL: ENFORCED
+            AUTONOMOUS RECRUITMENT SYNAPSE
           </span>
-          <span>ACCEPTANCE RATE: 0.8%</span>
-          <span>SECURITY HASH: 0x8942-APEX</span>
+          <span>LATENCY: 0.3ms</span>
+          <span>PRECISION: 0.0001%</span>
         </div>
         <div className="flex items-center gap-4 text-slate-400">
           <button
@@ -649,7 +665,7 @@ export default function CampusNexPlatform() {
           >
             {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
           </button>
-          <span className="hidden sm:inline text-emerald-400">HIGH-BAR GATEKEEPING: ACTIVE</span>
+          <span className="hidden sm:inline text-emerald-400">DIGITAL TWIN: SYNCED</span>
         </div>
       </div>
 
@@ -743,9 +759,12 @@ export default function CampusNexPlatform() {
               >
                 ⚔️ Enter Proctored Code Battlefield
               </button>
-              <span className="bg-slate-900/80 px-2.5 py-1 rounded border border-slate-700 text-cyan-300">
-                L8 Engineering Standard
-              </span>
+              <button
+                onClick={triggerDigitalTwinSync}
+                className="bg-slate-900/80 hover:bg-slate-800 px-2.5 py-1 rounded border border-slate-700 text-cyan-300 transition"
+              >
+                {digitalTwinSyncing ? '↻ Syncing Twin...' : '⚡ Sync Digital Twin'}
+              </button>
             </div>
           </div>
 
@@ -769,7 +788,7 @@ export default function CampusNexPlatform() {
             <div className="text-2xl font-black text-white mt-1">₹18.6 LPA</div>
             <span className="text-cyan-400 font-bold mt-1 block">Highest: ₹44.5 LPA</span>
           </div>
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
+          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
             <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Tier-1 Exclusive Drives</span>
             <div className="text-2xl font-black text-white mt-1">{jobs.length} Companies</div>
             <span className="text-amber-400 font-bold mt-1 block">High-bar slots</span>
@@ -785,29 +804,29 @@ export default function CampusNexPlatform() {
         {activeTab === 'student' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-4">
-              {/* Clearance Status Notification Card */}
-              <div className="bg-[#0e122b] border border-purple-800/50 p-4 rounded-2xl shadow-xl flex items-center justify-between text-xs">
+              {/* Clearance Status Notification Card with Digital Twin Badge */}
+              <div className="bg-[#0e122b] border border-purple-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
                     🛡️
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-white">Your Clearance Status:</span>
+                      <span className="font-bold text-white">Clearance Status:</span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                         {candidateClearance} (0.8th Percentile)
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      All high-package drives (&gt; ₹16 LPA) unlocked. Cryptographic proof verified on campus ledger.
+                      Autonomous Digital Twin synced across 42 high-package cloud nodes.
                     </p>
                   </div>
                 </div>
                 <button
-                  onClick={() => setIsArenaOpen(true)}
-                  className="hidden sm:block px-3 py-1.5 bg-[#171f3d] border border-purple-500/40 text-purple-300 rounded-xl font-bold font-mono hover:bg-purple-900/30 transition text-[11px]"
+                  onClick={triggerDigitalTwinSync}
+                  className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
                 >
-                  Retake Benchmark
+                  <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Sync Twin'}
                 </button>
               </div>
 
@@ -946,7 +965,7 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
-            {/* Right Column: Hologram Profile & Exceptional Feature 1: Quantum Holographic ID Badge */}
+            {/* Right Column: Hologram Profile & Quantum Holographic ID Badge */}
             <div className="space-y-5">
               <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-2">
@@ -1226,7 +1245,7 @@ export default function CampusNexPlatform() {
               <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-900/50 space-y-2">
                 <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
                 <div className="text-lg font-bold text-white">AI Infrastructure & LLM Ops</div>
-                <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge (Silicon Valley / BLR)</div>
+                <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge</div>
                 <p className="text-[10px] text-slate-400 font-sans mt-2">
                   Highest placement compensation multiplier detected. 64 students already aligned.
                 </p>
@@ -1305,7 +1324,7 @@ export default function CampusNexPlatform() {
         )}
       </main>
 
-      {/* Exceptional Feature 4: Interactive CLI Developer Console */}
+      {/* Interactive CLI Developer Console */}
       <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
         <div className="bg-[#070b16]/95 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden font-mono text-[11px]">
           <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
@@ -1342,7 +1361,7 @@ export default function CampusNexPlatform() {
                 <span className="text-cyan-400 font-bold">&gt;</span>
                 <input
                   type="text"
-                  placeholder="Type /scan, /apex, /clear..."
+                  placeholder="Type /scan, /apex, /twin, /clear..."
                   value={cliInput}
                   onChange={e => setCliInput(e.target.value)}
                   className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
@@ -1364,7 +1383,7 @@ export default function CampusNexPlatform() {
         +
       </button>
 
-      {/* Exceptional Feature 1 Modal: Quantum Holographic 3D Identity Badge */}
+      {/* Quantum Holographic 3D Identity Badge */}
       {showIdBadgeModal && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-sm p-6 text-xs relative shadow-2xl overflow-hidden font-mono text-center animate-in zoom-in-95 duration-200">
@@ -1437,7 +1456,7 @@ export default function CampusNexPlatform() {
         </div>
       )}
 
-      {/* Exceptional Feature 2 Modal: Sovereign Offer Letter */}
+      {/* Sovereign Offer Letter Modal */}
       {showOfferModal && selectedCandidateOffer && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
