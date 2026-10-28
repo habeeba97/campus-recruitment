@@ -19,7 +19,188 @@ interface Job {
 }
 
 // ============================================================================
-// 1. ULTRA-PREMIUM 3D DEEP-SPACE UNIVERSE CANVAS ENGINE (FULL-PAGE PARALLAX)
+// 1. THE CYBER-SINGULARITY DYSON REACTOR WITH TRI-AXIS GYROSCOPE RINGS (2045)
+// ============================================================================
+function CyberSingularityReactor() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Radiating photon flare sparks from the core
+    const sparkCount = 38;
+    const sparks: { angle: number; dist: number; speed: number; size: number; alpha: number }[] = [];
+    for (let i = 0; i < sparkCount; i++) {
+      sparks.push({
+        angle: Math.random() * Math.PI * 2,
+        dist: Math.random() * 60 + 10,
+        speed: Math.random() * 0.8 + 0.4,
+        size: Math.random() * 2 + 0.8,
+        alpha: Math.random() * 0.8 + 0.2,
+      });
+    }
+
+    let t = 0;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2;
+      const maxR = Math.min(width, height) * 0.44;
+
+      // 1. Central Singularity Core Outer Nebula Glow
+      const corePulse = Math.sin(t * 3) * 6;
+      const coreRadius = 24 + corePulse;
+      const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreRadius * 2.8);
+      coreGrad.addColorStop(0, '#ffffff');
+      coreGrad.addColorStop(0.2, '#f43f5e'); // Neon Rose
+      coreGrad.addColorStop(0.55, '#c026d3'); // Radiant Fuchsia
+      coreGrad.addColorStop(1, 'rgba(112, 26, 117, 0)');
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreRadius * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
+
+      // 2. High-Density Inner Nucleus
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreRadius * 0.7, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 24;
+      ctx.shadowColor = '#f43f5e';
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Photon Spark Emitters radiating outward
+      sparks.forEach(s => {
+        s.dist += s.speed;
+        if (s.dist > maxR * 1.1) {
+          s.dist = 14;
+          s.angle = Math.random() * Math.PI * 2;
+        }
+        const sx = cx + Math.cos(s.angle + t * 0.2) * s.dist;
+        const sy = cy + Math.sin(s.angle + t * 0.2) * s.dist;
+        const fade = 1 - s.dist / (maxR * 1.1);
+
+        ctx.beginPath();
+        ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244, 114, 182, ${s.alpha * fade})`;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = '#ec4899';
+        ctx.fill();
+      });
+
+      // 4. Tri-Axis 3D Gyroscope Gimbal Rings
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // --- AXIS 1: Equatorial Outer Accelerator Ring (Neon Pink) ---
+      const r1 = maxR * 0.94;
+      ctx.save();
+      ctx.rotate(t * 0.45);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r1, r1 * Math.abs(Math.cos(t * 0.8)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 1.8;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#f43f5e';
+      ctx.stroke();
+
+      // Orbiting Quantum Node 1
+      const n1Angle = t * 2.2;
+      const n1x = Math.cos(n1Angle) * r1;
+      const n1y = Math.sin(n1Angle) * (r1 * Math.abs(Math.cos(t * 0.8)));
+      ctx.beginPath();
+      ctx.arc(n1x, n1y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = '#ffffff';
+      ctx.fill();
+      ctx.restore();
+
+      // --- AXIS 2: Inclined Polar Dyson Ring (Electric Purple) ---
+      const r2 = maxR * 0.74;
+      ctx.save();
+      ctx.rotate(-t * 0.55 + 1.1);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r2, r2 * Math.abs(Math.sin(t * 0.65)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.6;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#a855f7';
+      ctx.stroke();
+
+      // Orbiting Quantum Node 2
+      const n2Angle = -t * 2.6;
+      const n2x = Math.cos(n2Angle) * r2;
+      const n2y = Math.sin(n2Angle) * (r2 * Math.abs(Math.sin(t * 0.65)));
+      ctx.beginPath();
+      ctx.arc(n2x, n2y, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#e879f9';
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = '#e879f9';
+      ctx.fill();
+      ctx.restore();
+
+      // --- AXIS 3: Hyper-Frequency Inner Containment Ring (Cyber Cyan Accent) ---
+      const r3 = maxR * 0.52;
+      ctx.save();
+      ctx.rotate(t * 0.75 - 0.7);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r3, r3 * Math.abs(Math.cos(t * 1.1)), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 1.4;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#06b6d4';
+      ctx.stroke();
+
+      // Orbiting Quantum Node 3
+      const n3Angle = t * 3.4;
+      const n3x = Math.cos(n3Angle) * r3;
+      const n3y = Math.sin(n3Angle) * (r3 * Math.abs(Math.cos(t * 1.1)));
+      ctx.beginPath();
+      ctx.arc(n3x, n3y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = '#67e8f9';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#22d3ee';
+      ctx.fill();
+      ctx.restore();
+
+      ctx.restore();
+
+      t += 0.016;
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-full block" />;
+}
+
+// ============================================================================
+// 2. ULTRA-PREMIUM 3D FULL-PAGE BACKGROUND CANVAS (PARALLAX + HORIZON)
 // ============================================================================
 function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -46,14 +227,14 @@ function MasterHoloverseCanvas() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      targetMouseX = (e.clientX - width / 2) * 0.0008;
-      targetMouseY = (e.clientY - height / 2) * 0.0008;
+      targetMouseX = (e.clientX - width / 2) * 0.0006;
+      targetMouseY = (e.clientY - height / 2) * 0.0006;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches[0]) {
-        targetMouseX = (e.touches[0].clientX - width / 2) * 0.0008;
-        targetMouseY = (e.touches[0].clientY - height / 2) * 0.0008;
+        targetMouseX = (e.touches[0].clientX - width / 2) * 0.0006;
+        targetMouseY = (e.touches[0].clientY - height / 2) * 0.0006;
       }
     };
 
@@ -61,41 +242,22 @@ function MasterHoloverseCanvas() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove);
 
-    // Dynamic 3D Star Constellation
-    const starCount = 85;
+    const starCount = 80;
     const stars: { x: number; y: number; z: number; size: number }[] = [];
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: (Math.random() - 0.5) * 1600,
         y: (Math.random() - 0.5) * 1600,
         z: Math.random() * 1200 + 100,
-        size: Math.random() * 1.6 + 0.8,
+        size: Math.random() * 1.5 + 0.6,
       });
     }
-
-    // 3D Floating Geometric Octahedron Crystals
-    const crystals = [
-      { x: -320, y: -140, z: 420, rx: 0, ry: 0, rz: 0, scale: 52, color: 'rgba(6, 182, 212, ' },
-      { x: 360, y: 110, z: 380, rx: 0.5, ry: 0.8, rz: 0, scale: 65, color: 'rgba(168, 85, 247, ' },
-      { x: 120, y: -260, z: 520, rx: 1.2, ry: 0.3, rz: 0.4, scale: 38, color: 'rgba(236, 72, 153, ' }
-    ];
-
-    // Crystal Octahedron Vertices & Edges
-    const octVerts = [
-      [0, 1, 0], [1, 0, 0], [0, 0, 1], [-1, 0, 0], [0, 0, -1], [0, -1, 0]
-    ];
-    const octEdges = [
-      [0,1],[0,2],[0,3],[0,4],
-      [5,1],[5,2],[5,3],[5,4],
-      [1,2],[2,3],[3,4],[4,1]
-    ];
 
     let t = 0;
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth mouse damping
       mouseX += (targetMouseX - mouseX) * 0.04;
       mouseY += (targetMouseY - mouseY) * 0.04;
 
@@ -103,13 +265,13 @@ function MasterHoloverseCanvas() {
       const cy = height / 2;
       const fov = 420;
 
-      // 1. Perspective Horizon Grid (Tron Dimension Grid)
+      // Perspective Grid Floor
       const gridPitch = 220 + mouseY * 250;
       ctx.save();
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.07)';
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.06)';
       ctx.lineWidth = 1;
       const gridY = cy + gridPitch;
-      for (let x = -width; x < width * 2; x += 90) {
+      for (let x = -width; x < width * 2; x += 100) {
         ctx.beginPath();
         ctx.moveTo(cx + mouseX * 400, cy - 60);
         ctx.lineTo(x, height);
@@ -123,14 +285,12 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // 2. Stars & Neural Network Strands
-      const projectedStars: { px: number; py: number; alpha: number }[] = [];
+      // Deep space background stars
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
-        s.z -= 0.6;
+        s.z -= 0.5;
         if (s.z <= 20) s.z = 1200;
 
-        // Apply mouse camera tilt
         const rotX = s.x * Math.cos(mouseX) - s.z * Math.sin(mouseX);
         const rotZ = s.x * Math.sin(mouseX) + s.z * Math.cos(mouseX);
         const rotY = s.y * Math.cos(mouseY) - rotZ * Math.sin(mouseY);
@@ -142,119 +302,12 @@ function MasterHoloverseCanvas() {
           const py = cy + rotY * scale;
           const alpha = Math.min(1, Math.max(0.1, 1 - finalZ / 1200));
 
-          projectedStars.push({ px, py, alpha });
-
           ctx.beginPath();
           ctx.arc(px, py, s.size * scale, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(147, 197, 253, ${alpha * 0.75})`;
+          ctx.fillStyle = `rgba(147, 197, 253, ${alpha * 0.6})`;
           ctx.fill();
         }
       }
-
-      // Constellation connection links
-      for (let i = 0; i < projectedStars.length; i++) {
-        for (let j = i + 1; j < Math.min(i + 4, projectedStars.length); j++) {
-          const dx = projectedStars[i].px - projectedStars[j].px;
-          const dy = projectedStars[i].py - projectedStars[j].py;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 85) {
-            ctx.beginPath();
-            ctx.moveTo(projectedStars[i].px, projectedStars[i].py);
-            ctx.lineTo(projectedStars[j].px, projectedStars[j].py);
-            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 85) * 0.22})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
-      // 3. Central Dimensional Gyroscope Rings
-      const ringRadius = Math.min(width, height) * 0.28;
-      ctx.save();
-      ctx.translate(cx, cy);
-
-      // Ring 1 (Cyan Axis)
-      ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius, ringRadius * Math.abs(Math.cos(t * 0.4 + mouseX * 2)), t * 0.5, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.22)';
-      ctx.lineWidth = 1.4;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#06b6d4';
-      ctx.stroke();
-
-      // Ring 2 (Purple Core Axis)
-      ctx.beginPath();
-      ctx.ellipse(0, 0, ringRadius * 0.75, ringRadius * 0.75 * Math.abs(Math.sin(t * 0.35 + mouseY * 2)), -t * 0.35, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(192, 132, 252, 0.25)';
-      ctx.lineWidth = 1.2;
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = '#a855f7';
-      ctx.stroke();
-
-      // Orbiting Energy Quantum Sparks
-      const sparkX = Math.cos(t * 1.5) * ringRadius;
-      const sparkY = Math.sin(t * 1.5) * (ringRadius * Math.abs(Math.cos(t * 0.4 + mouseX * 2)));
-      ctx.beginPath();
-      ctx.arc(sparkX, sparkY, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#22d3ee';
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = '#22d3ee';
-      ctx.fill();
-
-      ctx.restore();
-
-      // 4. Floating 3D Octahedron Crystals
-      crystals.forEach(c => {
-        c.rx += 0.008;
-        c.ry += 0.012;
-
-        const transformed = octVerts.map(v => {
-          // Local rotation
-          let x = v[0] * c.scale;
-          let y = v[1] * c.scale;
-          let z = v[2] * c.scale;
-
-          // Rotate X
-          let y1 = y * Math.cos(c.rx) - z * Math.sin(c.rx);
-          let z1 = y * Math.sin(c.rx) + z * Math.cos(c.rx);
-          // Rotate Y
-          let x2 = x * Math.cos(c.ry) + z1 * Math.sin(c.ry);
-          let z2 = -x * Math.sin(c.ry) + z1 * Math.cos(c.ry);
-
-          // World position with mouse parallax
-          const wx = x2 + c.x + mouseX * 180;
-          const wy = y1 + c.y + mouseY * 180;
-          const wz = z2 + c.z;
-
-          const scale = fov / (fov + wz);
-          return {
-            px: cx + wx * scale,
-            py: cy + wy * scale,
-            scale,
-            alpha: Math.min(1, Math.max(0.15, 1 - wz / 900))
-          };
-        });
-
-        // Draw crystal wireframe edges
-        octEdges.forEach(e => {
-          const p1 = transformed[e[0]];
-          const p2 = transformed[e[1]];
-          ctx.beginPath();
-          ctx.moveTo(p1.px, p1.py);
-          ctx.lineTo(p2.px, p2.py);
-          ctx.strokeStyle = `${c.color}${p1.alpha * 0.65})`;
-          ctx.lineWidth = 1.1;
-          ctx.stroke();
-        });
-
-        // Glowing crystal vertices
-        transformed.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.px, p.py, 2 * p.scale, 0, Math.PI * 2);
-          ctx.fillStyle = `${c.color}${p.alpha})`;
-          ctx.fill();
-        });
-      });
 
       t += 0.015;
       animId = requestAnimationFrame(render);
@@ -274,7 +327,7 @@ function MasterHoloverseCanvas() {
 }
 
 // ============================================================================
-// 2. AUDIO SYNTHESIZER ENGINE
+// 3. AUDIO SYNTHESIZER ENGINE
 // ============================================================================
 class CyberAudioEngine {
   private ctx: AudioContext | null = null;
@@ -536,7 +589,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 3. MAIN DASHBOARD COMPONENT WITH PERSPECTIVE DEPTH
+// 4. MAIN DASHBOARD COMPONENT WITH CYBER-SINGULARITY DYSON REACTOR
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -593,7 +646,7 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [HOLODIMENSION]: Real-time 3D universe renderer initialized.',
+    '⚡ [DYSON_REACTOR]: Quantum Singularity active at 99.8% core containment.',
     '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
     '✓ [NEUROMETRICS]: Execution Under Stress Index (EUSI) locked at 98.4%.'
   ]);
@@ -610,7 +663,7 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🔥 [WAR_ROOM_SIM]: Active chaos injection ready: Distributed deadlock test.',
+      '🔥 [DYSON_CORE]: Tri-axis gyroscopic telemetry locked with candidate matrix.',
       '⚡ [PROOF_LEDGER]: 2,840 CPU cycles benchmarked for lock-free queue commit.',
       '✦ [ZERO_KNOWLEDGE]: Bid extended anonymously for candidate #APEX-01.',
       '✓ [STRESS_VECTOR]: Keystroke latency variance: 12ms (Optimal Calmness).'
@@ -856,17 +909,17 @@ export default function CampusNexPlatform() {
 
   return (
     <div className="min-h-screen bg-[#030611] text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden">
-      {/* FULL-VIEWPORT 3D DYNAMIC UNIVERSE CANVAS */}
+      {/* 3D FULL-VIEWPORT DEEP SPACE BACKGROUND CANVAS */}
       <MasterHoloverseCanvas />
 
-      {/* FOREGROUND APPLICATION LAYER */}
+      {/* FOREGROUND APPLICATION CONTENT */}
       <div className="relative z-10">
         {/* Top Cyber Telemetry Matrix Bar */}
         <div className="bg-[#070d1e]/85 backdrop-blur-md border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PROOF-OF-EXECUTION CONSENSUS ACTIVE
+              DYSON SINGULARITY REACTOR ACTIVE
             </span>
             <span>EUSI STRESS TOLERANCE: 98.4%</span>
             <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
@@ -950,9 +1003,9 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* Hero Banner: Autonomous Chaos & Execution Proof */}
+        {/* HERO BANNER: FEATURING THE CYBER-SINGULARITY DYSON REACTOR ON THE RIGHT */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
-          <div className="relative h-48 sm:h-56 w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex items-center justify-between p-6">
+          <div className="relative h-48 sm:h-56 w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/85 via-[#091129]/85 to-[#04091a]/85 backdrop-blur-xl shadow-2xl flex items-center justify-between p-6">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
@@ -990,6 +1043,11 @@ export default function CampusNexPlatform() {
                   ⚔️ Anti-Cheat Code Battlefield
                 </button>
               </div>
+            </div>
+
+            {/* ULTRA-PREMIUM CYBER-SINGULARITY DYSON REACTOR WITH TRI-AXIS RINGS */}
+            <div className="absolute right-0 top-0 bottom-0 w-full sm:w-1/2 pointer-events-none z-0">
+              <CyberSingularityReactor />
             </div>
           </div>
         </div>
@@ -1539,7 +1597,7 @@ export default function CampusNexPlatform() {
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">HOLODIMENSION_CLI_v7.0</span>
+                <span className="font-bold text-cyan-300 tracking-wider">DYSON_REACTOR_CLI_v8.0</span>
               </div>
               <button
                 onClick={() => {
@@ -1592,9 +1650,7 @@ export default function CampusNexPlatform() {
           +
         </button>
 
-        {/* ========================================================== */}
         {/* BREAKTHROUGH 2 MODAL: AUTONOMOUS INCIDENT WAR-ROOM */}
-        {/* ========================================================== */}
         {isWarRoomOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b0716] border border-rose-600/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200">
@@ -1874,231 +1930,230 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
   const quorum = Math.floor(nodes.length / 2) + 1;
   // Enter lock-free atomic CAS logic here...
 }`}
-                      className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
-                    />
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      cyberAudio.playLaser();
-                      setArenaSubmitted(true);
-                    }}
-                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
-                  >
-                    Submit Code for Deep Static & Memory Rigor Analysis →
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3 py-4 text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
-                    ✓
-                  </div>
-                  <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
-                  <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
-                    Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
-                  </p>
-                  <button
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setIsArenaOpen(false);
-                      setArenaSubmitted(false);
-                    }}
-                    className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
-                  >
-                    Return to Dashboard
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Post Drive Modal */}
-        {isPostModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsPostModalOpen(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 text-lg"
-              >
-                ✕
-              </button>
-              <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
-              <form onSubmit={handleCreateJob} className="space-y-3">
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Job Role *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. AI Cloud Architect"
-                    value={newTitle}
-                    onChange={e => setNewTitle(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                    className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
                   />
                 </div>
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Company Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Google India"
-                    value={newCompany}
-                    onChange={e => setNewCompany(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Package Offered</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ₹16 - ₹20 LPA"
-                    value={newSalary}
-                    onChange={e => setNewSalary(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setIsPostModalOpen(false);
-                    }}
-                    className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="flex-1 py-2 rounded-xl bg-purple-600 text-white font-bold">
-                    Publish Opening
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
-        {/* ATS Match Modal */}
-        {selectedAtsJob && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setSelectedAtsJob(null);
-                }}
-                className="absolute top-4 right-4 text-slate-400 text-lg"
-              >
-                ✕
-              </button>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
-                  {selectedAtsJob.matchScore}%
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-base">Proof-of-Execution Compatibility</h3>
-                  <p className="text-slate-400">
-                    {selectedAtsJob.title} • {selectedAtsJob.company}
-                  </p>
-                </div>
+                <button
+                  onClick={() => {
+                    cyberAudio.playLaser();
+                    setArenaSubmitted(true);
+                  }}
+                  className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
+                >
+                  Submit Code for Deep Static & Memory Rigor Analysis →
+                </button>
               </div>
+            ) : (
+              <div className="space-y-3 py-4 text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
+                  ✓
+                </div>
+                <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
+                <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
+                  Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
+                </p>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsArenaOpen(false);
+                    setArenaSubmitted(false);
+                  }}
+                  className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-              <div className="space-y-3 mt-4">
-                <div>
-                  <span className="text-emerald-400 font-bold block mb-1">✓ Validated Execution Capabilities:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedAtsJob.matched.map((m, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-md">
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
-                  <span className="text-cyan-300 font-bold block mb-1">✦ Architectural War-Room Metric:</span>
-                  {selectedAtsJob.tip}
-                </div>
+      {/* Post Drive Modal */}
+      {isPostModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-slate-800 rounded-3xl w-full max-w-md p-6 text-xs relative">
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setIsPostModalOpen(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 text-lg"
+            >
+              ✕
+            </button>
+            <h3 className="text-base font-bold text-white mb-4">🚀 Post New Drive Opening</h3>
+            <form onSubmit={handleCreateJob} className="space-y-3">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Job Role *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. AI Cloud Architect"
+                  value={newTitle}
+                  onChange={e => setNewTitle(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Company Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Google India"
+                  value={newCompany}
+                  onChange={e => setNewCompany(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Package Offered</label>
+                <input
+                  type="text"
+                  placeholder="e.g. ₹16 - ₹20 LPA"
+                  value={newSalary}
+                  onChange={e => setNewSalary(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+              </div>
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setIsPostModalOpen(false);
+                  }}
+                  className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 py-2 rounded-xl bg-purple-600 text-white font-bold">
+                  Publish Opening
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ATS Match Modal */}
+      {selectedAtsJob && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setSelectedAtsJob(null);
+              }}
+              className="absolute top-4 right-4 text-slate-400 text-lg"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
+                {selectedAtsJob.matchScore}%
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-base">Proof-of-Execution Compatibility</h3>
+                <p className="text-slate-400">
+                  {selectedAtsJob.title} • {selectedAtsJob.company}
+                </p>
               </div>
             </div>
+
+            <div className="space-y-3 mt-4">
+              <div>
+                <span className="text-emerald-400 font-bold block mb-1">✓ Validated Execution Capabilities:</span>
+                <div className="flex flex-wrap gap-1">
+                  {selectedAtsJob.matched.map((m, i) => (
+                    <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-md">
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
+                <span className="text-cyan-300 font-bold block mb-1">✦ Architectural War-Room Metric:</span>
+                {selectedAtsJob.tip}
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Welcome Momentum Modal */}
-        {showWelcomeModal && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
+      {/* Welcome Momentum Modal */}
+      {showWelcomeModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
 
+            <button
+              onClick={() => {
+                cyberAudio.playBlip();
+                setShowWelcomeModal(false);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-2xl">🔥</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
+                The Zero-Trust Apex Standard
+              </span>
+            </div>
+
+            <h3 className="text-xl font-black text-white tracking-tight mt-1">
+              {activeTab === 'student' ? 'Mathematical Proof of Competence.' : 'Zero-Knowledge Blind Talent Auction.'}
+            </h3>
+
+            <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+              {activeTab === 'student'
+                ? 'Campus recruitment is no longer a standard placement form. Prove your architecture under fire in the Incident War-Room and mint your cryptographic Proof-of-Execution hash.'
+                : 'Every candidate in the Apex Vault has bypassed traditional screening stages through validated code execution and cognitive stress testing.'}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 my-4">
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Filtration Standard</span>
+                <span className="text-base font-black text-purple-400 mt-0.5 block">0.8% Acceptance</span>
+                <span className="text-[10px] text-slate-400">Class of 2026</span>
+              </div>
+              <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
+                <span className="text-slate-400 text-[10px] block">Average Apex CTC</span>
+                <span className="text-base font-black text-cyan-300 mt-0.5 block">₹18.6 LPA</span>
+                <span className="text-[10px] text-slate-400">High-Package Tier</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+              <button
+                onClick={() => {
+                  setShowWelcomeModal(false);
+                  cyberAudio.playAlarm();
+                  setIsWarRoomOpen(true);
+                  setWarRoomSeconds(180);
+                  setWarRoomSolved(false);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+              >
+                🚨 Launch Incident War-Room
+              </button>
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
                   setShowWelcomeModal(false);
                 }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
               >
-                ✕
+                Explore Vault →
               </button>
-
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🔥</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  The Zero-Trust Apex Standard
-                </span>
-              </div>
-
-              <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                {activeTab === 'student' ? 'Mathematical Proof of Competence.' : 'Zero-Knowledge Blind Talent Auction.'}
-              </h3>
-
-              <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                {activeTab === 'student'
-                  ? 'Campus recruitment is no longer a standard placement form. Prove your architecture under fire in the Incident War-Room and mint your cryptographic Proof-of-Execution hash.'
-                  : 'Every candidate in the Apex Vault has bypassed traditional screening stages through validated code execution and cognitive stress testing.'}
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 my-4">
-                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Filtration Standard</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">0.8% Acceptance</span>
-                  <span className="text-[10px] text-slate-400">Class of 2026</span>
-                </div>
-                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Average Apex CTC</span>
-                  <span className="text-base font-black text-cyan-300 mt-0.5 block">₹18.6 LPA</span>
-                  <span className="text-[10px] text-slate-400">High-Package Tier</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <button
-                  onClick={() => {
-                    setShowWelcomeModal(false);
-                    cyberAudio.playAlarm();
-                    setIsWarRoomOpen(true);
-                    setWarRoomSeconds(180);
-                    setWarRoomSolved(false);
-                  }}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
-                >
-                  🚨 Launch Incident War-Room
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setShowWelcomeModal(false);
-                  }}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
-                >
-                  Explore Vault →
-                </button>
-              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
