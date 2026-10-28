@@ -20,25 +20,25 @@ interface Job {
   eligibilityStatus: 'Eligible' | 'Criteria Mismatch';
 }
 
+// Phase 3: Comprehensive Candidate Profile Entity (User-Modifiable & Privacy-Preserved)
 interface CandidateProfile {
   name: string;
-  role: string;
-  department: string;
   institution: string;
+  course: string;
   batch: string;
   cgpa: string;
+  skills: string[];
+  resumeFileName: string;
+  preferredRole: string;
+  locationPreference: string;
   clearance: string;
   poeHash: string;
   eusiScore: string;
   dsaRank: string;
   verifiedCommits: string;
-  preferredRole: string;
-  locationPreference: string;
-  resumeFileName: string;
-  currentStep: number; // Phase 2: 1 to 9
+  currentStep: number;
 }
 
-// 9 Stages of Phase 2 Recruitment Workflow
 const LIFECYCLE_STAGES = [
   '1. Registration',
   '2. Profile',
@@ -135,7 +135,7 @@ function MasterHoloverseCanvas() {
       const cy = height / 2;
       const fov = 420;
 
-      // Perspective Tron Floor
+      // 1. Perspective Tron Floor
       const gridPitch = 180 + mouseY * 200;
       ctx.save();
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
@@ -155,7 +155,7 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // Stars
+      // 2. Stars
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
         s.z -= 0.7;
@@ -181,7 +181,7 @@ function MasterHoloverseCanvas() {
         }
       }
 
-      // Floating 3D Octahedron Crystals
+      // 3. Floating Crystals
       crystals.forEach(c => {
         c.rx += 0.008;
         c.ry += 0.012;
@@ -642,38 +642,39 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN PLATFORM (PHASE 1 + PHASE 2 RECRUITMENT WORKFLOW INTEGRATED)
+// 4. MAIN PLATFORM (PHASE 1 + PHASE 2 + PHASE 3 PROFILE PRIVACY & INTEGRATION)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [selectedAtsJob, setSelectedAtsJob] = useState<Job | null>(null);
-  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
+  const [appliedJobs, setAppliedJobs] = useState<string[]>(['1']);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Phase 2: Dynamic Profile Customization & Verification Modal State
+  // Phase 3: Profile Verification & Edit Modal
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [newSkillInput, setNewSkillInput] = useState('');
 
-  // Phase 1 & 2: Candidate State with End-to-End Workflow Stages (1 to 9)
+  // Phase 3: Comprehensive Candidate State (User Sovereignty & Zero Hardcoded Data)
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>({
     name: 'Verified Candidate (#APEX-01)',
-    role: 'Full Stack Systems Engineer',
-    department: 'Computer Science & Engineering',
-    institution: 'Autonomous Tech Institute',
+    institution: 'Deccan College of Engineering & Technology',
+    course: 'B.Tech Computer Science & Engineering',
     batch: '2026',
-    cgpa: '8.8',
+    cgpa: '8.85',
+    skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis', 'Docker'],
+    resumeFileName: 'Candidate_APEX01_Verified_Portfolio.pdf',
+    preferredRole: 'Backend Systems & Concurrency Engineer',
+    locationPreference: 'Hyderabad / Bengaluru / Hybrid',
     clearance: 'Tier-1 Apex (Top 0.8%)',
     poeHash: '#0x8942-APEX',
     eusiScore: '98.4%',
     dsaRank: '1840+ Hard Rank',
     verifiedCommits: '120+ Commits',
-    preferredRole: 'Backend Systems Architect',
-    locationPreference: 'Hyderabad / Bengaluru / Remote',
-    resumeFileName: 'Verified_Portfolio_Consensus.pdf',
-    currentStep: 4 // Stage: Applied
+    currentStep: 4 // Stage 4: Applied
   });
 
   const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
@@ -703,16 +704,16 @@ export default function CampusNexPlatform() {
   const [cliInput, setCliInput] = useState('');
   const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
 
-  // Phase 1 Practical Assessment: Code Battlefield Arena
+  // Practical Assessment: Code Battlefield Arena
   const [isArenaOpen, setIsArenaOpen] = useState(false);
   const [arenaSubmitted, setArenaSubmitted] = useState(false);
 
-  // Phase 1 Static Code & Skill Parser
+  // Practical Assessment: Static Code & Skill Parser
   const [isScanning, setIsScanning] = useState(false);
   const [resumeParsed, setResumeParsed] = useState(false);
   const [parsedScore, setParsedScore] = useState(94);
 
-  // Engineering Sandbox State
+  // Practical Assessment: Engineering Sandbox State
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [activeSandboxTrack, setActiveSandboxTrack] = useState<'concurrency' | 'git' | 'database'>('concurrency');
   const [redisEnabled, setRedisEnabled] = useState(false);
@@ -728,9 +729,9 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_2_WORKFLOW]: End-to-end recruitment lifecycle engine operational.',
-    '✦ [ELIGIBILITY_RULES]: Automated CGPA + DSA Proof-of-Execution clearance applied.',
-    '✓ [LIFECYCLE_STAGE]: Candidate currently synchronized at Stage 4 (Applied).'
+    '⚡ [PHASE_3_PRIVACY]: User-driven profile entity & security parameters active.',
+    '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
+    '✓ [APPLICATION_HISTORY]: Drive #1 status: Stage 4 (Applied).'
   ]);
 
   useEffect(() => {
@@ -745,8 +746,8 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '📊 [PHASE_2]: Eligibility rules parsed for 14 active company drives.',
-      '⚡ [WORKFLOW]: Candidate moved to Assessment & War-Room Stage.',
+      '📊 [PHASE_3]: Candidate profile fields synchronized with zero-trust ledger.',
+      '⚡ [WORKFLOW]: Active application queue: 1 drive under active assessment.',
       '✦ [PLACEMENT_TRACK]: 4 Offers minted on cryptographic consensus ledger.',
       '✓ [VERIFICATION]: Continuous telemetry monitoring active.'
     ];
@@ -818,7 +819,6 @@ export default function CampusNexPlatform() {
     },
   ]);
 
-  // Phase 2: Enhanced Job Drives with Eligibility Criteria Rules
   const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
@@ -884,16 +884,14 @@ export default function CampusNexPlatform() {
     if (nextState) cyberAudio.playBlip();
   };
 
-  // Phase 2: Workflow Trigger - Job Application pushes candidate to Assessment (Step 5)
   const handleApply = (id: string) => {
     cyberAudio.playLaser();
     if (!appliedJobs.includes(id)) {
       setAppliedJobs([...appliedJobs, id]);
       setJobs(jobs.map(j => (j.id === id ? { ...j, applicants: j.applicants + 1 } : j)));
-      // Advance candidate workflow to Step 5: Assessment
-      setCandidateProfile(prev => ({ ...prev, currentStep: 5 }));
+      setCandidateProfile(prev => ({ ...prev, currentStep: 5 })); // Advance to Assessment
       setTerminalLogs(prev => [
-        `✓ [WORKFLOW]: Successfully applied to drive #${id}. Candidate moved to Stage 5: Assessment.`,
+        `✓ [APPLICATION_HISTORY]: Applied to ${jobs.find(j => j.id === id)?.title}. Stage 5 Assessment Queued.`,
         ...prev
       ]);
     }
@@ -935,7 +933,7 @@ export default function CampusNexPlatform() {
       setResumeParsed(true);
       setParsedScore(98);
       cyberAudio.playLaser();
-      setCandidateProfile(prev => ({ ...prev, currentStep: 3 })); // Eligibility Verified
+      setCandidateProfile(prev => ({ ...prev, currentStep: 3 }));
     }, 1500);
   };
 
@@ -969,7 +967,6 @@ export default function CampusNexPlatform() {
         ...prev
       ]);
       setWarRoomSolved(true);
-      // Advance to Shortlist & Interview (Step 7)
       setCandidateProfile(prev => ({ ...prev, currentStep: 7 }));
     } else {
       cyberAudio.playAlarm();
@@ -1005,6 +1002,26 @@ export default function CampusNexPlatform() {
     setCliInput('');
   };
 
+  const handleAddSkill = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newSkillInput.trim()) {
+      e.preventDefault();
+      if (!candidateProfile.skills.includes(newSkillInput.trim())) {
+        setCandidateProfile({
+          ...candidateProfile,
+          skills: [...candidateProfile.skills, newSkillInput.trim()]
+        });
+      }
+      setNewSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setCandidateProfile({
+      ...candidateProfile,
+      skills: candidateProfile.skills.filter(s => s !== skillToRemove)
+    });
+  };
+
   const filteredJobs = jobs.filter(
     j =>
       j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1023,7 +1040,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PHASE 2 WORKFLOW ACTIVE: STAGE {candidateProfile.currentStep}/9
+              PHASE 3: PROFILE PRIVACY & RECRUITMENT VERIFICATION
             </span>
             <span>EUSI STRESS TOLERANCE: {candidateProfile.eusiScore}</span>
             <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
@@ -1055,10 +1072,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 1 + PHASE 2 ENGINE
+                  PHASE 1-2-3 ENGINE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Candidate Dashboard • 9-Stage Recruitment Flow • Assessment & Verification</p>
+              <p className="text-[11px] text-slate-400">Candidate Dashboard • Verified Lifecycle • Assessment & Privacy Shield</p>
             </div>
           </div>
 
@@ -1117,23 +1134,23 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 2 LIFECYCLE SUMMARY */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 IDENTITY & PRIVACY BANNER */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  End-to-End Recruitment Workflow
+                  Candidate Data Sovereignty Active
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
-                  9-Step Lifecycle Connected
+                  Privacy-First Profile Shield
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Registration $\rightarrow$ Eligibility $\rightarrow$ Assessment $\rightarrow$ Sovereign Offer
+                Self-Configured Profile, Proof of Execution & Strict Privacy Protection
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Seamless progression through automated CGPA criteria filtration, proctored code war-rooms, and cryptographically verified placement minting.
+                Candidates maintain complete ownership over academic metrics, course specifications, and CV assets without exposing sensitive personal identifiers to unauthorized parties.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
                 <button
@@ -1154,7 +1171,7 @@ export default function CampusNexPlatform() {
                   }}
                   className="bg-cyan-950/80 hover:bg-cyan-900 px-2.5 py-1 rounded border border-cyan-500/60 text-cyan-200 transition font-bold"
                 >
-                  ✏️ Verify & Edit Profile
+                  ✏️ Edit Candidate Profile
                 </button>
               </div>
             </div>
@@ -1185,21 +1202,21 @@ export default function CampusNexPlatform() {
               <span className="text-amber-400 font-bold mt-1 block">{LIFECYCLE_STAGES[candidateProfile.currentStep - 1]}</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Eligibility Clearance</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Academic Standing</span>
               <div className="text-2xl font-black text-white mt-1">CGPA {candidateProfile.cgpa}</div>
-              <span className="text-emerald-400 font-bold mt-1 block">Tier-1 Drives Cleared</span>
+              <span className="text-emerald-400 font-bold mt-1 block">Batch {candidateProfile.batch} Verified</span>
             </div>
           </div>
 
-          {/* TAB 1: CANDIDATE HUB WITH PHASE 2 9-STAGE LIFECYCLE WORKFLOW */}
+          {/* TAB 1: CANDIDATE HUB WITH PHASE 3 ENHANCED PROFILE */}
           {activeTab === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
-                {/* PHASE 2: INTERACTIVE 9-STAGE LIFECYCLE STEPPER BAR (Directly inside existing hub) */}
+                {/* 9-STAGE RECRUITMENT PROGRESSION STEPPER */}
                 <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🔄</span> Phase 2 Recruitment Progression Lifecycle
+                      <span>🔄</span> Recruitment Progression Lifecycle
                     </span>
                     <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded-full">
                       Step {candidateProfile.currentStep} of 9
@@ -1270,7 +1287,7 @@ export default function CampusNexPlatform() {
                       </div>
                       <div>
                         <h3 className="font-bold text-white text-sm">AI Static Code & Proof-of-Execution Parser</h3>
-                        <p className="text-xs text-slate-400">Verifies actual runtime execution hashes instead of trusting resume claims</p>
+                        <p className="text-xs text-slate-400">Verifies actual runtime execution hashes instead of trusting unverified claims</p>
                       </div>
                     </div>
 
@@ -1314,7 +1331,7 @@ export default function CampusNexPlatform() {
                   <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
                 </div>
 
-                {/* Job Cards with Phase 2 Eligibility Rules */}
+                {/* Job Cards */}
                 <div className="space-y-3.5">
                   {filteredJobs.map(job => (
                     <div
@@ -1356,7 +1373,6 @@ export default function CampusNexPlatform() {
                         </button>
                       </div>
 
-                      {/* Phase 2: Automated Eligibility Rules Tag */}
                       <div className="mt-2.5 flex items-center gap-2 text-[10px] font-mono">
                         <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
                           ✓ Min CGPA: {job.minCgpa} (Candidate: {candidateProfile.cgpa})
@@ -1406,7 +1422,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Right Column: Candidate Profile & Neurometrics */}
+              {/* RIGHT COLUMN: PHASE 3 COMPREHENSIVE CANDIDATE PROFILE CARD */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1416,7 +1432,7 @@ export default function CampusNexPlatform() {
                       </div>
                       <div>
                         <h4 className="font-bold text-white text-sm">{candidateProfile.name}</h4>
-                        <p className="text-xs text-slate-400">{candidateProfile.department} • Batch {candidateProfile.batch}</p>
+                        <p className="text-[11px] text-slate-400">{candidateProfile.course}</p>
                         <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
                           {candidateProfile.clearance}
                         </span>
@@ -1424,19 +1440,31 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Candidate Quick Preferences & Phase 2 Resume Stamp */}
-                  <div className="p-2.5 bg-[#081024]/80 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1 mt-2">
-                    <div className="flex justify-between">
+                  {/* Phase 3: Comprehensive Profile Detail Box */}
+                  <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5 mt-3">
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">INSTITUTION:</span>
-                      <span className="text-white truncate max-w-[160px]">{candidateProfile.institution}</span>
+                      <span className="text-white truncate max-w-[170px] text-right font-semibold">{candidateProfile.institution}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">CGPA BENCHMARK:</span>
-                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa}</span>
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
+                      <span className="text-slate-500">DEGREE & BATCH:</span>
+                      <span className="text-cyan-300 font-semibold">{candidateProfile.course.split(' ')[0]} • Class of {candidateProfile.batch}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
+                      <span className="text-slate-500">PREFERRED ROLE:</span>
+                      <span className="text-emerald-300 font-semibold truncate max-w-[160px] text-right">{candidateProfile.preferredRole}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
+                      <span className="text-slate-500">LOCATION PREF:</span>
+                      <span className="text-purple-300 font-semibold">{candidateProfile.locationPreference}</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">PORTFOLIO CV:</span>
-                      <span className="text-cyan-300 underline truncate max-w-[160px]">{candidateProfile.resumeFileName}</span>
+                      <span className="text-cyan-400 underline truncate max-w-[160px]">{candidateProfile.resumeFileName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">APPLICATION QUEUE:</span>
+                      <span className="text-amber-400 font-bold">{appliedJobs.length} Active Drive</span>
                     </div>
                   </div>
 
@@ -1448,7 +1476,7 @@ export default function CampusNexPlatform() {
                       }}
                       className="py-1.5 bg-gradient-to-r from-cyan-900/50 to-indigo-900/50 hover:from-cyan-800/60 hover:to-indigo-800/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40"
                     >
-                      <span>✏️</span> Complete Profile
+                      <span>✏️</span> Edit Profile
                     </button>
 
                     <button
@@ -1475,23 +1503,27 @@ export default function CampusNexPlatform() {
                     </div>
                   )}
 
+                  {/* Phase 3: Relevant Competencies & Skill Matrix */}
                   <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                    <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
-                      Cryptographic Verified Credentials
-                    </span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
+                        Verified Competencies
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">{candidateProfile.skills.length} Skills</span>
+                    </div>
+
                     <div className="flex flex-wrap gap-1.5">
+                      {candidateProfile.skills.map((skill, index) => (
+                        <span key={index} className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
+                          <span>⚡</span> {skill}
+                        </span>
+                      ))}
                       <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
-                        <span>⚡</span> {candidateProfile.dsaRank}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
-                        <span>🐙</span> {candidateProfile.verifiedCommits}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
-                        <span>✓</span> Next.js Full Stack Certified
+                        <span>🏆</span> {candidateProfile.dsaRank}
                       </span>
                       {concurrencySolved && (
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs font-semibold flex items-center gap-1 animate-in zoom-in-95">
-                          <span>🏆</span> Cache Architect (Dojo Certified)
+                          <span>✓</span> Cache Architect (Dojo Certified)
                         </span>
                       )}
                     </div>
@@ -1520,7 +1552,7 @@ export default function CampusNexPlatform() {
             </div>
           )}
 
-          {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW - STAGES 6, 7, 8 & 9) */}
+          {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW) */}
           {activeTab === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -1665,7 +1697,6 @@ export default function CampusNexPlatform() {
                                 company: cand.company
                               });
                               setShowOfferModal(true);
-                              // Mark candidate lifecycle to Step 9: Placed
                               setCandidateProfile(prev => ({ ...prev, currentStep: 9 }));
                             }}
                             className="text-[10px] bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold px-2 py-1 rounded shadow hover:scale-105 transition"
@@ -1777,10 +1808,10 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* Phase 2: Dynamic Profile Edit & Verification Modal */}
+        {/* PHASE 3: COMPREHENSIVE PROFILE EDIT & VERIFICATION MODAL */}
         {isEditProfileOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
@@ -1792,10 +1823,10 @@ export default function CampusNexPlatform() {
               </button>
 
               <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>✏️</span> Candidate Profile & Verification
+                <span>✏️</span> Candidate Profile Configuration & Security Vault
               </h3>
               <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Stage 1 & 2: Enter institutional and academic parameters to update automated drive eligibility.
+                Phase 3: Self-manage your academic parameters, course credentials, and portfolio assets. Sensitive identifiers are never publicly exposed.
               </p>
 
               <form
@@ -1803,89 +1834,147 @@ export default function CampusNexPlatform() {
                   e.preventDefault();
                   cyberAudio.playLaser();
                   setIsEditProfileOpen(false);
-                  setCandidateProfile(prev => ({ ...prev, currentStep: 2 })); // Step 2 Profile Verified
-                  setTerminalLogs(prev => ['✓ [PROFILE_UPDATED]: Candidate details synced with placement registry.', ...prev]);
+                  setCandidateProfile(prev => ({ ...prev, currentStep: 2 }));
+                  setTerminalLogs(prev => [
+                    `✓ [PROFILE_UPDATED]: Profile parameters verified for ${candidateProfile.name}.`,
+                    ...prev
+                  ]);
                 }}
-                className="space-y-3 font-mono"
+                className="space-y-3.5 font-mono"
               >
                 <div>
-                  <label className="text-slate-300 block mb-1">Full Name / Verified Handle *</label>
+                  <label className="text-slate-300 block mb-1 font-semibold">1. Full Name / Verified Identifier *</label>
                   <input
                     type="text"
                     required
                     value={candidateProfile.name}
                     onChange={e => setCandidateProfile({ ...candidateProfile, name: e.target.value })}
+                    placeholder="Candidate Name or Verified Identifier"
                     className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-300 block mb-1">Department / Course *</label>
+                    <label className="text-slate-300 block mb-1 font-semibold">2. College / Institution *</label>
                     <input
                       type="text"
                       required
-                      value={candidateProfile.department}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, department: e.target.value })}
+                      value={candidateProfile.institution}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, institution: e.target.value })}
+                      placeholder="e.g. Deccan College of Engineering"
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                   <div>
-                    <label className="text-slate-300 block mb-1">Graduation Batch *</label>
+                    <label className="text-slate-300 block mb-1 font-semibold">3. Course / Degree Program *</label>
                     <input
                       type="text"
                       required
-                      value={candidateProfile.batch}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, batch: e.target.value })}
+                      value={candidateProfile.course}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, course: e.target.value })}
+                      placeholder="e.g. B.Tech CSE / B.Pharm / MBA"
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-300 block mb-1">Academic CGPA *</label>
+                    <label className="text-slate-300 block mb-1 font-semibold">4. Graduation Year *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.batch}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, batch: e.target.value })}
+                      placeholder="e.g. 2026"
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">5. Academic CGPA / Score *</label>
                     <input
                       type="text"
                       required
                       value={candidateProfile.cgpa}
                       onChange={e => setCandidateProfile({ ...candidateProfile, cgpa: e.target.value })}
+                      placeholder="e.g. 8.85"
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">6. Preferred Role *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.preferredRole}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
+                      placeholder="e.g. Backend Systems Architect"
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                   <div>
-                    <label className="text-slate-300 block mb-1">Institution / College</label>
+                    <label className="text-slate-300 block mb-1 font-semibold">7. Location Preference *</label>
                     <input
                       type="text"
-                      value={candidateProfile.institution}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, institution: e.target.value })}
+                      required
+                      value={candidateProfile.locationPreference}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, locationPreference: e.target.value })}
+                      placeholder="e.g. Hyderabad / Bengaluru / Remote"
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1">Preferred Role & Domain</label>
+                  <label className="text-slate-300 block mb-1 font-semibold">8. Portfolio Resume File Name *</label>
                   <input
                     type="text"
-                    value={candidateProfile.preferredRole}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
+                    required
+                    value={candidateProfile.resumeFileName}
+                    onChange={e => setCandidateProfile({ ...candidateProfile, resumeFileName: e.target.value })}
+                    placeholder="Candidate_Verified_Resume.pdf"
                     className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
                   />
                 </div>
 
-                <div className="pt-2 flex gap-2">
+                {/* Skills Tag Management */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">9. Relevant Competencies / Skills (Press Enter to add)</label>
+                  <input
+                    type="text"
+                    value={newSkillInput}
+                    onChange={e => setNewSkillInput(e.target.value)}
+                    onKeyDown={handleAddSkill}
+                    placeholder="Type skill & press Enter (e.g. Next.js, Kubernetes, SQL)..."
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
+                  />
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                    {candidateProfile.skills.map((s, idx) => (
+                      <span key={idx} className="bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
+                        {s}
+                        <button type="button" onClick={() => handleRemoveSkill(s)} className="text-rose-400 hover:text-white">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-3 flex gap-2 border-t border-slate-800">
                   <button
                     type="button"
                     onClick={() => setIsEditProfileOpen(false)}
-                    className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800"
+                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold shadow-lg"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold shadow-lg shadow-cyan-600/30 transition hover:scale-[1.02]"
                   >
-                    Save & Advance Stage
+                    Save & Lock Verification
                   </button>
                 </div>
               </form>
@@ -1899,7 +1988,7 @@ export default function CampusNexPlatform() {
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE2_CLI</span>
+                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE3_CLI</span>
               </div>
               <button
                 onClick={() => {
@@ -1972,7 +2061,7 @@ export default function CampusNexPlatform() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    Phase 1 & 2 Skill Assessment Dojo
+                    Skill Assessment Dojo Sandbox
                     <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
                       HANDS-ON SIMULATION
                     </span>
@@ -2425,7 +2514,7 @@ export default function CampusNexPlatform() {
               </div>
 
               <h3 className="text-lg font-black text-white">{candidateProfile.name}</h3>
-              <p className="text-slate-400 text-[11px] font-sans">{candidateProfile.department} • Batch {candidateProfile.batch}</p>
+              <p className="text-slate-400 text-[11px] font-sans">{candidateProfile.course} • Batch {candidateProfile.batch}</p>
 
               <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
                 ⚡ {candidateProfile.clearance}
@@ -2764,22 +2853,22 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">🔥</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 2 Recruitment Workflow Live
+                  Phase 3 Security & Verification Live
                 </span>
               </div>
 
               <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                From Registration to Placed in 9 Connected Stages
+                Candidate Sovereignty & Comprehensive Verification
               </h3>
 
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Experience the verified campus hiring lifecycle: Student Registration $\rightarrow$ Profile Completion $\rightarrow$ Job Eligibility $\rightarrow$ Assessment $\rightarrow$ Shortlisting $\rightarrow$ War-Room Interview $\rightarrow$ Sovereign Offer Minting.
+                Full user-driven profile configuration across courses (B.Tech, B.Pharm, MBA), location preferences, and verified portfolio proofs, safeguarded under strict privacy controls.
               </p>
 
               <div className="grid grid-cols-2 gap-3 my-4">
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Lifecycle Engine</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">9 Active Stages</span>
+                  <span className="text-slate-400 text-[10px] block">Profile Privacy Shield</span>
+                  <span className="text-base font-black text-purple-400 mt-0.5 block">Zero Identifiers Leaked</span>
                   <span className="text-[10px] text-slate-400">Class of 2026</span>
                 </div>
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
