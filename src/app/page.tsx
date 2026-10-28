@@ -19,9 +19,9 @@ interface Job {
 }
 
 // ============================================================================
-// 1. GUARANTEED-RENDER CYBER-SINGULARITY DYSON REACTOR (FIXED DIMENSION CANVAS)
+// 1. FULL-PAGE 3D HOLOVERSE BACKGROUND CANVAS (PARALLAX, RINGS, CRYSTALS & TRON GRID)
 // ============================================================================
-function GuaranteedDysonReactor() {
+function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -31,154 +31,206 @@ function GuaranteedDysonReactor() {
     if (!ctx) return;
 
     let animId: number;
-    const width = 320;
-    const height = 220;
-    canvas.width = width;
-    canvas.height = height;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
 
-    const sparkCount = 30;
-    const sparks: { angle: number; dist: number; speed: number; size: number; alpha: number }[] = [];
-    for (let i = 0; i < sparkCount; i++) {
-      sparks.push({
-        angle: Math.random() * Math.PI * 2,
-        dist: Math.random() * 50 + 10,
-        speed: Math.random() * 0.7 + 0.4,
-        size: Math.random() * 2 + 0.8,
-        alpha: Math.random() * 0.8 + 0.2,
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      targetMouseX = (e.clientX - width / 2) * 0.0006;
+      targetMouseY = (e.clientY - height / 2) * 0.0006;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches[0]) {
+        targetMouseX = (e.touches[0].clientX - width / 2) * 0.0006;
+        targetMouseY = (e.touches[0].clientY - height / 2) * 0.0006;
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove);
+
+    // Deep space stars
+    const starCount = 85;
+    const stars: { x: number; y: number; z: number; size: number }[] = [];
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: (Math.random() - 0.5) * 1600,
+        y: (Math.random() - 0.5) * 1600,
+        z: Math.random() * 1200 + 100,
+        size: Math.random() * 1.5 + 0.6,
       });
     }
+
+    // 3D Floating Crystals
+    const crystals = [
+      { x: -340, y: -160, z: 420, rx: 0, ry: 0, scale: 50, color: 'rgba(6, 182, 212, ' },
+      { x: 380, y: 140, z: 380, rx: 0.5, ry: 0.8, scale: 62, color: 'rgba(168, 85, 247, ' },
+      { x: 140, y: -280, z: 520, rx: 1.2, ry: 0.3, scale: 36, color: 'rgba(236, 72, 153, ' }
+    ];
+
+    const octVerts = [
+      [0, 1, 0], [1, 0, 0], [0, 0, 1], [-1, 0, 0], [0, 0, -1], [0, -1, 0]
+    ];
+    const octEdges = [
+      [0,1],[0,2],[0,3],[0,4],
+      [5,1],[5,2],[5,3],[5,4],
+      [1,2],[2,3],[3,4],[4,1]
+    ];
 
     let t = 0;
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
+      mouseX += (targetMouseX - mouseX) * 0.04;
+      mouseY += (targetMouseY - mouseY) * 0.04;
+
       const cx = width / 2;
       const cy = height / 2;
-      const maxR = 85;
+      const fov = 420;
 
-      // 1. Central Core Glow
-      const corePulse = Math.sin(t * 3.2) * 4;
-      const coreR = 18 + corePulse;
-      const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 2.8);
-      coreGrad.addColorStop(0, '#ffffff');
-      coreGrad.addColorStop(0.25, '#f43f5e');
-      coreGrad.addColorStop(0.6, '#a855f7');
-      coreGrad.addColorStop(1, 'rgba(168, 85, 247, 0)');
-
+      // 1. Perspective Horizon Tron Grid
+      const gridPitch = 220 + mouseY * 250;
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 2.8, 0, Math.PI * 2);
-      ctx.fillStyle = coreGrad;
-      ctx.fill();
-
-      // High-Density Core Center
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 0.65, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = '#f43f5e';
-      ctx.fill();
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.lineWidth = 1;
+      const gridY = cy + gridPitch;
+      for (let x = -width; x < width * 2; x += 100) {
+        ctx.beginPath();
+        ctx.moveTo(cx + mouseX * 400, cy - 60);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = gridY; y < height; y += (y - gridY) * 0.4 + 18) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
       ctx.restore();
 
-      // 2. Radiating Photon Sparks
-      sparks.forEach(s => {
-        s.dist += s.speed;
-        if (s.dist > maxR * 1.05) {
-          s.dist = 12;
-          s.angle = Math.random() * Math.PI * 2;
+      // 2. Stars & Depth Constellations
+      const projectedStars: { px: number; py: number; alpha: number }[] = [];
+      for (let i = 0; i < starCount; i++) {
+        const s = stars[i];
+        s.z -= 0.6;
+        if (s.z <= 20) s.z = 1200;
+
+        const rotX = s.x * Math.cos(mouseX) - s.z * Math.sin(mouseX);
+        const rotZ = s.x * Math.sin(mouseX) + s.z * Math.cos(mouseX);
+        const rotY = s.y * Math.cos(mouseY) - rotZ * Math.sin(mouseY);
+        const finalZ = rotY * Math.sin(mouseY) + rotZ * Math.cos(mouseY);
+
+        if (finalZ > 10) {
+          const scale = fov / (fov + finalZ);
+          const px = cx + rotX * scale;
+          const py = cy + rotY * scale;
+          const alpha = Math.min(1, Math.max(0.1, 1 - finalZ / 1200));
+
+          projectedStars.push({ px, py, alpha });
+
+          ctx.beginPath();
+          ctx.arc(px, py, s.size * scale, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(147, 197, 253, ${alpha * 0.7})`;
+          ctx.fill();
         }
-        const sx = cx + Math.cos(s.angle + t * 0.25) * s.dist;
-        const sy = cy + Math.sin(s.angle + t * 0.25) * s.dist;
-        const fade = 1 - s.dist / (maxR * 1.05);
+      }
 
-        ctx.beginPath();
-        ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(244, 114, 182, ${s.alpha * fade})`;
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = '#ec4899';
-        ctx.fill();
-      });
+      // Constellation connectors
+      for (let i = 0; i < projectedStars.length; i++) {
+        for (let j = i + 1; j < Math.min(i + 4, projectedStars.length); j++) {
+          const dx = projectedStars[i].px - projectedStars[j].px;
+          const dy = projectedStars[i].py - projectedStars[j].py;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 80) {
+            ctx.beginPath();
+            ctx.moveTo(projectedStars[i].px, projectedStars[i].py);
+            ctx.lineTo(projectedStars[j].px, projectedStars[j].py);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 80) * 0.2})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
 
-      // 3. Tri-Axis Gyroscope Rings
+      // 3. Central Dimensional Gyroscope Rings in Background
+      const ringRadius = Math.min(width, height) * 0.3;
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1: Outer Accelerator Ring (Neon Pink)
-      const r1 = maxR * 0.95;
-      ctx.save();
-      ctx.rotate(t * 0.45);
+      // Ring 1 (Cyan Axis)
       ctx.beginPath();
-      ctx.ellipse(0, 0, r1, r1 * Math.abs(Math.cos(t * 0.75)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#f43f5e';
-      ctx.lineWidth = 1.8;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#f43f5e';
-      ctx.stroke();
-
-      // Node 1
-      const a1 = t * 2.2;
-      const x1 = Math.cos(a1) * r1;
-      const y1 = Math.sin(a1) * (r1 * Math.abs(Math.cos(t * 0.75)));
-      ctx.beginPath();
-      ctx.arc(x1, y1, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = '#ffffff';
-      ctx.fill();
-      ctx.restore();
-
-      // Ring 2: Polar Dyson Ring (Neon Purple)
-      const r2 = maxR * 0.75;
-      ctx.save();
-      ctx.rotate(-t * 0.55 + 1.2);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r2, r2 * Math.abs(Math.sin(t * 0.6)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#c084fc';
-      ctx.lineWidth = 1.6;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#a855f7';
-      ctx.stroke();
-
-      // Node 2
-      const a2 = -t * 2.5;
-      const x2 = Math.cos(a2) * r2;
-      const y2 = Math.sin(a2) * (r2 * Math.abs(Math.sin(t * 0.6)));
-      ctx.beginPath();
-      ctx.arc(x2, y2, 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = '#f0abfc';
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#c084fc';
-      ctx.fill();
-      ctx.restore();
-
-      // Ring 3: Inner Containment Ring (Cyan)
-      const r3 = maxR * 0.52;
-      ctx.save();
-      ctx.rotate(t * 0.75 - 0.7);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r3, r3 * Math.abs(Math.cos(t * 1.05)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth = 1.4;
+      ctx.ellipse(0, 0, ringRadius, ringRadius * Math.abs(Math.cos(t * 0.4 + mouseX * 2)), t * 0.5, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.2)';
+      ctx.lineWidth = 1.3;
       ctx.shadowBlur = 10;
       ctx.shadowColor = '#06b6d4';
       ctx.stroke();
 
-      // Node 3
-      const a3 = t * 3.2;
-      const x3 = Math.cos(a3) * r3;
-      const y3 = Math.sin(a3) * (r3 * Math.abs(Math.cos(t * 1.05)));
+      // Ring 2 (Purple Axis)
       ctx.beginPath();
-      ctx.arc(x3, y3, 3, 0, Math.PI * 2);
-      ctx.fillStyle = '#67e8f9';
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = '#22d3ee';
-      ctx.fill();
-      ctx.restore();
+      ctx.ellipse(0, 0, ringRadius * 0.78, ringRadius * 0.78 * Math.abs(Math.sin(t * 0.35 + mouseY * 2)), -t * 0.35, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(192, 132, 252, 0.22)';
+      ctx.lineWidth = 1.2;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#a855f7';
+      ctx.stroke();
 
       ctx.restore();
 
-      t += 0.016;
+      // 4. Floating 3D Octahedron Crystals
+      crystals.forEach(c => {
+        c.rx += 0.007;
+        c.ry += 0.01;
+
+        const transformed = octVerts.map(v => {
+          const x = v[0] * c.scale;
+          const y = v[1] * c.scale;
+          const z = v[2] * c.scale;
+
+          const y1 = y * Math.cos(c.rx) - z * Math.sin(c.rx);
+          const z1 = y * Math.sin(c.rx) + z * Math.cos(c.rx);
+          const x2 = x * Math.cos(c.ry) + z1 * Math.sin(c.ry);
+          const z2 = -x * Math.sin(c.ry) + z1 * Math.cos(c.ry);
+
+          const wx = x2 + c.x + mouseX * 160;
+          const wy = y1 + c.y + mouseY * 160;
+          const wz = z2 + c.z;
+
+          const scale = fov / (fov + wz);
+          return {
+            px: cx + wx * scale,
+            py: cy + wy * scale,
+            scale,
+            alpha: Math.min(1, Math.max(0.15, 1 - wz / 900))
+          };
+        });
+
+        octEdges.forEach(e => {
+          const p1 = transformed[e[0]];
+          const p2 = transformed[e[1]];
+          ctx.beginPath();
+          ctx.moveTo(p1.px, p1.py);
+          ctx.lineTo(p2.px, p2.py);
+          ctx.strokeStyle = `${c.color}${p1.alpha * 0.55})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+      });
+
+      t += 0.015;
       animId = requestAnimationFrame(render);
     };
 
@@ -186,18 +238,123 @@ function GuaranteedDysonReactor() {
 
     return () => {
       cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full block" />;
+}
+
+// ============================================================================
+// 2. HERO BANNER RIGHT: 3D ROTATING NEON PINK/PURPLE PARTICLE SPHERE
+// ============================================================================
+function Neural3DHeroSphere() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    const width = 300;
+    const height = 220;
+    canvas.width = width;
+    canvas.height = height;
+
+    const particleCount = 75;
+    const particles: { x: number; y: number; z: number; sx: number; sy: number }[] = [];
+    const radius = 72;
+
+    for (let i = 0; i < particleCount; i++) {
+      const theta = Math.random() * 2 * Math.PI;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      particles.push({
+        x: radius * Math.sin(phi) * Math.cos(theta),
+        y: radius * Math.sin(phi) * Math.sin(theta),
+        z: radius * Math.cos(phi),
+        sx: 0,
+        sy: 0,
+      });
+    }
+
+    let angleX = 0.004;
+    let angleY = 0.007;
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const cosX = Math.cos(angleX);
+      const sinX = Math.sin(angleX);
+      const cosY = Math.cos(angleY);
+      const sinY = Math.sin(angleY);
+
+      for (let i = 0; i < particleCount; i++) {
+        const p = particles[i];
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.z * cosY + p.x * sinY;
+        const y1 = p.y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + p.y * sinX;
+
+        p.x = x1;
+        p.y = y1;
+        p.z = z2;
+
+        const fov = 300;
+        const scale = fov / (fov + z2);
+        p.sx = width / 2 + p.x * scale;
+        p.sy = height / 2 + p.y * scale;
+
+        const alpha = Math.max(0.15, (z2 + radius) / (2 * radius));
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, 2.5 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244, 63, 94, ${alpha})`;
+        ctx.shadowBlur = 10 * scale;
+        ctx.shadowColor = '#ec4899';
+        ctx.fill();
+      }
+
+      for (let i = 0; i < particleCount; i++) {
+        for (let j = i + 1; j < particleCount; j++) {
+          const dx = particles[i].sx - particles[j].sx;
+          const dy = particles[i].sy - particles[j].sy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 65) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].sx, particles[i].sy);
+            ctx.lineTo(particles[j].sx, particles[j].sy);
+            ctx.strokeStyle = `rgba(236, 72, 153, ${1 - dist / 65})`;
+            ctx.lineWidth = 0.8;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = '#f43f5e';
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <div className="w-[320px] h-[220px] flex items-center justify-center relative pointer-events-none">
-      <canvas ref={canvasRef} className="block w-[320px] h-[220px]" />
+    <div className="w-[300px] h-[220px] flex items-center justify-center relative pointer-events-none">
+      <canvas ref={canvasRef} className="block w-[300px] h-[220px]" />
     </div>
   );
 }
 
 // ============================================================================
-// 2. AUDIO SYNTHESIZER ENGINE
+// 3. AUDIO SYNTHESIZER ENGINE
 // ============================================================================
 class CyberAudioEngine {
   private ctx: AudioContext | null = null;
@@ -349,7 +506,7 @@ function BiometricPulseCanvas() {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20] border border-cyan-900/50" />;
+  return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20]/80 border border-cyan-900/50 backdrop-blur-md" />;
 }
 
 // Holographic Hexagonal 3D Skill Vector Radar
@@ -455,11 +612,11 @@ function HexagonSkillRadar() {
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  return <canvas ref={canvasRef} className="w-full h-56 block rounded-2xl bg-[#080f24] border border-cyan-900/60" />;
+  return <canvas ref={canvasRef} className="w-full h-56 block rounded-2xl bg-[#080f24]/80 border border-cyan-900/60 backdrop-blur-md" />;
 }
 
 // ============================================================================
-// 3. MAIN DASHBOARD COMPONENT
+// 4. MAIN DASHBOARD COMPONENT WITH COMBINED 3D BACKGROUND + HERO SPHERE
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activeTab, setActiveTab] = useState<'student' | 'recruiter' | 'tpo'>('student');
@@ -516,7 +673,7 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [DYSON_REACTOR]: Quantum Singularity active at 99.8% core containment.',
+    '⚡ [HOLODIMENSION]: Real-time 3D universe renderer initialized.',
     '✦ [CONSENSUS_LEDGER]: Proof-of-Execution Hash verified #0x7f83b2aa1e.',
     '✓ [NEUROMETRICS]: Execution Under Stress Index (EUSI) locked at 98.4%.'
   ]);
@@ -533,7 +690,7 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🔥 [DYSON_CORE]: Tri-axis gyroscopic telemetry locked with candidate matrix.',
+      '🔥 [WAR_ROOM_SIM]: Active chaos injection ready: Distributed deadlock test.',
       '⚡ [PROOF_LEDGER]: 2,840 CPU cycles benchmarked for lock-free queue commit.',
       '✦ [ZERO_KNOWLEDGE]: Bid extended anonymously for candidate #APEX-01.',
       '✓ [STRESS_VECTOR]: Keystroke latency variance: 12ms (Optimal Calmness).'
@@ -778,1019 +935,1024 @@ export default function CampusNexPlatform() {
   );
 
   return (
-    <div className="min-h-screen bg-[#050811] text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative">
-      {/* Top Cyber Telemetry Matrix Bar */}
-      <div className="bg-[#0b1021] border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-cyan-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            DYSON SINGULARITY REACTOR ACTIVE
-          </span>
-          <span>EUSI STRESS TOLERANCE: 98.4%</span>
-          <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
-        </div>
-        <div className="flex items-center gap-4 text-slate-400">
-          <button
-            onClick={toggleSound}
-            className={`px-2 py-0.5 rounded border transition text-[10px] ${
-              soundEnabled
-                ? 'bg-cyan-950/60 border-cyan-700/60 text-cyan-300'
-                : 'bg-slate-900 border-slate-700 text-slate-500'
-            }`}
-          >
-            {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
-          </button>
-          <span className="hidden sm:inline text-emerald-400">ZERO-TRUST VERIFIED</span>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#030611] text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden">
+      {/* 1. DEEP-SPACE 3D BACKGROUND CANVAS (PARALLAX + RINGS + CRYSTALS + TRON FLOOR) */}
+      <MasterHoloverseCanvas />
 
-      {/* Main Glass Navigation Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-[#070b16]/90 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
-            ✦
+      {/* 2. FOREGROUND CONTENT LAYER */}
+      <div className="relative z-10">
+        {/* Top Cyber Telemetry Matrix Bar */}
+        <div className="bg-[#070d1e]/85 backdrop-blur-md border-b border-cyan-950/60 px-4 py-1 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5 text-cyan-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+              PROOF-OF-EXECUTION CONSENSUS ACTIVE
+            </span>
+            <span>EUSI STRESS TOLERANCE: 98.4%</span>
+            <span className="text-purple-300">ZK BLIND AUCTION: {zkBlindMode ? 'ON' : 'OFF'}</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
-                CampusNex AI
-              </span>
-              <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                ZERO-TRUST APEX OS
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400">Proof-of-Execution & Autonomous Incident War-Room Verification</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex bg-[#0f172a] p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+          <div className="flex items-center gap-4 text-slate-400">
             <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setActiveTab('student');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
+              onClick={toggleSound}
+              className={`px-2 py-0.5 rounded border transition text-[10px] ${
+                soundEnabled
+                  ? 'bg-cyan-950/60 border-cyan-700/60 text-cyan-300'
+                  : 'bg-slate-900 border-slate-700 text-slate-500'
+              }`}
             >
-              🎓 Candidate Hub
+              {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setActiveTab('recruiter');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'}`}
-            >
-              💼 ZK Talent Auction
-            </button>
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setActiveTab('tpo');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'}`}
-            >
-              📊 TPO Analytics
-            </button>
-          </div>
-
-          <button
-            onClick={() => {
-              cyberAudio.playAlarm();
-              setIsWarRoomOpen(true);
-              setWarRoomSeconds(180);
-              setWarRoomSolved(false);
-            }}
-            className="p-2 rounded-xl bg-rose-950/80 border border-rose-600/60 text-rose-300 hover:bg-rose-900 text-xs font-semibold flex items-center gap-1.5 transition animate-pulse"
-          >
-            <span>🚨</span> Incident War-Room
-          </button>
-        </div>
-      </header>
-
-      {/* HERO BANNER: 100% VISIBLE GUARANTEED DYSON REACTOR ON THE RIGHT */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
-        <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720] via-[#091129] to-[#04091a] shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
-          <div className="z-10 max-w-xl">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                Zero-Trust Portfolio Verification
-              </span>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
-                Mathematical Proof Active
-              </span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-              Where Resumes Are Obsolete & Proof of Execution Speaks
-            </h2>
-            <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-              No more prompt-engineered claims or memorized questions. Candidates prove competence through cryptographic execution hashes, production outage triage, and real-time neurometric stress resilience.
-            </p>
-            <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
-              <button
-                onClick={() => {
-                  cyberAudio.playAlarm();
-                  setIsWarRoomOpen(true);
-                  setWarRoomSeconds(180);
-                  setWarRoomSolved(false);
-                }}
-                className="px-3 py-1 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-              >
-                🚨 Launch Incident War-Room
-              </button>
-              <button
-                onClick={() => {
-                  cyberAudio.playWarp();
-                  setIsArenaOpen(true);
-                }}
-                className="bg-slate-900/80 hover:bg-slate-800 px-2.5 py-1 rounded border border-slate-700 text-cyan-300 transition"
-              >
-                ⚔️ Anti-Cheat Code Battlefield
-              </button>
-            </div>
-          </div>
-
-          {/* HERE IS THE GUARANTEED RENDERED DYSON REACTOR */}
-          <div className="relative z-20 shrink-0">
-            <GuaranteedDysonReactor />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
-            <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
-            <div className="text-2xl font-black text-white mt-1">#0x8942-APEX</div>
-            <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
-          </div>
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
-            <div className="text-2xl font-black text-emerald-400 mt-1">98.4%</div>
-            <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
-          </div>
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Zero-Knowledge Bids</span>
-            <div className="text-2xl font-black text-white mt-1">14 MNC Offers</div>
-            <span className="text-amber-400 font-bold mt-1 block">Blind Talent Auction Active</span>
-          </div>
-          <div className="bg-[#0b1021]/80 backdrop-blur-md p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
-            <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Resume Fraud Filter</span>
-            <div className="text-2xl font-black text-white mt-1">100.0%</div>
-            <span className="text-emerald-400 font-bold mt-1 block">Zero Unverified Claims Allowed</span>
+            <span className="hidden sm:inline text-emerald-400">ZERO-TRUST VERIFIED</span>
           </div>
         </div>
 
-        {/* TAB 1: CANDIDATE HUB */}
-        {activeTab === 'student' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
-              {/* Proof-of-Execution Ledger Banner */}
-              <div className="bg-[#0e122b] border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
-                    📜
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        VERIFIED HASH #0x8942-APEX
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      Mathematical verification: Distributed raft consensus + 2,840 CPU cycles benchmarked.
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={triggerDigitalTwinSync}
-                  className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
-                >
-                  <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Re-verify Proof'}
-                </button>
-              </div>
-
-              {/* Resume Scanner */}
-              <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629] border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-2xl">
-                      📄
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-white text-sm">AI Static Code & Proof-of-Execution Parser</h3>
-                      <p className="text-xs text-slate-400">Verifies actual runtime execution hashes instead of trusting resume claims</p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleSimulateResumeScan}
-                    disabled={isScanning}
-                    className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2"
-                  >
-                    {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
-                    {isScanning ? 'Minting Proof Hash...' : 'Audit Portfolio Execution'}
-                  </button>
-                </div>
-
-                {resumeParsed && (
-                  <div className="mt-4 pt-4 border-t border-cyan-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
-                        {parsedScore}%
-                      </div>
-                      <div>
-                        <div className="font-bold text-white">Mathematical Proof: Top 0.8% Cleared</div>
-                        <div className="text-[11px] text-slate-400">Zero plagiarism. Authentic runtime memory traces timestamped.</div>
-                      </div>
-                    </div>
-                    <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-lg font-bold">
-                      ✓ Consensus Hash Minted
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search drives by role, stack, or clearance level..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0b1021] border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner"
-                />
-                <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
-              </div>
-
-              {/* Job Cards */}
-              <div className="space-y-3.5">
-                {filteredJobs.map(job => (
-                  <div
-                    key={job.id}
-                    className="bg-[#0b1021] border border-slate-800 hover:border-purple-800/60 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
-                  >
-                    {job.minClearance === 'Tier-1 Apex' && (
-                      <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-indigo-600 text-[9px] font-mono font-bold px-3 py-0.5 rounded-bl-xl text-white shadow">
-                        🔒 PROOF-OF-EXECUTION REQUIRED
-                      </div>
-                    )}
-
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mt-1">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-lg text-white">{job.title}</h3>
-                          <span className="text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-semibold">
-                            {job.type}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-2 text-xs text-slate-400 mt-1">
-                          <span className="text-slate-200 font-semibold">🏢 {job.company}</span>
-                          <span>•</span>
-                          <span>📍 {job.location}</span>
-                          <span>•</span>
-                          <span className="text-emerald-400 font-bold">💰 {job.salary}</span>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          cyberAudio.playBlip();
-                          setSelectedAtsJob(job);
-                        }}
-                        className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"
-                      >
-                        <span>🎯 {job.matchScore}% Match Rigor</span>
-                        <span className="text-[10px] underline decoration-dotted text-slate-400">View</span>
-                      </button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {job.skills.map((s, i) => (
-                        <span key={i} className="text-xs bg-[#121a33] text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-900/40">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                      <span className="text-slate-500 font-mono">👥 {job.applicants} verified candidates</span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            cyberAudio.playAlarm();
-                            setIsWarRoomOpen(true);
-                            setWarRoomSeconds(180);
-                            setWarRoomSolved(false);
-                          }}
-                          className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 font-bold transition flex items-center gap-1"
-                        >
-                          <span>🚨</span> Test Outage Triage
-                        </button>
-                        <button
-                          onClick={() => handleApply(job.id)}
-                          disabled={appliedJobs.includes(job.id)}
-                          className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
-                            appliedJobs.includes(job.id)
-                              ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30'
-                          }`}
-                        >
-                          {appliedJobs.includes(job.id) ? '✓ Applied' : 'Submit Proof Hash'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* Main Glass Navigation Header */}
+        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/80 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
+              ✦
             </div>
-
-            {/* Right Column: Hologram Profile & Neurometric Telemetry */}
-            <div className="space-y-5">
-              <div className="bg-[#0b1021] border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
-                      HF
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
-                      <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
-                      <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
-                        RANK #1 IN CAMPUS • TOP 0.8% APEX
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  <button
-                    onClick={() => {
-                      cyberAudio.playWarp();
-                      setShowIdBadgeModal(true);
-                    }}
-                    className="py-1.5 bg-gradient-to-r from-purple-900/50 to-indigo-900/50 hover:from-purple-800/60 hover:to-indigo-800/60 border border-purple-500/50 text-purple-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40"
-                  >
-                    <span>🪪</span> Hologram ID
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setHologramActive(!hologramActive);
-                    }}
-                    className="py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
-                  >
-                    <span>🌐</span> {hologramActive ? 'Collapse Radar' : '3D Radar'}
-                  </button>
-                </div>
-
-                {hologramActive && (
-                  <div className="mt-3 p-3 bg-black/60 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
-                    <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-2">
-                      <span>HEXAGONAL NEURAL VECTOR</span>
-                      <span className="text-purple-300 font-bold">AVG: 95.8%</span>
-                    </div>
-                    <HexagonSkillRadar />
-                    <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
-                      Live Telemetry: Algorithmic rating + stress resilience mapped in real-time.
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
-                    Cryptographic Verified Credentials
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
-                      <span>⚡</span> LeetCode Hard Rank: 1840+
-                    </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
-                      <span>🐙</span> GitHub: 120+ Verified Commits
-                    </span>
-                    <span className="px-2.5 py-1 rounded-lg bg-[#121a33] border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
-                      <span>✓</span> Next.js Full Stack Certified
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Neurometric Stress & Latency Vector Box */}
-              <div className="bg-[#0b1021] border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
-                  <span className="text-emerald-400 font-bold">98.4% CALM</span>
-                </div>
-                <BiometricPulseCanvas />
-                <div className="grid grid-cols-2 gap-2 mt-3 text-[10px] text-slate-400">
-                  <div className="p-2 bg-[#081024] rounded-lg border border-slate-800">
-                    <span>KEYSTROKE HESITATION</span>
-                    <span className="text-white block font-bold mt-0.5">12ms (Optimal)</span>
-                  </div>
-                  <div className="p-2 bg-[#081024] rounded-lg border border-slate-800">
-                    <span>TRIAGE RECOVERY VELOCITY</span>
-                    <span className="text-emerald-400 block font-bold mt-0.5">3.4 Sec (Instant)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW) */}
-        {activeTab === 'recruiter' && (
-          <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-bold text-white">Reverse Zero-Knowledge Talent Auction</h2>
-                  <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
-                    BLIND MERITOCRACY ACTIVE
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400">
-                  Candidate identities, gender, and college tiers are zero-knowledge encrypted until 98th percentile verification is validated.
-                </p>
-              </div>
+            <div>
               <div className="flex items-center gap-2">
+                <span className="text-xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
+                  CampusNex AI
+                </span>
+                <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                  ZERO-TRUST APEX OS
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400">Proof-of-Execution & Autonomous Incident War-Room Verification</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex bg-[#0b1226]/80 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setActiveTab('student');
+                }}
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'}`}
+              >
+                🎓 Candidate Hub
+              </button>
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setActiveTab('recruiter');
+                }}
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'}`}
+              >
+                💼 ZK Talent Auction
+              </button>
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setActiveTab('tpo');
+                }}
+                className={`px-3.5 py-1.5 rounded-xl transition-all ${activeTab === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'}`}
+              >
+                📊 TPO Analytics
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                cyberAudio.playAlarm();
+                setIsWarRoomOpen(true);
+                setWarRoomSeconds(180);
+                setWarRoomSolved(false);
+              }}
+              className="p-2 rounded-xl bg-rose-950/80 border border-rose-600/60 text-rose-300 hover:bg-rose-900 text-xs font-semibold flex items-center gap-1.5 transition animate-pulse"
+            >
+              <span>🚨</span> Incident War-Room
+            </button>
+          </div>
+        </header>
+
+        {/* HERO BANNER: FEATURING GUARANTEED PINK/PURPLE 3D ROTATING PARTICLE SPHERE */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
+          <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/85 via-[#091129]/85 to-[#04091a]/85 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
+            <div className="z-10 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
+                  Zero-Trust Portfolio Verification
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
+                  Mathematical Proof Active
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
+                Where Resumes Are Obsolete & Proof of Execution Speaks
+              </h2>
+              <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                No more prompt-engineered claims or memorized questions. Candidates prove competence through cryptographic execution hashes, production outage triage, and real-time neurometric stress resilience.
+              </p>
+              <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
                 <button
-                  onClick={() => setZkBlindMode(!zkBlindMode)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-[11px] font-mono text-cyan-300"
+                  onClick={() => {
+                    cyberAudio.playAlarm();
+                    setIsWarRoomOpen(true);
+                    setWarRoomSeconds(180);
+                    setWarRoomSolved(false);
+                  }}
+                  className="px-3 py-1 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
                 >
-                  {zkBlindMode ? '🕶️ De-anonymize (Auth Recruiter)' : '🔒 Re-enable ZK Encryption'}
+                  🚨 Launch Incident War-Room
                 </button>
                 <button
                   onClick={() => {
                     cyberAudio.playWarp();
-                    setIsPostModalOpen(true);
+                    setIsArenaOpen(true);
                   }}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/30"
+                  className="bg-slate-900/80 hover:bg-slate-800 px-2.5 py-1 rounded border border-slate-700 text-cyan-300 transition"
                 >
-                  + Post Apex Opening
+                  ⚔️ Anti-Cheat Code Battlefield
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
-                <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
-                  <span>📥 Filtered Pool</span>
-                  <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[10px]">
-                    {kanbanCandidates.filter(c => c.stage === 'applied').length}
-                  </span>
-                </div>
-                <div className="space-y-2.5">
-                  {kanbanCandidates.filter(c => c.stage === 'applied').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-slate-700/60 shadow">
-                      <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
-                      <div className="text-[11px] text-slate-400">{cand.role}</div>
-                      <div className="text-[10px] text-purple-300 mt-1">PoE: {cand.poeHash}</div>
-                      <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-amber-400 font-bold">{cand.score}% Score</span>
-                        <button
-                          onClick={() => moveCandidateStage(cand.id, 'shortlist')}
-                          className="text-[10px] text-cyan-300 hover:text-white underline font-bold"
-                        >
-                          Verify →
-                        </button>
-                      </div>
+            {/* HERE IS YOUR VIBRANT 3D PINK/PURPLE ROTATING PARTICLE SPHERE RESTORED! */}
+            <div className="relative z-20 shrink-0">
+              <Neural3DHeroSphere />
+            </div>
+          </div>
+        </div>
+
+        {/* Main Container */}
+        <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
+              <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
+              <div className="text-2xl font-black text-white mt-1">#0x8942-APEX</div>
+              <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
+            </div>
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
+              <div className="text-2xl font-black text-emerald-400 mt-1">98.4%</div>
+              <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
+            </div>
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Zero-Knowledge Bids</span>
+              <div className="text-2xl font-black text-white mt-1">14 MNC Offers</div>
+              <span className="text-amber-400 font-bold mt-1 block">Blind Talent Auction Active</span>
+            </div>
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Resume Fraud Filter</span>
+              <div className="text-2xl font-black text-white mt-1">100.0%</div>
+              <span className="text-emerald-400 font-bold mt-1 block">Zero Unverified Claims Allowed</span>
+            </div>
+          </div>
+
+          {/* TAB 1: CANDIDATE HUB */}
+          {activeTab === 'student' && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-4">
+                {/* Proof-of-Execution Ledger Banner */}
+                <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
+                      📜
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
-                <div className="font-bold text-cyan-300 mb-3 flex justify-between items-center">
-                  <span>⚡ Rigor Shortlist</span>
-                  <span className="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full text-[10px]">
-                    {kanbanCandidates.filter(c => c.stage === 'shortlist').length}
-                  </span>
-                </div>
-                <div className="space-y-2.5">
-                  {kanbanCandidates.filter(c => c.stage === 'shortlist').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-cyan-500/30 shadow">
-                      <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
-                      <div className="text-[11px] text-slate-400">{cand.role}</div>
-                      <div className="text-[10px] text-emerald-400 mt-1">EUSI Stress: {cand.eusiScore}</div>
-                      <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% Score</span>
-                        <button
-                          onClick={() => moveCandidateStage(cand.id, 'interview')}
-                          className="text-[10px] text-purple-300 hover:text-white underline font-bold"
-                        >
-                          War-Room Call →
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
-                <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
-                  <span>🚨 Outage War-Room</span>
-                  <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
-                    {kanbanCandidates.filter(c => c.stage === 'interview').length}
-                  </span>
-                </div>
-                <div className="space-y-2.5">
-                  {kanbanCandidates.filter(c => c.stage === 'interview').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-purple-500/30 shadow">
-                      <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
-                      <div className="text-[11px] text-slate-400">{cand.role}</div>
-                      <div className="text-[10px] text-purple-300 mt-1">Triage Passed: 4.2ms P99</div>
-                      <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                        <span className="text-[10px] text-purple-400 font-bold">{cand.score}% Score</span>
-                        <button
-                          onClick={() => moveCandidateStage(cand.id, 'offer')}
-                          className="text-[10px] text-emerald-300 hover:text-white underline font-bold"
-                        >
-                          Extend Direct Bid →
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Instant Placed Column */}
-              <div className="bg-[#0f172a] border border-slate-800/80 rounded-xl p-3.5">
-                <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
-                  <span>🎉 Direct Placed Bids</span>
-                  <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
-                    {kanbanCandidates.filter(c => c.stage === 'offer').length}
-                  </span>
-                </div>
-                <div className="space-y-2.5">
-                  {kanbanCandidates.filter(c => c.stage === 'offer').map(cand => (
-                    <div key={cand.id} className="p-3 bg-[#15203b] rounded-lg border border-emerald-500/40 shadow">
-                      <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
-                      <div className="text-[11px] text-slate-400">{cand.role}</div>
-                      <div className="text-[10px] text-emerald-300 mt-0.5">{cand.salary} • {cand.company}</div>
-
-                      <div className="mt-2.5 pt-2 border-t border-slate-700 flex items-center justify-between">
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
-                          ✓ Consensus Proof
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          VERIFIED HASH #0x8942-APEX
                         </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Mathematical verification: Distributed raft consensus + 2,840 CPU cycles benchmarked.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={triggerDigitalTwinSync}
+                    className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
+                  >
+                    <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Re-verify Proof'}
+                  </button>
+                </div>
+
+                {/* Resume Scanner */}
+                <div className="bg-gradient-to-r from-cyan-950/50 via-indigo-950/40 to-[#0e1629]/70 backdrop-blur-xl border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-2xl">
+                        📄
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm">AI Static Code & Proof-of-Execution Parser</h3>
+                        <p className="text-xs text-slate-400">Verifies actual runtime execution hashes instead of trusting resume claims</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleSimulateResumeScan}
+                      disabled={isScanning}
+                      className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2"
+                    >
+                      {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
+                      {isScanning ? 'Minting Proof Hash...' : 'Audit Portfolio Execution'}
+                    </button>
+                  </div>
+
+                  {resumeParsed && (
+                    <div className="mt-4 pt-4 border-t border-cyan-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
+                          {parsedScore}%
+                        </div>
+                        <div>
+                          <div className="font-bold text-white">Mathematical Proof: Top 0.8% Cleared</div>
+                          <div className="text-[11px] text-slate-400">Zero plagiarism. Authentic runtime memory traces timestamped.</div>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-lg font-bold">
+                        ✓ Consensus Hash Minted
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search drives by role, stack, or clearance level..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner"
+                  />
+                  <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
+                </div>
+
+                {/* Job Cards */}
+                <div className="space-y-3.5">
+                  {filteredJobs.map(job => (
+                    <div
+                      key={job.id}
+                      className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800/90 hover:border-purple-800/80 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
+                    >
+                      {job.minClearance === 'Tier-1 Apex' && (
+                        <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-indigo-600 text-[9px] font-mono font-bold px-3 py-0.5 rounded-bl-xl text-white shadow">
+                          🔒 PROOF-OF-EXECUTION REQUIRED
+                        </div>
+                      )}
+
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mt-1">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-lg text-white">{job.title}</h3>
+                            <span className="text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-semibold">
+                              {job.type}
+                            </span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-xs text-slate-400 mt-1">
+                            <span className="text-slate-200 font-semibold">🏢 {job.company}</span>
+                            <span>•</span>
+                            <span>📍 {job.location}</span>
+                            <span>•</span>
+                            <span className="text-emerald-400 font-bold">💰 {job.salary}</span>
+                          </div>
+                        </div>
+
                         <button
                           onClick={() => {
-                            cyberAudio.playLaser();
-                            setSelectedCandidateOffer({
-                              name: cand.name,
-                              role: cand.role,
-                              salary: cand.salary,
-                              company: cand.company
-                            });
-                            setShowOfferModal(true);
+                            cyberAudio.playBlip();
+                            setSelectedAtsJob(job);
                           }}
-                          className="text-[10px] bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold px-2 py-1 rounded shadow hover:scale-105 transition"
+                          className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"
                         >
-                          📄 Mint Offer Letter
+                          <span>🎯 {job.matchScore}% Match Rigor</span>
+                          <span className="text-[10px] underline decoration-dotted text-slate-400">View</span>
                         </button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {job.skills.map((s, i) => (
+                          <span key={i} className="text-xs bg-[#121a33]/90 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-900/40">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
+                        <span className="text-slate-500 font-mono">👥 {job.applicants} verified candidates</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              cyberAudio.playAlarm();
+                              setIsWarRoomOpen(true);
+                              setWarRoomSeconds(180);
+                              setWarRoomSolved(false);
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 font-bold transition flex items-center gap-1"
+                          >
+                            <span>🚨</span> Test Outage Triage
+                          </button>
+                          <button
+                            onClick={() => handleApply(job.id)}
+                            disabled={appliedJobs.includes(job.id)}
+                            className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
+                              appliedJobs.includes(job.id)
+                                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30'
+                            }`}
+                          >
+                            {appliedJobs.includes(job.id) ? '✓ Applied' : 'Submit Proof Hash'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* TAB 3: TPO ADMIN */}
-        {activeTab === 'tpo' && (
-          <div className="bg-[#0b1021] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h2 className="text-xl font-bold text-white">Quantum Placement Intelligence & Economic Threat Radar</h2>
-                <p className="text-xs text-slate-400">Autonomous predictive macroeconomic demand modeling for campus batches.</p>
-              </div>
-              <div className="px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/60 font-mono text-[10px] text-cyan-300">
-                GLOBAL_MARKET_TELEMETRY: CONNECTED
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-              <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-900/50 space-y-2">
-                <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
-                <div className="text-lg font-bold text-white">AI Infrastructure & LLM Ops</div>
-                <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge</div>
-                <p className="text-[10px] text-slate-400 font-sans mt-2">
-                  Highest placement compensation multiplier detected. 64 students already aligned.
-                </p>
-              </div>
-
-              <div className="p-4 bg-[#081024] rounded-2xl border border-purple-900/50 space-y-2">
-                <span className="text-[10px] text-purple-400 block font-bold">HIGH PERFORMANCE SYSTEMS</span>
-                <div className="text-lg font-bold text-white">Rust & Low-Latency Go Core</div>
-                <div className="text-cyan-300 font-bold">↑ +34.6% Microservices Demand</div>
-                <p className="text-[10px] text-slate-400 font-sans mt-2">
-                  Global FinTech and high-frequency trading MNCs actively parsing distributed repos.
-                </p>
-              </div>
-
-              <div className="p-4 bg-[#081024] rounded-2xl border border-amber-900/50 space-y-2">
-                <span className="text-[10px] text-amber-400 block font-bold">DEPRECATION / RISK INDEX</span>
-                <div className="text-lg font-bold text-white">Monolithic PHP & Legacy Web</div>
-                <div className="text-rose-400 font-bold">↓ -14.2% Market Reduction</div>
-                <p className="text-[10px] text-slate-400 font-sans mt-2">
-                  Recommendation: Shift legacy coursework to Next.js Full Stack & Serverless components.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-              <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-slate-300">Computer Science & Engineering (CSE)</span>
-                    <span className="text-emerald-400 font-bold">96% (148/154)</span>
+              {/* Right Column: Hologram Profile & Neurometric Telemetry */}
+              <div className="space-y-5">
+                <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
+                        HF
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Habeeba Fatima</h4>
+                        <p className="text-xs text-slate-400">B.Tech Computer Science (Batch 2026)</p>
+                        <span className="inline-block mt-1 text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full">
+                          RANK #1 IN CAMPUS • TOP 0.8% APEX
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[96%]" />
-                  </div>
-                </div>
 
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-slate-300">Electronics & Communication (ECE)</span>
-                    <span className="text-cyan-400 font-bold">88% (106/120)</span>
-                  </div>
-                  <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-cyan-500 to-indigo-400 h-full w-[88%]" />
-                  </div>
-                </div>
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playWarp();
+                        setShowIdBadgeModal(true);
+                      }}
+                      className="py-1.5 bg-gradient-to-r from-purple-900/50 to-indigo-900/50 hover:from-purple-800/60 hover:to-indigo-800/60 border border-purple-500/50 text-purple-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-purple-950/40"
+                    >
+                      <span>🪪</span> Hologram ID
+                    </button>
 
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-slate-300">Information Technology (IT)</span>
-                    <span className="text-purple-400 font-bold">92% (83/90)</span>
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        setHologramActive(!hologramActive);
+                      }}
+                      className="py-1.5 bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-800/60 text-cyan-300 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5"
+                    >
+                      <span>🌐</span> {hologramActive ? 'Collapse Radar' : '3D Radar'}
+                    </button>
                   </div>
-                  <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[92%]" />
+
+                  {hologramActive && (
+                    <div className="mt-3 p-3 bg-black/70 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
+                      <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-2">
+                        <span>HEXAGONAL NEURAL VECTOR</span>
+                        <span className="text-purple-300 font-bold">AVG: 95.8%</span>
+                      </div>
+                      <HexagonSkillRadar />
+                      <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
+                        Live Telemetry: Algorithmic rating + stress resilience mapped in real-time.
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
+                    <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
+                      Cryptographic Verified Credentials
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
+                        <span>⚡</span> LeetCode Hard Rank: 1840+
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
+                        <span>🐙</span> GitHub: 120+ Verified Commits
+                      </span>
+                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-1">
+                        <span>✓</span> Next.js Full Stack Certified
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-4 bg-[#0f172a] rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-white text-sm">CTC Package Tier Breakdown</h4>
-                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
-                  <span>Super Dream Tier (&gt; ₹16 LPA)</span>
-                  <span className="text-white font-bold">48 Offers</span>
-                </div>
-                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
-                  <span>Dream Tier (₹10 - ₹16 LPA)</span>
-                  <span className="text-white font-bold">142 Offers</span>
-                </div>
-                <div className="flex justify-between p-2.5 bg-[#15203b] rounded-xl">
-                  <span>Core Engineering (₹6 - ₹10 LPA)</span>
-                  <span className="text-white font-bold">116 Offers</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Interactive CLI Developer Console */}
-      <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
-        <div className="bg-[#070b16]/95 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-xl overflow-hidden font-mono text-[11px]">
-          <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429] border-b border-cyan-900/60">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-cyan-300 tracking-wider">DYSON_REACTOR_CLI_v8.0</span>
-            </div>
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setTerminalOpen(!terminalOpen);
-              }}
-              className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-[10px] bg-slate-800"
-            >
-              {terminalOpen ? 'MINIMIZE ▾' : 'EXPAND ▴'}
-            </button>
-          </div>
-
-          {terminalOpen && (
-            <div className="p-3 bg-black/50">
-              <div className="space-y-1 max-h-28 overflow-y-auto text-slate-300 mb-2">
-                {terminalLogs.map((log, index) => (
-                  <div
-                    key={index}
-                    className={`leading-relaxed text-[10px] ${
-                      index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
-                    }`}
-                  >
-                    {log}
+                {/* Neurometric Stress & Latency Vector Box */}
+                <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
+                    <span className="text-emerald-400 font-bold">98.4% CALM</span>
                   </div>
-                ))}
+                  <BiometricPulseCanvas />
+                  <div className="grid grid-cols-2 gap-2 mt-3 text-[10px] text-slate-400">
+                    <div className="p-2 bg-[#081024]/80 rounded-lg border border-slate-800">
+                      <span>KEYSTROKE HESITATION</span>
+                      <span className="text-white block font-bold mt-0.5">12ms (Optimal)</span>
+                    </div>
+                    <div className="p-2 bg-[#081024]/80 rounded-lg border border-slate-800">
+                      <span>TRIAGE RECOVERY VELOCITY</span>
+                      <span className="text-emerald-400 block font-bold mt-0.5">3.4 Sec (Instant)</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <form onSubmit={handleExecuteCli} className="flex gap-1 border-t border-slate-800 pt-2">
-                <span className="text-cyan-400 font-bold">&gt;</span>
-                <input
-                  type="text"
-                  placeholder="Type /warroom, /scan, /apex, /clear..."
-                  value={cliInput}
-                  onChange={e => setCliInput(e.target.value)}
-                  className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
-                />
-              </form>
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Floating Action Button */}
-      <button
-        onClick={() => {
-          cyberAudio.playWarp();
-          setIsPostModalOpen(true);
-        }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-purple-300/40 shadow-indigo-500/50"
-      >
-        +
-      </button>
-
-      {/* BREAKTHROUGH 2 MODAL: AUTONOMOUS INCIDENT WAR-ROOM */}
-      {isWarRoomOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b0716] border border-rose-600/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200">
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setIsWarRoomOpen(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-            >
-              ✕
-            </button>
-
-            <div className="flex items-center justify-between mb-3 pr-8">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl animate-bounce">🚨</span>
+          {/* TAB 2: REVERSE ZERO-KNOWLEDGE BLIND HEADHUNTER (RECRUITER VIEW) */}
+          {activeTab === 'recruiter' && (
+            <div className="bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                  <h3 className="text-base font-bold text-white">Live Incident War-Room (Chaos Simulation)</h3>
-                  <p className="text-[11px] text-rose-300 font-mono">
-                    Production Outage #OUTAGE-504 • Cluster ap-south-1
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white">Reverse Zero-Knowledge Talent Auction</h2>
+                    <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
+                      BLIND MERITOCRACY ACTIVE
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Candidate identities, gender, and college tiers are zero-knowledge encrypted until 98th percentile verification is validated.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setZkBlindMode(!zkBlindMode)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-[11px] font-mono text-cyan-300"
+                  >
+                    {zkBlindMode ? '🕶️ De-anonymize (Auth Recruiter)' : '🔒 Re-enable ZK Encryption'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      cyberAudio.playWarp();
+                      setIsPostModalOpen(true);
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/30"
+                  >
+                    + Post Apex Opening
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                  <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
+                    <span>📥 Filtered Pool</span>
+                    <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[10px]">
+                      {kanbanCandidates.filter(c => c.stage === 'applied').length}
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {kanbanCandidates.filter(c => c.stage === 'applied').map(cand => (
+                      <div key={cand.id} className="p-3 bg-[#15203b]/85 rounded-lg border border-slate-700/60 shadow">
+                        <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
+                        <div className="text-[11px] text-slate-400">{cand.role}</div>
+                        <div className="text-[10px] text-purple-300 mt-1">PoE: {cand.poeHash}</div>
+                        <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
+                          <span className="text-[10px] text-amber-400 font-bold">{cand.score}% Score</span>
+                          <button
+                            onClick={() => moveCandidateStage(cand.id, 'shortlist')}
+                            className="text-[10px] text-cyan-300 hover:text-white underline font-bold"
+                          >
+                            Verify →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                  <div className="font-bold text-cyan-300 mb-3 flex justify-between items-center">
+                    <span>⚡ Rigor Shortlist</span>
+                    <span className="bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full text-[10px]">
+                      {kanbanCandidates.filter(c => c.stage === 'shortlist').length}
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {kanbanCandidates.filter(c => c.stage === 'shortlist').map(cand => (
+                      <div key={cand.id} className="p-3 bg-[#15203b]/85 rounded-lg border border-cyan-500/30 shadow">
+                        <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
+                        <div className="text-[11px] text-slate-400">{cand.role}</div>
+                        <div className="text-[10px] text-emerald-400 mt-1">EUSI Stress: {cand.eusiScore}</div>
+                        <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
+                          <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% Score</span>
+                          <button
+                            onClick={() => moveCandidateStage(cand.id, 'interview')}
+                            className="text-[10px] text-purple-300 hover:text-white underline font-bold"
+                          >
+                            War-Room Call →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                  <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
+                    <span>🚨 Outage War-Room</span>
+                    <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
+                      {kanbanCandidates.filter(c => c.stage === 'interview').length}
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {kanbanCandidates.filter(c => c.stage === 'interview').map(cand => (
+                      <div key={cand.id} className="p-3 bg-[#15203b]/85 rounded-lg border border-purple-500/30 shadow">
+                        <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
+                        <div className="text-[11px] text-slate-400">{cand.role}</div>
+                        <div className="text-[10px] text-purple-300 mt-1">Triage Passed: 4.2ms P99</div>
+                        <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
+                          <span className="text-[10px] text-purple-400 font-bold">{cand.score}% Score</span>
+                          <button
+                            onClick={() => moveCandidateStage(cand.id, 'offer')}
+                            className="text-[10px] text-emerald-300 hover:text-white underline font-bold"
+                          >
+                            Extend Direct Bid →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Instant Placed Column */}
+                <div className="bg-[#0f172a]/80 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
+                  <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
+                    <span>🎉 Direct Placed Bids</span>
+                    <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
+                      {kanbanCandidates.filter(c => c.stage === 'offer').length}
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {kanbanCandidates.filter(c => c.stage === 'offer').map(cand => (
+                      <div key={cand.id} className="p-3 bg-[#15203b]/85 rounded-lg border border-emerald-500/40 shadow">
+                        <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
+                        <div className="text-[11px] text-slate-400">{cand.role}</div>
+                        <div className="text-[10px] text-emerald-300 mt-0.5">{cand.salary} • {cand.company}</div>
+
+                        <div className="mt-2.5 pt-2 border-t border-slate-700 flex items-center justify-between">
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
+                            ✓ Consensus Proof
+                          </span>
+                          <button
+                            onClick={() => {
+                              cyberAudio.playLaser();
+                              setSelectedCandidateOffer({
+                                name: cand.name,
+                                role: cand.role,
+                                salary: cand.salary,
+                                company: cand.company
+                              });
+                              setShowOfferModal(true);
+                            }}
+                            className="text-[10px] bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold px-2 py-1 rounded shadow hover:scale-105 transition"
+                          >
+                            📄 Mint Offer Letter
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: TPO ADMIN */}
+          {activeTab === 'tpo' && (
+            <div className="bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white">Quantum Placement Intelligence & Economic Threat Radar</h2>
+                  <p className="text-xs text-slate-400">Autonomous predictive macroeconomic demand modeling for campus batches.</p>
+                </div>
+                <div className="px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/60 font-mono text-[10px] text-cyan-300">
+                  GLOBAL_MARKET_TELEMETRY: CONNECTED
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-cyan-900/50 space-y-2 backdrop-blur-md">
+                  <span className="text-[10px] text-cyan-400 block font-bold">TOP GLOBAL DEMAND SECTOR</span>
+                  <div className="text-lg font-bold text-white">AI Infrastructure & LLM Ops</div>
+                  <div className="text-emerald-400 font-bold">↑ +48.2% Hiring Surge</div>
+                  <p className="text-[10px] text-slate-400 font-sans mt-2">
+                    Highest placement compensation multiplier detected. 64 students already aligned.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-purple-900/50 space-y-2 backdrop-blur-md">
+                  <span className="text-[10px] text-purple-400 block font-bold">HIGH PERFORMANCE SYSTEMS</span>
+                  <div className="text-lg font-bold text-white">Rust & Low-Latency Go Core</div>
+                  <div className="text-cyan-300 font-bold">↑ +34.6% Microservices Demand</div>
+                  <p className="text-[10px] text-slate-400 font-sans mt-2">
+                    Global FinTech and high-frequency trading MNCs actively parsing distributed repos.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-[#081024]/80 rounded-2xl border border-amber-900/50 space-y-2 backdrop-blur-md">
+                  <span className="text-[10px] text-amber-400 block font-bold">DEPRECATION / RISK INDEX</span>
+                  <div className="text-lg font-bold text-white">Monolithic PHP & Legacy Web</div>
+                  <div className="text-rose-400 font-bold">↓ -14.2% Market Reduction</div>
+                  <p className="text-[10px] text-slate-400 font-sans mt-2">
+                    Recommendation: Shift legacy coursework to Next.js Full Stack & Serverless components.
                   </p>
                 </div>
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-black ${warRoomSeconds < 45 ? 'bg-rose-600 text-white animate-ping' : 'bg-rose-950 text-rose-300 border border-rose-700'}`}>
-                ⏱ {Math.floor(warRoomSeconds / 60)}:{(warRoomSeconds % 60).toString().padStart(2, '0')}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="p-4 bg-[#0f172a]/80 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
+                  <h4 className="font-bold text-white text-sm">Department-Wise Placement Conversion</h4>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-slate-300">Computer Science & Engineering (CSE)</span>
+                      <span className="text-emerald-400 font-bold">96% (148/154)</span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[96%]" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-slate-300">Electronics & Communication (ECE)</span>
+                      <span className="text-cyan-400 font-bold">88% (106/120)</span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-cyan-500 to-indigo-400 h-full w-[88%]" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-slate-300">Information Technology (IT)</span>
+                      <span className="text-purple-400 font-bold">92% (83/90)</span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[92%]" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-[#0f172a]/80 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
+                  <h4 className="font-bold text-white text-sm">CTC Package Tier Breakdown</h4>
+                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
+                    <span>Super Dream Tier (&gt; ₹16 LPA)</span>
+                    <span className="text-white font-bold">48 Offers</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
+                    <span>Dream Tier (₹10 - ₹16 LPA)</span>
+                    <span className="text-white font-bold">142 Offers</span>
+                  </div>
+                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
+                    <span>Core Engineering (₹6 - ₹10 LPA)</span>
+                    <span className="text-white font-bold">116 Offers</span>
+                  </div>
+                </div>
               </div>
             </div>
+          )}
+        </main>
 
-            <div className="p-3.5 bg-black/80 rounded-xl border border-rose-900/60 space-y-1 max-h-36 overflow-y-auto mb-3">
-              {warRoomLogs.map((log, i) => (
-                <div key={i} className={`text-[11px] ${i === 0 ? 'text-rose-400 font-bold' : log.startsWith('SUCCESS') ? 'text-emerald-400 font-bold' : 'text-slate-300'}`}>
-                  {log}
-                </div>
-              ))}
+        {/* Interactive CLI Developer Console */}
+        <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
+          <div className="bg-[#070b16]/90 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-2xl overflow-hidden font-mono text-[11px]">
+            <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-bold text-cyan-300 tracking-wider">HOLODIMENSION_CLI_v7.0</span>
+              </div>
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setTerminalOpen(!terminalOpen);
+                }}
+                className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-[10px] bg-slate-800"
+              >
+                {terminalOpen ? 'MINIMIZE ▾' : 'EXPAND ▴'}
+              </button>
             </div>
 
-            {!warRoomSolved ? (
-              <form onSubmit={handleWarRoomSubmit} className="space-y-3">
-                <label className="text-slate-300 block font-bold text-[11px]">
-                  Triage Command Terminal (e.g., "failover sentinel", "evict volatile-lru", "restart redis"):
-                </label>
-                <div className="flex gap-2">
+            {terminalOpen && (
+              <div className="p-3 bg-black/60 backdrop-blur-xl">
+                <div className="space-y-1 max-h-28 overflow-y-auto text-slate-300 mb-2">
+                  {terminalLogs.map((log, index) => (
+                    <div
+                      key={index}
+                      className={`leading-relaxed text-[10px] ${
+                        index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
+                      }`}
+                    >
+                      {log}
+                    </div>
+                  ))}
+                </div>
+                <form onSubmit={handleExecuteCli} className="flex gap-1 border-t border-slate-800 pt-2">
+                  <span className="text-cyan-400 font-bold">&gt;</span>
                   <input
                     type="text"
-                    required
-                    placeholder="Enter diagnostic or failover command..."
-                    value={warRoomInput}
-                    onChange={e => setWarRoomInput(e.target.value)}
-                    className="flex-1 bg-[#110e24] border border-slate-700 rounded-xl p-2.5 text-white font-mono text-xs focus:outline-none focus:border-rose-500"
+                    placeholder="Type /warroom, /scan, /apex, /clear..."
+                    value={cliInput}
+                    onChange={e => setCliInput(e.target.value)}
+                    className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
                   />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95"
-                  >
-                    Execute Triage
-                  </button>
-                </div>
-                <div className="text-[10px] text-slate-500">
-                  Hint: Fix memory saturation by commanding an eviction policy shift or trigger Sentinel replica failover.
-                </div>
-              </form>
-            ) : (
-              <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl text-center space-y-2">
-                <span className="text-2xl block">🎉</span>
-                <h4 className="text-base font-bold text-white">Outage Triage Resolved Under Fire</h4>
-                <p className="text-xs text-slate-300 font-sans">
-                  Candidate identified Redis OOM kill loop and triggered lock-free replica promotion in 42 seconds. Execution Under Stress Index (EUSI) recorded at 98.4%.
-                </p>
-                <button
-                  onClick={() => setIsWarRoomOpen(false)}
-                  className="mt-2 px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs"
-                >
-                  Save Telemetry to Candidate Ledger
-                </button>
+                </form>
               </div>
             )}
           </div>
         </div>
-      )}
 
-      {/* Holographic 3D Identity Badge */}
-      {showIdBadgeModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-sm p-6 text-xs relative shadow-2xl overflow-hidden font-mono text-center animate-in zoom-in-95 duration-200">
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
+        {/* Floating Action Button */}
+        <button
+          onClick={() => {
+            cyberAudio.playWarp();
+            setIsPostModalOpen(true);
+          }}
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-purple-300/40 shadow-indigo-500/50"
+        >
+          +
+        </button>
 
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setShowIdBadgeModal(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-            >
-              ✕
-            </button>
+        {/* BREAKTHROUGH 2 MODAL: AUTONOMOUS INCIDENT WAR-ROOM */}
+        {isWarRoomOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b0716] border border-rose-600/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setIsWarRoomOpen(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
 
-            <span className="text-[9px] text-cyan-300 bg-cyan-950/80 border border-cyan-800/60 px-3 py-0.5 rounded-full uppercase tracking-widest inline-block mb-3">
-              PROOF-OF-EXECUTION HASH #0x8942
-            </span>
-
-            <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 p-0.5 shadow-xl shadow-cyan-500/30 mb-3 relative group">
-              <div className="w-full h-full bg-[#080f24] rounded-2xl flex items-center justify-center font-black text-2xl text-white">
-                HF
+              <div className="flex items-center justify-between mb-3 pr-8">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl animate-bounce">🚨</span>
+                  <div>
+                    <h3 className="text-base font-bold text-white">Live Incident War-Room (Chaos Simulation)</h3>
+                    <p className="text-[11px] text-rose-300 font-mono">
+                      Production Outage #OUTAGE-504 • Cluster ap-south-1
+                    </p>
+                  </div>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-black ${warRoomSeconds < 45 ? 'bg-rose-600 text-white animate-ping' : 'bg-rose-950 text-rose-300 border border-rose-700'}`}>
+                  ⏱ {Math.floor(warRoomSeconds / 60)}:{(warRoomSeconds % 60).toString().padStart(2, '0')}
+                </div>
               </div>
-              <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0b1021] flex items-center justify-center text-[10px] text-black font-bold">
-                ✓
-              </span>
+
+              <div className="p-3.5 bg-black/80 rounded-xl border border-rose-900/60 space-y-1 max-h-36 overflow-y-auto mb-3">
+                {warRoomLogs.map((log, i) => (
+                  <div key={i} className={`text-[11px] ${i === 0 ? 'text-rose-400 font-bold' : log.startsWith('SUCCESS') ? 'text-emerald-400 font-bold' : 'text-slate-300'}`}>
+                    {log}
+                  </div>
+                ))}
+              </div>
+
+              {!warRoomSolved ? (
+                <form onSubmit={handleWarRoomSubmit} className="space-y-3">
+                  <label className="text-slate-300 block font-bold text-[11px]">
+                    Triage Command Terminal (e.g., "failover sentinel", "evict volatile-lru", "restart redis"):
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter diagnostic or failover command..."
+                      value={warRoomInput}
+                      onChange={e => setWarRoomInput(e.target.value)}
+                      className="flex-1 bg-[#110e24] border border-slate-700 rounded-xl p-2.5 text-white font-mono text-xs focus:outline-none focus:border-rose-500"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95"
+                    >
+                      Execute Triage
+                    </button>
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    Hint: Fix memory saturation by commanding an eviction policy shift or trigger Sentinel replica failover.
+                  </div>
+                </form>
+              ) : (
+                <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl text-center space-y-2">
+                  <span className="text-2xl block">🎉</span>
+                  <h4 className="text-base font-bold text-white">Outage Triage Resolved Under Fire</h4>
+                  <p className="text-xs text-slate-300 font-sans">
+                    Candidate identified Redis OOM kill loop and triggered lock-free replica promotion in 42 seconds. Execution Under Stress Index (EUSI) recorded at 98.4%.
+                  </p>
+                  <button
+                    onClick={() => setIsWarRoomOpen(false)}
+                    className="mt-2 px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs"
+                  >
+                    Save Telemetry to Candidate Ledger
+                  </button>
+                </div>
+              )}
             </div>
-
-            <h3 className="text-lg font-black text-white">Habeeba Fatima</h3>
-            <p className="text-slate-400 text-[11px] font-sans">B.Tech Computer Science • Batch 2026</p>
-
-            <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
-              ⚡ TIER-1 APEX CLEARANCE (TOP 0.8%)
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 my-3 text-left">
-              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                <span className="text-[9px] text-slate-500 block">DSA BENCHMARK</span>
-                <span className="text-cyan-300 font-bold text-xs mt-0.5 block">1840+ Hard Rank</span>
-              </div>
-              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                <span className="text-[9px] text-slate-500 block">STRESS INDEX</span>
-                <span className="text-emerald-400 font-bold text-xs mt-0.5 block">98.4% (EUSI)</span>
-              </div>
-              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                <span className="text-[9px] text-slate-500 block">CODE PURITY</span>
-                <span className="text-purple-300 font-bold text-xs mt-0.5 block">99.4th Pctl</span>
-              </div>
-              <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                <span className="text-[9px] text-slate-500 block">CONSENSUS HASH</span>
-                <span className="text-slate-300 font-bold text-xs mt-0.5 block">#0x8942-APEX</span>
-              </div>
-            </div>
-
-            <div className="p-2 bg-black/40 rounded-xl border border-dashed border-slate-800 text-[9px] text-slate-500">
-              CAMPUS RECRUITMENT CONSENSUS PROOF • CRYPTOGRAPHICALLY VALIDATED
-            </div>
-
-            <button
-              onClick={() => {
-                cyberAudio.playLaser();
-                setShowIdBadgeModal(false);
-              }}
-              className="w-full mt-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg transition"
-            >
-              Close Hologram HUD
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Sovereign Offer Letter Modal */}
-      {showOfferModal && selectedCandidateOffer && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setShowOfferModal(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-            >
-              ✕
-            </button>
+        {/* Holographic 3D Identity Badge */}
+        {showIdBadgeModal && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-sm p-6 text-xs relative shadow-2xl overflow-hidden font-mono text-center animate-in zoom-in-95 duration-200">
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="flex justify-between items-start border-b border-slate-800 pb-4 mb-4">
-              <div>
-                <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-                  OFFICIAL APPOINTMENT DISPATCH
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowIdBadgeModal(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <span className="text-[9px] text-cyan-300 bg-cyan-950/80 border border-cyan-800/60 px-3 py-0.5 rounded-full uppercase tracking-widest inline-block mb-3">
+                PROOF-OF-EXECUTION HASH #0x8942
+              </span>
+
+              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 p-0.5 shadow-xl shadow-cyan-500/30 mb-3 relative group">
+                <div className="w-full h-full bg-[#080f24] rounded-2xl flex items-center justify-center font-black text-2xl text-white">
+                  HF
+                </div>
+                <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0b1021] flex items-center justify-center text-[10px] text-black font-bold">
+                  ✓
                 </span>
-                <h3 className="text-xl font-black text-white mt-0.5">{selectedCandidateOffer.company}</h3>
-                <p className="text-[11px] text-slate-400 font-mono">Consensus Proof: #0x8942-APEX-OFFER</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
-                📜
+
+              <h3 className="text-lg font-black text-white">Habeeba Fatima</h3>
+              <p className="text-slate-400 text-[11px] font-sans">B.Tech Computer Science • Batch 2026</p>
+
+              <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
+                ⚡ TIER-1 APEX CLEARANCE (TOP 0.8%)
               </div>
-            </div>
 
-            <div className="space-y-3 leading-relaxed text-slate-300">
-              <p>
-                Dear <strong className="text-white">{selectedCandidateOffer.name}</strong>,
-              </p>
-              <p>
-                Following your outstanding performance in the CampusNex Proof-of-Execution Ledger benchmark and Incident War-Room Outage triage, we are pleased to extend an offer for:
-              </p>
-
-              <div className="p-3.5 bg-[#0f172a] rounded-2xl border border-slate-800 font-mono">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-400">Designation:</span>
-                  <span className="text-white font-bold">{selectedCandidateOffer.role}</span>
+              <div className="grid grid-cols-2 gap-2 my-3 text-left">
+                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                  <span className="text-[9px] text-slate-500 block">DSA BENCHMARK</span>
+                  <span className="text-cyan-300 font-bold text-xs mt-0.5 block">1840+ Hard Rank</span>
                 </div>
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-slate-400">Annual Compensation (CTC):</span>
-                  <span className="text-emerald-400 font-black">{selectedCandidateOffer.salary}</span>
+                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                  <span className="text-[9px] text-slate-500 block">STRESS INDEX</span>
+                  <span className="text-emerald-400 font-bold text-xs mt-0.5 block">98.4% (EUSI)</span>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Verification Status:</span>
-                  <span className="text-cyan-300 font-bold">Day-1 Direct Joining Clearance</span>
+                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                  <span className="text-[9px] text-slate-500 block">CODE PURITY</span>
+                  <span className="text-purple-300 font-bold text-xs mt-0.5 block">99.4th Pctl</span>
+                </div>
+                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
+                  <span className="text-[9px] text-slate-500 block">CONSENSUS HASH</span>
+                  <span className="text-slate-300 font-bold text-xs mt-0.5 block">#0x8942-APEX</span>
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-400">
-                This document is cryptographically verified by CampusNex AI and minted on the institution placement ledger.
-              </p>
-            </div>
+              <div className="p-2 bg-black/40 rounded-xl border border-dashed border-slate-800 text-[9px] text-slate-500">
+                CAMPUS RECRUITMENT CONSENSUS PROOF • CRYPTOGRAPHICALLY VALIDATED
+              </div>
 
-            <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-800">
               <button
                 onClick={() => {
                   cyberAudio.playLaser();
-                  alert("Official PDF Offer Document successfully compiled and queued for print!");
-                  setShowOfferModal(false);
+                  setShowIdBadgeModal(false);
                 }}
-                className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:opacity-95 transition"
+                className="w-full mt-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg transition"
               >
-                📥 Download Cryptographic PDF
+                Close Hologram HUD
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Sovereign Offer Letter Modal */}
+        {showOfferModal && selectedCandidateOffer && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
                   setShowOfferModal(false);
                 }}
-                className="px-4 py-2.5 bg-slate-800 rounded-xl text-slate-300 font-bold text-xs hover:bg-slate-700 transition"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
-                Close
+                ✕
               </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* CODE BATTLEFIELD ARENA MODAL */}
-      {isArenaOpen && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setIsArenaOpen(false);
-                setArenaSubmitted(false);
-              }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-            >
-              ✕
-            </button>
-
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">⚔️</span>
-              <div>
-                <h3 className="text-base font-bold text-white">The Apex 1% Proctored Code Battlefield</h3>
-                <p className="text-[11px] text-purple-300">
-                  Anti-Cheat Active • Keystroke Dynamics Monitored • Time-Limit: 15:00
-                </p>
+              <div className="flex justify-between items-start border-b border-slate-800 pb-4 mb-4">
+                <div>
+                  <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
+                    OFFICIAL APPOINTMENT DISPATCH
+                  </span>
+                  <h3 className="text-xl font-black text-white mt-0.5">{selectedCandidateOffer.company}</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">Consensus Proof: #0x8942-APEX-OFFER</p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
+                  📜
+                </div>
               </div>
-            </div>
 
-            {!arenaSubmitted ? (
-              <div className="space-y-4">
-                <div className="p-3.5 bg-black/60 border border-slate-800 rounded-xl text-slate-300 font-sans text-xs">
-                  <div className="font-bold text-white mb-1 font-mono text-[13px]">
-                    Problem #942: Distributed Cache Invalidation with Raft Concurrency
+              <div className="space-y-3 leading-relaxed text-slate-300">
+                <p>
+                  Dear <strong className="text-white">{selectedCandidateOffer.name}</strong>,
+                </p>
+                <p>
+                  Following your outstanding performance in the CampusNex Proof-of-Execution Ledger benchmark and Incident War-Room Outage triage, we are pleased to extend an offer for:
+                </p>
+
+                <div className="p-3.5 bg-[#0f172a] rounded-2xl border border-slate-800 font-mono">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-400">Designation:</span>
+                    <span className="text-white font-bold">{selectedCandidateOffer.role}</span>
                   </div>
-                  Design a zero-downtime distributed consensus state machine with exponential backoff and lock-free thread coordination.
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-400">Annual Compensation (CTC):</span>
+                    <span className="text-emerald-400 font-black">{selectedCandidateOffer.salary}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Verification Status:</span>
+                    <span className="text-cyan-300 font-bold">Day-1 Direct Joining Clearance</span>
+                  </div>
                 </div>
 
-                <div className="bg-[#070a18] p-3 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 mb-1 flex justify-between">
-                    <span>LIVE_ARENA.ts</span>
-                    <span className="text-cyan-400">Proctored Keystroke Sensor: Active</span>
+                <p className="text-[11px] text-slate-400">
+                  This document is cryptographically verified by CampusNex AI and minted on the institution placement ledger.
+                </p>
+              </div>
+
+              <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-800">
+                <button
+                  onClick={() => {
+                    cyberAudio.playLaser();
+                    alert("Official PDF Offer Document successfully compiled and queued for print!");
+                    setShowOfferModal(false);
+                  }}
+                  className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:opacity-95 transition"
+                >
+                  📥 Download Cryptographic PDF
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setShowOfferModal(false);
+                  }}
+                  className="px-4 py-2.5 bg-slate-800 rounded-xl text-slate-300 font-bold text-xs hover:bg-slate-700 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CODE BATTLEFIELD ARENA MODAL */}
+        {isArenaOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setIsArenaOpen(false);
+                  setArenaSubmitted(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">⚔️</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">The Apex 1% Proctored Code Battlefield</h3>
+                  <p className="text-[11px] text-purple-300">
+                    Anti-Cheat Active • Keystroke Dynamics Monitored • Time-Limit: 15:00
+                  </p>
+                </div>
+              </div>
+
+              {!arenaSubmitted ? (
+                <div className="space-y-4">
+                  <div className="p-3.5 bg-black/60 border border-slate-800 rounded-xl text-slate-300 font-sans text-xs">
+                    <div className="font-bold text-white mb-1 font-mono text-[13px]">
+                      Problem #942: Distributed Cache Invalidation with Raft Concurrency
+                    </div>
+                    Design a zero-downtime distributed consensus state machine with exponential backoff and lock-free thread coordination.
                   </div>
-                  <textarea
-                    rows={6}
-                    defaultValue={`// Implement Thread-Safe Concurrency
+
+                  <div className="bg-[#070a18] p-3 rounded-xl border border-slate-800">
+                    <div className="text-[10px] text-slate-400 mb-1 flex justify-between">
+                      <span>LIVE_ARENA.ts</span>
+                      <span className="text-cyan-400">Proctored Keystroke Sensor: Active</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      defaultValue={`// Implement Thread-Safe Concurrency
 async function resolveConsensus(nodes: string[]): Promise<boolean> {
   const quorum = Math.floor(nodes.length / 2) + 1;
   // Enter lock-free atomic CAS logic here...
@@ -2019,6 +2181,7 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
