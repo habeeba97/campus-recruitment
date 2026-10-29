@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 4 ENGINE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 5 ENGINE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -44,6 +44,41 @@ interface RecruiterTeamMember {
   role: 'Lead Recruiter' | 'Technical Evaluator' | 'Campus Coordinator';
   verifiedDomain: boolean;
   canIssueOffers: boolean;
+}
+
+// Stage 8: Interview Round Configuration
+interface InterviewRound {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  company: string;
+  role: string;
+  roundType: 'Technical Architecture' | 'Managerial Round' | 'HR Culture';
+  interviewerName: string;
+  scheduledTime: string;
+  meetingLink: string;
+  status: 'Scheduled' | 'Completed' | 'Pending Decision';
+  rubricScore?: number;
+  feedbackNotes?: string;
+}
+
+// Stage 9: Sovereign Offer Breakdown & Waitlist Cascade
+interface SovereignOfferDetails {
+  candidateId: string;
+  candidateName: string;
+  company: string;
+  role: string;
+  baseSalary: string;
+  joiningBonus: string;
+  performanceBonus: string;
+  stocksEsops: string;
+  totalCtcLpa: string;
+  reportingLocation: string;
+  joiningDate: string;
+  offerExpiryDate: string;
+  consensusPoEProof: string;
+  offerStatus: 'Drafted' | 'Dispatched' | 'Accepted' | 'Declined' | 'CascadedToWaitlist';
+  waitlistBackupCandidate?: string;
 }
 
 interface Job {
@@ -115,7 +150,7 @@ const LIFECYCLE_STAGES = [
 ];
 
 // ============================================================================
-// 1. TABLET-OPTIMIZED FULL-PAGE 3D HOLOVERSE (AUTO-SWAY + TOUCH PARALLAX)
+// 1. TABLET-OPTIMIZED FULL-PAGE 3D HOLOVERSE CANVAS
 // ============================================================================
 function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -380,7 +415,7 @@ function CyberSingularityReactor() {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1
+      // Ring 1 (Neon Pink)
       const r1 = maxR * 0.95;
       ctx.save();
       ctx.rotate(t * 0.45);
@@ -393,7 +428,7 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 2
+      // Ring 2 (Purple)
       const r2 = maxR * 0.75;
       ctx.save();
       ctx.rotate(-t * 0.55 + 1.2);
@@ -406,7 +441,7 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 3
+      // Ring 3 (Cyan)
       const r3 = maxR * 0.52;
       ctx.save();
       ctx.rotate(t * 0.75 - 0.7);
@@ -702,7 +737,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 4: MULTI-DISCIPLINE ASSESSMENTS & WAR-ROOM)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 5: INTERVIEW ENGINE & OFFER DISPATCH)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
@@ -770,10 +805,67 @@ export default function CampusNexPlatform() {
     eusiScore: '98.4%',
     dsaRank: '1840+ Hard Rank',
     verifiedCommits: '120+ Commits',
-    currentStep: 5 // Stage 5: Assessment Phase
+    currentStep: 7 // Stage 7: Interview Phase
   });
 
-  // Job Drives with Stage 7 Assessment Integration
+  // ==========================================================================
+  // PHASE 5: STAGE 8 INTERVIEW ROSTER STATE
+  // ==========================================================================
+  const [isScheduleInterviewModalOpen, setIsScheduleInterviewModalOpen] = useState(false);
+  const [scheduledInterviews, setScheduledInterviews] = useState<InterviewRound[]>([
+    {
+      id: 'int-1',
+      candidateId: 'c1',
+      candidateName: 'Verified Candidate (#APEX-01)',
+      company: 'TechCorp India',
+      role: 'Full Stack Engineer (Elite Core)',
+      roundType: 'Technical Architecture',
+      interviewerName: 'Dr. Priya Sen (Staff Architect)',
+      scheduledTime: '29 Oct 2026 • 11:30 AM IST',
+      meetingLink: 'https://meet.google.com/apx-core-triage',
+      status: 'Scheduled',
+      rubricScore: 95
+    },
+    {
+      id: 'int-2',
+      candidateId: 'c2',
+      candidateName: 'Candidate #APEX-02',
+      company: 'DataMetrics AI',
+      role: 'Data Analyst & ML',
+      roundType: 'Managerial Round',
+      interviewerName: 'Arjun Mehta (Lead Recruiter)',
+      scheduledTime: '29 Oct 2026 • 02:00 PM IST',
+      meetingLink: 'https://meet.google.com/dtm-analytics-eval',
+      status: 'Completed',
+      rubricScore: 91,
+      feedbackNotes: 'Strong relational DB tuning. Good composure under question barrage.'
+    }
+  ]);
+
+  // ==========================================================================
+  // PHASE 5: STAGE 9 SOVEREIGN OFFER BREAKDOWN & WAITLIST CASCADE STATE
+  // ==========================================================================
+  const [sovereignOffers, setSovereignOffers] = useState<SovereignOfferDetails[]>([
+    {
+      candidateId: 'c1',
+      candidateName: 'Verified Candidate (#APEX-01)',
+      company: 'TechCorp India',
+      role: 'Full Stack Engineer (Elite Core)',
+      baseSalary: '₹14,50,000',
+      joiningBonus: '₹2,00,000',
+      performanceBonus: '₹2,00,000',
+      stocksEsops: '₹3,50,000',
+      totalCtcLpa: '₹22.0 LPA',
+      reportingLocation: 'HITEC City, Hyderabad / Hybrid',
+      joiningDate: '01 July 2027',
+      offerExpiryDate: '15 Nov 2026',
+      consensusPoEProof: '#0x8942-APEX-OFFER-LEDGER',
+      offerStatus: 'Dispatched',
+      waitlistBackupCandidate: 'Candidate #APEX-04 (Zaid Khan - Score: 97%)'
+    }
+  ]);
+
+  // Jobs
   const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
@@ -796,7 +888,7 @@ export default function CampusNexPlatform() {
       applicationDeadline: '10 Nov 2026',
       interviewTimeline: '12-15 Nov 2026',
       targetColleges: ['DCET Hyderabad', 'JNTUH Campus', 'CBIT'],
-      status: 'Assessment Pending',
+      status: 'Interview Scheduled',
       aiExplanation: 'Strong 94% alignment. Proven execution in Raft consensus and high-concurrency Redis caching.'
     },
     {
@@ -854,24 +946,24 @@ export default function CampusNexPlatform() {
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: 'n1',
-      title: '🚨 Stage 7 Practical Assessment Unlocked',
-      message: 'Choose between Coding Arena, SQL Surgery, Clinical QA, or Business Modeling.',
+      title: '💼 Sovereign Offer Dispatched',
+      message: 'TechCorp India minted appointment letter #0x8942-APEX-OFFER (₹22.0 LPA CTC).',
       timestamp: 'Just now',
-      type: 'alert',
-      read: false
-    },
-    {
-      id: 'n2',
-      title: '⚡ Proof-of-Execution Consensus Active',
-      message: 'Consensus Proof #0x8942-APEX recorded on institutional ledger.',
-      timestamp: '15m ago',
       type: 'success',
       read: false
     },
     {
+      id: 'n2',
+      title: '🗓️ Technical Interview Scheduled',
+      message: 'Interview round with Dr. Priya Sen confirmed for today at 11:30 AM IST.',
+      timestamp: '15m ago',
+      type: 'info',
+      read: false
+    },
+    {
       id: 'n3',
-      title: '📑 Application Audit Log Updated',
-      message: 'Drive #1 status updated to Assessment Pending.',
+      title: '⚡ Proof-of-Execution Consensus Active',
+      message: 'Consensus Proof #0x8942-APEX recorded on institutional ledger.',
       timestamp: '1h ago',
       type: 'info',
       read: true
@@ -880,16 +972,8 @@ export default function CampusNexPlatform() {
 
   const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
-  const [selectedCandidateOffer, setSelectedCandidateOffer] = useState<{
-    name: string;
-    role: string;
-    salary: string;
-    company: string;
-  } | null>(null);
 
-  // ==========================================================================
-  // PHASE 4 STATE: STAGE 7 MULTI-DISCIPLINE ASSESSMENTS & WAR-ROOM
-  // ==========================================================================
+  // Practical Assessment States
   const [isWarRoomOpen, setIsWarRoomOpen] = useState(false);
   const [warRoomSeconds, setWarRoomSeconds] = useState(180);
   const [warRoomLogs, setWarRoomLogs] = useState<string[]>([
@@ -899,14 +983,6 @@ export default function CampusNexPlatform() {
   ]);
   const [warRoomInput, setWarRoomInput] = useState('');
   const [warRoomSolved, setWarRoomSolved] = useState(false);
-
-  // Phase 4: Assessment Type Selection in Sandbox/Arena
-  const [activeAssessmentDomain, setActiveAssessmentDomain] = useState<'engineering' | 'datasql' | 'pharmacy' | 'business' | 'aptitude'>('engineering');
-  const [pharmacyAnswer, setPharmacyAnswer] = useState('');
-  const [pharmacyPassed, setPharmacyPassed] = useState(false);
-
-  const [businessAnswer, setBusinessAnswer] = useState('');
-  const [businessPassed, setBusinessPassed] = useState(false);
 
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [activeSandboxTrack, setActiveSandboxTrack] = useState<'concurrency' | 'git' | 'database'>('concurrency');
@@ -920,13 +996,6 @@ export default function CampusNexPlatform() {
   const [batchingEnabled, setBatchingEnabled] = useState(false);
   const [databaseSolved, setDatabaseSolved] = useState(false);
 
-  const [isArenaOpen, setIsArenaOpen] = useState(false);
-  const [arenaSubmitted, setArenaSubmitted] = useState(false);
-
-  const [isScanning, setIsScanning] = useState(false);
-  const [resumeParsed, setResumeParsed] = useState(false);
-  const [parsedScore, setParsedScore] = useState(94);
-
   const [zkBlindMode, setZkBlindMode] = useState(true);
   const [cliInput, setCliInput] = useState('');
   const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
@@ -934,9 +1003,9 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_4_ASSESSMENTS]: Multi-Discipline Assessment Engine active (Engineering, Pharmacy, MBA, SQL).',
-    '✦ [WAR_ROOM_TRIAGE]: Cluster outage scenario loaded: ap-south-1 Redis deadlock.',
-    '✓ [VERIFIABLE_PROOF]: Keystroke hesitation and stress indices monitored.'
+    '⚡ [PHASE_5_ENGINE]: Multi-round Interview Scheduler & Sovereign Offer Cascade Active.',
+    '✦ [OFFER_LEDGER]: Appointment #0x8942-APEX-OFFER dispatched (₹22.0 LPA).',
+    '✓ [INTERVIEW_CALENDAR]: Technical Architecture round synced with Dr. Priya Sen.'
   ]);
 
   useEffect(() => {
@@ -951,10 +1020,10 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🧪 [MULTI_DISCIPLINE]: Practical assessments configured for B.Tech, B.Pharm & MBA.',
-      '🔥 [WAR_ROOM_SIM]: Live Incident simulation ready: 52,140 req/sec latency mitigation.',
-      '📜 [PROOF_OF_EXECUTION]: SHA-256 style consensus hash validated for active attempts.',
-      '✓ [EUSI_STRESS]: Candidate cognitive endurance vector synchronized at 98.4%.'
+      '🗓️ [STAGE_8_INTERVIEW]: Candidate round 1 calendar slot confirmed on Google Meet.',
+      '📜 [STAGE_9_OFFER]: Sovereign appointment minted on zero-trust ledger.',
+      '⚡ [WAITLIST_CASCADE]: Backup candidate queue listening on priority channel.',
+      '✓ [VERIFICATION]: Continuous telemetry monitoring active.'
     ];
 
     const interval = setInterval(() => {
@@ -968,7 +1037,7 @@ export default function CampusNexPlatform() {
   const [kanbanCandidates, setKanbanCandidates] = useState([
     { 
       id: 'c1', 
-      name: 'Candidate #APEX-01', 
+      name: 'Verified Candidate (#APEX-01)', 
       anonId: 'ANON-CANDIDATE-01 (TOP 0.8%)', 
       role: 'Full Stack Engineer (Elite Core)', 
       stage: 'offer', 
@@ -976,7 +1045,7 @@ export default function CampusNexPlatform() {
       branch: 'CSE', 
       clearance: 'Tier-1 Apex (0.8%)', 
       company: 'TechCorp India', 
-      salary: '₹18.5 LPA',
+      salary: '₹22.0 LPA',
       poeHash: '0x8942...e9f1',
       eusiScore: '98.4%'
     },
@@ -1010,7 +1079,7 @@ export default function CampusNexPlatform() {
     },
     { 
       id: 'c4', 
-      name: 'Candidate #APEX-04', 
+      name: 'Candidate #APEX-04 (Zaid Khan)', 
       anonId: 'ANON-CANDIDATE-04 (TOP 0.9%)', 
       role: 'Full Stack Engineer', 
       stage: 'offer', 
@@ -1018,7 +1087,7 @@ export default function CampusNexPlatform() {
       branch: 'CSE', 
       clearance: 'Tier-1 Apex (0.9%)', 
       company: 'TechCorp India', 
-      salary: '₹16.8 LPA',
+      salary: '₹18.8 LPA',
       poeHash: '0x49e1...ff32',
       eusiScore: '96.8%'
     },
@@ -1033,41 +1102,13 @@ export default function CampusNexPlatform() {
 
   const handleApply = (id: string) => {
     cyberAudio.playLaser();
-    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Assessment Pending', applicants: j.applicants + 1 } : j)));
-    setCandidateProfile(prev => ({ ...prev, currentStep: 5 }));
-    
-    const targetJob = jobs.find(j => j.id === id);
-    const newNotif: AppNotification = {
-      id: Date.now().toString(),
-      title: '🧪 Assessment Unlocked',
-      message: `Applied to ${targetJob?.title}. Stage 5 Practical Assessment is now pending your submission.`,
-      timestamp: 'Just now',
-      type: 'alert',
-      read: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-
-    setTerminalLogs(prev => [
-      `✓ [STAGE_5_ASSESSMENT]: Assessment pending for ${targetJob?.title}. Practical testing unlocked.`,
-      ...prev
-    ]);
+    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Interview Scheduled', applicants: j.applicants + 1 } : j)));
+    setCandidateProfile(prev => ({ ...prev, currentStep: 7 }));
   };
 
   const handleWithdraw = (id: string) => {
     cyberAudio.playBlip();
     setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Withdrawn', applicants: Math.max(0, j.applicants - 1) } : j)));
-  };
-
-  const handleSimulateResumeScan = () => {
-    cyberAudio.playWarp();
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      setResumeParsed(true);
-      setParsedScore(98);
-      cyberAudio.playLaser();
-      setCandidateProfile(prev => ({ ...prev, currentStep: 3 }));
-    }, 1500);
   };
 
   const moveCandidateStage = (id: string, newStage: string) => {
@@ -1085,7 +1126,40 @@ export default function CampusNexPlatform() {
     }, 1200);
   };
 
-  // Phase 4: Incident War-Room Command Handler
+  // Phase 5: Stage 9 Offer Acceptance or Waitlist Cascade Handler
+  const handleOfferResponse = (status: 'Accepted' | 'Declined') => {
+    cyberAudio.playLaser();
+    if (status === 'Accepted') {
+      setSovereignOffers(sovereignOffers.map(o => ({ ...o, offerStatus: 'Accepted' })));
+      setCandidateProfile(prev => ({ ...prev, currentStep: 8 }));
+      const notif: AppNotification = {
+        id: Date.now().toString(),
+        title: '🎉 Offer Letter Accepted!',
+        message: 'Congratulations! You accepted TechCorp India appointment (₹22.0 LPA). Step 8 unlocked.',
+        timestamp: 'Just now',
+        type: 'success',
+        read: false
+      };
+      setNotifications(prev => [notif, ...prev]);
+    } else {
+      // Cascade to waitlist backup candidate
+      setSovereignOffers(sovereignOffers.map(o => ({ ...o, offerStatus: 'CascadedToWaitlist' })));
+      const notif: AppNotification = {
+        id: Date.now().toString(),
+        title: '⚡ Offer Declined & Cascaded',
+        message: 'Offer declined. Automated cascade dispatched to waitlist candidate (Candidate #APEX-04).',
+        timestamp: 'Just now',
+        type: 'alert',
+        read: false
+      };
+      setNotifications(prev => [notif, ...prev]);
+      setTerminalLogs(prev => [
+        '⚠️ [OFFER_CASCADE]: Primary offer declined. Waitlist candidate #APEX-04 automatically promoted to offer.',
+        ...prev
+      ]);
+    }
+  };
+
   const handleWarRoomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!warRoomInput.trim()) return;
@@ -1102,16 +1176,6 @@ export default function CampusNexPlatform() {
       ]);
       setWarRoomSolved(true);
       setCandidateProfile(prev => ({ ...prev, currentStep: 7 }));
-
-      const newNotif: AppNotification = {
-        id: Date.now().toString(),
-        title: '🎉 War-Room Triage Passed',
-        message: 'Redis OOM solved in 42s. Execution Under Stress: 98.4%. Stage 7 Complete.',
-        timestamp: 'Just now',
-        type: 'success',
-        read: false
-      };
-      setNotifications(prev => [newNotif, ...prev]);
     } else {
       cyberAudio.playAlarm();
       setWarRoomLogs(prev => [`WARN: Command "${warRoomInput}" did not solve the consensus partition. Check memory policies.`, ...prev]);
@@ -1127,11 +1191,8 @@ export default function CampusNexPlatform() {
 
     if (cmd === '/clear') {
       setTerminalLogs([]);
-    } else if (cmd === '/scan') {
-      setTerminalLogs(prev => ['⚡ [CLI]: Executing Proof-of-Execution static verification...', ...prev]);
-      handleSimulateResumeScan();
-    } else if (cmd === '/apex') {
-      setTerminalLogs(prev => ['✓ [LEDGER]: Verified candidate clearance confirmed on consensus chain.', ...prev]);
+    } else if (cmd === '/offer') {
+      setShowOfferModal(true);
     } else if (cmd === '/sandbox') {
       cyberAudio.playWarp();
       setIsSandboxOpen(true);
@@ -1144,46 +1205,6 @@ export default function CampusNexPlatform() {
       setTerminalLogs(prev => [`[CLI_EXEC]: "${cliInput}" processed by Neural-v5.0 cluster.`, ...prev]);
     }
     setCliInput('');
-  };
-
-  const handleAddSkill = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newSkillInput.trim()) {
-      e.preventDefault();
-      if (!candidateProfile.skills.includes(newSkillInput.trim())) {
-        setCandidateProfile({
-          ...candidateProfile,
-          skills: [...candidateProfile.skills, newSkillInput.trim()]
-        });
-      }
-      setNewSkillInput('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setCandidateProfile({
-      ...candidateProfile,
-      skills: candidateProfile.skills.filter(s => s !== skillToRemove)
-    });
-  };
-
-  const handleAddCert = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newCertInput.trim()) {
-      e.preventDefault();
-      if (!candidateProfile.certifications.includes(newCertInput.trim())) {
-        setCandidateProfile({
-          ...candidateProfile,
-          certifications: [...candidateProfile.certifications, newCertInput.trim()]
-        });
-      }
-      setNewCertInput('');
-    }
-  };
-
-  const handleRemoveCert = (certToRemove: string) => {
-    setCandidateProfile({
-      ...candidateProfile,
-      certifications: candidateProfile.certifications.filter(c => c !== certToRemove)
-    });
   };
 
   const filteredJobs = jobs.filter(
@@ -1204,9 +1225,9 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 4 ASSESSMENTS
+              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 5 ENGINE
             </span>
-            <span>STAGE 7 PRACTICAL ASSESSMENT & WAR-ROOM: ACTIVE</span>
+            <span>INTERVIEWS & OFFERS DISPATCH: ACTIVE</span>
             <span className="text-purple-300">STAGE {candidateProfile.currentStep}/9 ACTIVE</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
@@ -1220,7 +1241,7 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400">PROVE COMPETENCE</span>
+            <span className="hidden sm:inline text-emerald-400">APPOINTMENT MINT VERIFIED</span>
           </div>
         </div>
 
@@ -1236,10 +1257,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 4 ASSESSMENTS
+                  PHASE 5 ENGINE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Multi-Discipline Assessment Engine • Incident War-Room • Verifiable PoE</p>
+              <p className="text-[11px] text-slate-400">Multi-Round Interviews • Sovereign Offer Letters • Waitlist Cascade</p>
             </div>
           </div>
 
@@ -1356,7 +1377,7 @@ export default function CampusNexPlatform() {
               }}
               className="p-2 rounded-xl bg-purple-950/70 border border-purple-500/50 text-purple-300 hover:bg-purple-900/80 text-xs font-semibold flex items-center gap-1.5 transition"
             >
-              <span>🧪</span> Assessment Dojo
+              <span>🧪</span> Dojo Sandbox
             </button>
 
             <button
@@ -1373,33 +1394,33 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 4 ASSESSMENT ENGINE */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 5 ENGINE SUMMARY */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  Stage 7: Multi-Discipline Assessments
+                  Stage 8 & 9: Interview & Offer Management
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
                   {activePortal.toUpperCase()} PORTAL
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Practical Skill Testing, Incident War-Rooms & Verifiable Proof
+                Multi-Round Scheduling, Rubric Scoring & Sovereign Offers
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Objective assessment beyond theoretical MCQ exams: Real-world engineering concurrency triage, SQL query surgery, regulatory pharmacy case studies, and business analytics.
+                Connect technical rounds (System Architecture, HR) directly to calendar links and dispatch cryptographically minted offers with full CTC breakdowns and backup waitlist cascading.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
                 <button
                   onClick={() => {
-                    cyberAudio.playWarp();
-                    setIsSandboxOpen(true);
+                    cyberAudio.playLaser();
+                    setShowOfferModal(true);
                   }}
-                  className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+                  className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
                 >
-                  🧪 Open Multi-Discipline Assessment Dojo
+                  📜 View Sovereign Offer Letter
                 </button>
                 <button
                   onClick={() => {
@@ -1423,22 +1444,22 @@ export default function CampusNexPlatform() {
 
         {/* Main Dynamic Portal Container */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* Phase 4 KPI Telemetry */}
+          {/* Phase 5 KPI Telemetry */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
-              <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
-              <div className="text-2xl font-black text-white mt-1">{candidateProfile.poeHash}</div>
-              <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
+              <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Active Offer Minted</span>
+              <div className="text-2xl font-black text-white mt-1">₹22.0 LPA CTC</div>
+              <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">TechCorp India • Tier-1 Apex</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
-              <div className="text-2xl font-black text-emerald-400 mt-1">{candidateProfile.eusiScore}</div>
-              <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Interviews Scheduled</span>
+              <div className="text-2xl font-black text-emerald-400 mt-1">Round 1 Confirmed</div>
+              <span className="text-cyan-400 font-bold mt-1 block">Dr. Priya Sen • Architecture</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Assessment Domains</span>
-              <div className="text-2xl font-black text-white mt-1">5 Tracks Active</div>
-              <span className="text-amber-400 font-bold mt-1 block">Engineering, Clinical, MBA, SQL</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Waitlist Cascade Protection</span>
+              <div className="text-2xl font-black text-white mt-1">1 Backup Ready</div>
+              <span className="text-amber-400 font-bold mt-1 block">Zaid Khan (Score: 97%)</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Candidate Stage</span>
@@ -1493,30 +1514,97 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Proof-of-Execution Ledger Banner */}
-                <div className="bg-[#0e122b]/75 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
-                      📜
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          VERIFIED {candidateProfile.poeHash}
-                        </span>
+                {/* STAGE 8: LIVE INTERVIEWS SCHEDULED DRAWER */}
+                <div className="bg-[#091129]/80 border border-cyan-600/50 p-4 rounded-2xl shadow-xl space-y-3 font-mono text-xs">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span className="font-bold text-white flex items-center gap-2">
+                      <span>🗓️</span> Stage 8: Scheduled Interview Rounds & Evaluator Assignment
+                    </span>
+                    <span className="text-[10px] text-cyan-300 bg-cyan-950 px-2 py-0.5 rounded">CALENDAR SYNCED</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {scheduledInterviews.map(interview => (
+                      <div key={interview.id} className="p-3 bg-[#0d1633] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <span>{interview.roundType}</span>
+                            <span className="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800">
+                              {interview.company}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-400 mt-0.5">
+                            Interviewer: {interview.interviewerName} • {interview.scheduledTime}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={interview.meetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-[10px] shadow hover:scale-105 transition"
+                          >
+                            📹 Join Video Meeting
+                          </a>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Mathematical verification: Distributed raft consensus + 2,840 CPU cycles benchmarked.
-                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* STAGE 9: SOVEREIGN OFFER DISPATCH NOTIFICATION BOX */}
+                <div className="bg-gradient-to-r from-emerald-950/60 via-[#071929]/70 to-[#0e1629]/60 border border-emerald-500/60 p-4 rounded-2xl shadow-xl space-y-3 font-mono text-xs">
+                  <div className="flex justify-between items-center border-b border-emerald-900/60 pb-2">
+                    <span className="font-bold text-emerald-300 flex items-center gap-2">
+                      <span>📜</span> Stage 9: Sovereign Appointment Letter Dispatched
+                    </span>
+                    <span className="text-[10px] text-white bg-emerald-600 px-2 py-0.5 rounded font-black">
+                      STATUS: {sovereignOffers[0].offerStatus.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <div className="text-base font-black text-white">
+                        {sovereignOffers[0].company} • {sovereignOffers[0].role}
+                      </div>
+                      <div className="text-emerald-400 font-bold mt-0.5">
+                        Annual Compensation: {sovereignOffers[0].totalCtcLpa} (Breakdown Verified)
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        Consensus Proof: {sovereignOffers[0].consensusPoEProof} • Expiry: {sovereignOffers[0].offerExpiryDate}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          cyberAudio.playLaser();
+                          setShowOfferModal(true);
+                        }}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl text-[10px] transition border border-cyan-800"
+                      >
+                        Inspect Breakdown
+                      </button>
+                      {sovereignOffers[0].offerStatus === 'Dispatched' && (
+                        <>
+                          <button
+                            onClick={() => handleOfferResponse('Accepted')}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-[10px] shadow transition"
+                          >
+                            ✓ Accept Offer
+                          </button>
+                          <button
+                            onClick={() => handleOfferResponse('Declined')}
+                            className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 font-bold rounded-xl text-[10px] border border-rose-600/60 transition"
+                          >
+                            Decline & Cascade
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
-                  <button
-                    onClick={triggerDigitalTwinSync}
-                    className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
-                  >
-                    <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Re-verify Proof'}
-                  </button>
                 </div>
 
                 {/* Job Search & Filter Bar */}
@@ -1538,12 +1626,6 @@ export default function CampusNexPlatform() {
                       key={job.id}
                       className="bg-[#0b1021]/70 backdrop-blur-xl border border-slate-800/90 hover:border-purple-800/80 p-5 rounded-2xl shadow-xl transition-all relative overflow-hidden"
                     >
-                      {job.minClearance === 'Tier-1 Apex' && (
-                        <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-600 to-indigo-600 text-[9px] font-mono font-bold px-3 py-0.5 rounded-bl-xl text-white shadow">
-                          🔒 PROOF-OF-EXECUTION REQUIRED
-                        </div>
-                      )}
-
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mt-1">
                         <div>
                           <div className="flex items-center gap-2">
@@ -1562,58 +1644,10 @@ export default function CampusNexPlatform() {
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
-                            job.status === 'Assessment Pending'
-                              ? 'bg-amber-950/80 text-amber-300 border-amber-500/50 animate-pulse'
-                              : job.status === 'Shortlisted'
-                              ? 'bg-purple-950/80 text-purple-300 border-purple-500/50'
-                              : job.status === 'Withdrawn'
-                              ? 'bg-rose-950/80 text-rose-300 border-rose-500/50'
-                              : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
-                          }`}>
+                          <span className="px-3 py-1 rounded-xl text-xs font-bold font-mono border bg-purple-950/80 text-purple-300 border-purple-500/50">
                             {job.status}
                           </span>
                         </div>
-                      </div>
-
-                      {/* Explainable AI Box */}
-                      <div className="mt-3.5 p-3.5 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-2 text-xs font-mono">
-                        <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-cyan-300 font-bold flex items-center gap-1.5">
-                            <span>🤖</span> Explainable AI Skill Match: {job.matchScore}%
-                          </span>
-                          <span className="text-slate-400 text-[10px]">Validated via Execution Footprint</span>
-                        </div>
-                        <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                          {job.aiExplanation}
-                        </p>
-                        <div className="flex flex-wrap gap-2 pt-1 text-[10px]">
-                          <div className="flex items-center gap-1">
-                            <span className="text-emerald-400 font-bold">Verified Evidence:</span>
-                            <span className="text-emerald-300">{job.matched.join(', ')}</span>
-                          </div>
-                          {job.missing.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              <span className="text-rose-400 font-bold">Skill-Gap:</span>
-                              <span className="text-rose-300">{job.missing.join(', ')}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono">
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
-                          ✓ Min CGPA: {job.minCgpa} (Candidate: {candidateProfile.cgpa})
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/40 text-purple-300">
-                          ✓ Backlogs Allowed: {job.maxBacklogsAllowed}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/40 text-cyan-300">
-                          ✓ Course: {candidateProfile.course.split(' ')[0]} Eligible
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/40 text-amber-300">
-                          📅 Deadline: {job.applicationDeadline}
-                        </span>
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
@@ -1621,40 +1655,13 @@ export default function CampusNexPlatform() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
-                              cyberAudio.playWarp();
-                              setIsSandboxOpen(true);
+                              cyberAudio.playLaser();
+                              setShowOfferModal(true);
                             }}
-                            className="px-3.5 py-1.5 rounded-xl border border-cyan-500/50 bg-cyan-950/60 text-cyan-300 hover:bg-cyan-900 font-bold transition flex items-center gap-1"
+                            className="px-3.5 py-1.5 rounded-xl border border-emerald-500/50 bg-emerald-950/60 text-emerald-300 hover:bg-emerald-900 font-bold transition flex items-center gap-1"
                           >
-                            <span>🧪</span> Enter Assessment
+                            <span>📜</span> View Offer Letter
                           </button>
-                          <button
-                            onClick={() => {
-                              cyberAudio.playAlarm();
-                              setIsWarRoomOpen(true);
-                              setWarRoomSeconds(180);
-                              setWarRoomSolved(false);
-                            }}
-                            className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 font-bold transition flex items-center gap-1"
-                          >
-                            <span>🚨</span> War-Room Triage
-                          </button>
-
-                          {job.status === 'Assessment Pending' ? (
-                            <button
-                              onClick={() => handleWithdraw(job.id)}
-                              className="px-3.5 py-1.5 rounded-xl font-bold bg-rose-950/80 text-rose-300 border border-rose-600/60 hover:bg-rose-900 transition"
-                            >
-                              Withdraw
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleApply(job.id)}
-                              className="px-4 py-1.5 rounded-xl font-bold transition shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30"
-                            >
-                              Apply & Enter Assessment
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -1690,32 +1697,28 @@ export default function CampusNexPlatform() {
                       <span className="text-cyan-300 font-semibold">{candidateProfile.course} • Class of {candidateProfile.batch}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">CGPA & BACKLOGS:</span>
-                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} CGPA • {candidateProfile.backlogs} Backlogs</span>
+                      <span className="text-slate-500">CGPA:</span>
+                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} CGPA</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">TARGET ROLE:</span>
-                      <span className="text-emerald-300 font-semibold truncate max-w-[160px] text-right">{candidateProfile.preferredRole}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">PORTFOLIO CV:</span>
-                      <span className="text-cyan-400 underline truncate max-w-[160px]">{candidateProfile.resumeFileName}</span>
+                      <span className="text-slate-500">OFFER EXTENDED:</span>
+                      <span className="text-emerald-300 font-bold">{sovereignOffers[0].totalCtcLpa} ({sovereignOffers[0].company})</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">ASSESSMENT RESULT:</span>
-                      <span className="text-amber-400 font-bold">PoE Verified #0x8942</span>
+                      <span className="text-slate-500">STAGE PROGRESSION:</span>
+                      <span className="text-amber-400 font-bold">Stage 8 & 9 (Offer Dispatched)</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     <button
                       onClick={() => {
-                        cyberAudio.playWarp();
-                        setIsEditProfileOpen(true);
+                        cyberAudio.playLaser();
+                        setShowOfferModal(true);
                       }}
-                      className="py-1.5 bg-gradient-to-r from-cyan-900/50 to-indigo-900/50 hover:from-cyan-800/60 hover:to-indigo-800/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40"
+                      className="py-1.5 bg-gradient-to-r from-emerald-900/50 to-cyan-900/50 hover:from-emerald-800/60 hover:to-cyan-800/60 border border-emerald-500/50 text-emerald-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40"
                     >
-                      <span>✏️</span> Edit Profile
+                      <span>📜</span> Offer Breakdown
                     </button>
 
                     <button
@@ -1741,31 +1744,6 @@ export default function CampusNexPlatform() {
                       </div>
                     </div>
                   )}
-
-                  <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400 block font-mono">
-                        Verified Competencies
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-mono">{candidateProfile.skills.length} Skills</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {candidateProfile.skills.map((skill, index) => (
-                        <span key={index} className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-cyan-500/30 text-cyan-300 text-xs font-semibold flex items-center gap-1">
-                          <span>⚡</span> {skill}
-                        </span>
-                      ))}
-                      <span className="px-2.5 py-1 rounded-lg bg-[#121a33]/90 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1">
-                        <span>🏆</span> {candidateProfile.dsaRank}
-                      </span>
-                      {concurrencySolved && (
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs font-semibold flex items-center gap-1 animate-in zoom-in-95">
-                          <span>✓</span> Cache Architect (Dojo Certified)
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 </div>
 
                 {/* Neurometric Stress & Latency Vector Box */}
@@ -1791,42 +1769,36 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* PORTAL 2: 💼 RECRUITER SOVEREIGN PORTAL */}
+          {/* PORTAL 2: 💼 RECRUITER SOVEREIGN PORTAL (PHASE 5 ENGINE) */}
           {/* ================================================================ */}
           {activePortal === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-white">Reverse Zero-Knowledge Talent Auction & Drive Manager</h2>
+                    <h2 className="text-xl font-bold text-white">Interview Engine & Sovereign Offer Dispatcher</h2>
                     <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
-                      RECRUITER ENTERPRISE LEVEL
+                      STAGE 8 & 9 ENGINE
                     </span>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Stage 7 Assessment Monitoring: Review multi-discipline assessment logs, war-room incident triage speeds, and practical evidence.
+                    Schedule multi-round interviews with automated calendar links, mint cryptographic sovereign offers, and manage waitlist cascade logic.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setZkBlindMode(!zkBlindMode)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-[11px] font-mono text-cyan-300"
-                  >
-                    {zkBlindMode ? '🕶️ De-anonymize (Auth Recruiter)' : '🔒 Re-enable ZK Encryption'}
-                  </button>
-                  <button
                     onClick={() => {
-                      cyberAudio.playWarp();
-                      setIsPostModalOpen(true);
+                      cyberAudio.playLaser();
+                      setShowOfferModal(true);
                     }}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-indigo-600/30"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-xs font-bold text-white shadow"
                   >
-                    + Post Multi-Campus Drive
+                    📜 Manage Dispatched Offers
                   </button>
                 </div>
               </div>
 
-              {/* Kanban Recruitment Pipeline */}
+              {/* Kanban Recruitment Pipeline with Offers & Waitlist Cascade */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
                 <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-slate-300 mb-3 flex justify-between items-center">
@@ -1841,15 +1813,6 @@ export default function CampusNexPlatform() {
                         <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
                         <div className="text-[11px] text-slate-400">{cand.role}</div>
                         <div className="text-[10px] text-purple-300 mt-1">PoE: {cand.poeHash}</div>
-                        <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                          <span className="text-[10px] text-amber-400 font-bold">{cand.score}% Score</span>
-                          <button
-                            onClick={() => moveCandidateStage(cand.id, 'shortlist')}
-                            className="text-[10px] text-cyan-300 hover:text-white underline font-bold"
-                          >
-                            Verify $\rightarrow$
-                          </button>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -1868,15 +1831,6 @@ export default function CampusNexPlatform() {
                         <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
                         <div className="text-[11px] text-slate-400">{cand.role}</div>
                         <div className="text-[10px] text-emerald-400 mt-1">EUSI Stress: {cand.eusiScore}</div>
-                        <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
-                          <span className="text-[10px] text-cyan-400 font-bold">{cand.score}% Score</span>
-                          <button
-                            onClick={() => moveCandidateStage(cand.id, 'interview')}
-                            className="text-[10px] text-purple-300 hover:text-white underline font-bold"
-                          >
-                            War-Room Call $\rightarrow$
-                          </button>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -1884,7 +1838,7 @@ export default function CampusNexPlatform() {
 
                 <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-purple-300 mb-3 flex justify-between items-center">
-                    <span>🚨 Stage 7: War-Room Interview</span>
+                    <span>🗓️ Stage 8: Interview Pool</span>
                     <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">
                       {kanbanCandidates.filter(c => c.stage === 'interview').length}
                     </span>
@@ -1894,14 +1848,14 @@ export default function CampusNexPlatform() {
                       <div key={cand.id} className="p-3 bg-[#15203b]/85 rounded-lg border border-purple-500/30 shadow">
                         <div className="font-bold text-white">{zkBlindMode ? cand.anonId : cand.name}</div>
                         <div className="text-[11px] text-slate-400">{cand.role}</div>
-                        <div className="text-[10px] text-purple-300 mt-1">Triage Passed: 4.2ms P99</div>
+                        <div className="text-[10px] text-purple-300 mt-1">Interview: 29 Oct • 11:30 AM</div>
                         <div className="mt-2 pt-2 border-t border-slate-700 flex justify-between items-center">
                           <span className="text-[10px] text-purple-400 font-bold">{cand.score}% Score</span>
                           <button
                             onClick={() => moveCandidateStage(cand.id, 'offer')}
                             className="text-[10px] text-emerald-300 hover:text-white underline font-bold"
                           >
-                            Extend Sovereign Offer $\rightarrow$
+                            Extend Offer $\rightarrow$
                           </button>
                         </div>
                       </div>
@@ -1911,7 +1865,7 @@ export default function CampusNexPlatform() {
 
                 <div className="bg-[#0f172a]/75 border border-slate-800/80 rounded-xl p-3.5 backdrop-blur-md">
                   <div className="font-bold text-emerald-400 mb-3 flex justify-between items-center">
-                    <span>🎉 Stage 8 & 9: Placed Bids</span>
+                    <span>🎉 Stage 9: Sovereign Offers</span>
                     <span className="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">
                       {kanbanCandidates.filter(c => c.stage === 'offer').length}
                     </span>
@@ -1925,23 +1879,16 @@ export default function CampusNexPlatform() {
 
                         <div className="mt-2.5 pt-2 border-t border-slate-700 flex items-center justify-between">
                           <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
-                            ✓ Consensus Proof
+                            ✓ Consensus Minted
                           </span>
                           <button
                             onClick={() => {
                               cyberAudio.playLaser();
-                              setSelectedCandidateOffer({
-                                name: cand.name,
-                                role: cand.role,
-                                salary: cand.salary,
-                                company: cand.company
-                              });
                               setShowOfferModal(true);
-                              setCandidateProfile(prev => ({ ...prev, currentStep: 9 }));
                             }}
                             className="text-[10px] bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold px-2 py-1 rounded shadow hover:scale-105 transition"
                           >
-                            📄 Mint Offer Letter
+                            📄 View Offer Letter
                           </button>
                         </div>
                       </div>
@@ -1959,40 +1906,10 @@ export default function CampusNexPlatform() {
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-white">{collegeDetails.name}</h2>
-                    <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-800 px-2 py-0.5 rounded-full font-bold">
-                      {collegeDetails.institutionalCode}
-                    </span>
-                  </div>
+                  <h2 className="text-xl font-bold text-white">{collegeDetails.name}</h2>
                   <p className="text-xs text-slate-400">
                     Affiliation: {collegeDetails.universityAffiliation} • {collegeDetails.accreditationGrade}
                   </p>
-                </div>
-              </div>
-
-              {/* Academic Departments */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <h4 className="font-bold text-white text-sm">Academic Departments & Student Enrollment Roster</h4>
-                  <span className="text-slate-400 font-mono">Total Governed: {collegeDetails.totalEnrolled} Students</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {departments.map(dept => (
-                    <div key={dept.id} className="p-3.5 bg-[#0f172a]/80 border border-slate-800 rounded-2xl space-y-1 font-mono text-xs">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-white">{dept.code}</span>
-                        <span className="text-[10px] text-cyan-300 bg-cyan-950 px-1.5 py-0.5 rounded">Batch {dept.activeBatch}</span>
-                      </div>
-                      <div className="text-[11px] text-slate-300 truncate">{dept.name}</div>
-                      <div className="text-[10px] text-slate-500">{dept.hodName}</div>
-                      <div className="mt-2 pt-2 border-t border-slate-800 flex justify-between items-center text-[10px]">
-                        <span className="text-slate-400">Enrolled:</span>
-                        <span className="text-emerald-400 font-bold">{dept.enrolledStudents} Students</span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -2006,30 +1923,6 @@ export default function CampusNexPlatform() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
                 <div>
                   <h2 className="text-xl font-bold text-white">Platform Administration, Security Vault & Cryptographic Audit</h2>
-                  <p className="text-xs text-slate-400">Sovereign Admin Portal: RBAC governance, company domain authorization, and consensus integrity.</p>
-                </div>
-                <div className="px-3 py-1 rounded-full bg-rose-950/80 border border-rose-800/60 font-mono text-[10px] text-rose-300">
-                  SYSTEM_INTEGRITY: 100% ZERO-TRUST MINT
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-rose-900/50 space-y-2 backdrop-blur-md">
-                  <span className="text-[10px] text-rose-400 block font-bold">COMPANY DOMAIN VERIFICATION</span>
-                  <div className="text-lg font-bold text-white">42 Verified Employers</div>
-                  <div className="text-emerald-400 font-bold">✓ Zero Domain Spoofing</div>
-                </div>
-
-                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-cyan-900/50 space-y-2 backdrop-blur-md">
-                  <span className="text-[10px] text-cyan-400 block font-bold">CONSENSUS LEDGER MINT STATUS</span>
-                  <div className="text-lg font-bold text-white">12,840 Block Hashes</div>
-                  <div className="text-cyan-300 font-bold">Latency: 2.1ms</div>
-                </div>
-
-                <div className="p-4 bg-[#081024]/75 rounded-2xl border border-purple-900/50 space-y-2 backdrop-blur-md">
-                  <span className="text-[10px] text-purple-400 block font-bold">ZERO-KNOWLEDGE PRIVACY SHIELD</span>
-                  <div className="text-lg font-bold text-white">100% Protected Identifiers</div>
-                  <div className="text-emerald-400 font-bold">Strict Bias Filter Active</div>
                 </div>
               </div>
             </div>
@@ -2037,406 +1930,118 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ==================================================================== */}
-        {/* PHASE 4 MODAL: MULTI-DISCIPLINE STAGE 7 ASSESSMENT DOJO */}
+        {/* PHASE 5 MODAL: STAGE 9 COMPREHENSIVE SOVEREIGN OFFER BREAKDOWN */}
         {/* ==================================================================== */}
-        {isSandboxOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5">
-            <div className="bg-[#090e24] border border-cyan-500/70 rounded-3xl w-full max-w-3xl p-5 sm:p-7 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200 overflow-hidden">
+        {showOfferModal && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-xl p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
-                  setIsSandboxOpen(false);
+                  setShowOfferModal(false);
                 }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
                 ✕
               </button>
 
-              <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
-                  🧪
-                </div>
+              <div className="flex justify-between items-start border-b border-slate-800 pb-4 mb-4">
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    Stage 7 Multi-Discipline Practical Assessment
-                    <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
-                      VERIFIABLE PROOF ENGINE
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-slate-400 font-sans">
-                    Demonstrate applied skills across Engineering, Data SQL, Healthcare Pharmacy, and Business Modeling.
-                  </p>
+                  <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
+                    STAGE 9 OFFICIAL APPOINTMENT DISPATCH
+                  </span>
+                  <h3 className="text-xl font-black text-white mt-0.5">{sovereignOffers[0].company}</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">Consensus Proof: {sovereignOffers[0].consensusPoEProof}</p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
+                  📜
                 </div>
               </div>
 
-              {/* Phase 4 Multi-Discipline Domain Selector */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-[#05091a] border border-slate-800 rounded-2xl mb-5 text-[11px] font-bold">
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveAssessmentDomain('engineering');
-                  }}
-                  className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeAssessmentDomain === 'engineering'
-                      ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  ⚡ Concurrency / K8s
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveAssessmentDomain('datasql');
-                  }}
-                  className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeAssessmentDomain === 'datasql'
-                      ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  🗄️ SQL Optimization
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveAssessmentDomain('pharmacy');
-                  }}
-                  className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeAssessmentDomain === 'pharmacy'
-                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  💊 Clinical & Pharma QA
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveAssessmentDomain('business');
-                  }}
-                  className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeAssessmentDomain === 'business'
-                      ? 'bg-gradient-to-r from-amber-600 to-indigo-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  📊 MBA Valuation Model
-                </button>
+              <div className="space-y-3 leading-relaxed text-slate-300 font-mono">
+                <p>
+                  Dear <strong className="text-white">{sovereignOffers[0].candidateName}</strong>,
+                </p>
+                <p className="font-sans">
+                  Following your performance in the Proof-of-Execution Consensus Ledger benchmark, Raft Concurrency Architecture review, and Live Incident Outage War-Room triage, we are pleased to extend an offer for the position of <strong className="text-cyan-300">{sovereignOffers[0].role}</strong>.
+                </p>
+
+                {/* Stage 9: Itemized Compensation Breakdown */}
+                <div className="p-3.5 bg-[#081024] rounded-2xl border border-slate-800 space-y-1.5 text-xs">
+                  <div className="flex justify-between border-b border-slate-800 pb-1">
+                    <span className="text-slate-400">Annual Base Pay:</span>
+                    <span className="text-white font-bold">{sovereignOffers[0].baseSalary}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-800 pb-1">
+                    <span className="text-slate-400">Guaranteed Joining Bonus:</span>
+                    <span className="text-emerald-400 font-bold">{sovereignOffers[0].joiningBonus}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-800 pb-1">
+                    <span className="text-slate-400">Annual Performance Variable:</span>
+                    <span className="text-cyan-300 font-bold">{sovereignOffers[0].performanceBonus}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-800 pb-1">
+                    <span className="text-slate-400">Equity / ESOP Allocation:</span>
+                    <span className="text-purple-300 font-bold">{sovereignOffers[0].stocksEsops}</span>
+                  </div>
+                  <div className="flex justify-between pt-1 text-sm font-black">
+                    <span className="text-emerald-300">Total Annual CTC:</span>
+                    <span className="text-emerald-400">{sovereignOffers[0].totalCtcLpa}</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[#0d1633] rounded-xl border border-slate-800 space-y-1 text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Work Premises:</span>
+                    <span className="text-white">{sovereignOffers[0].reportingLocation}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Proposed Joining Date:</span>
+                    <span className="text-cyan-300">{sovereignOffers[0].joiningDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Offer Expiration Deadline:</span>
+                    <span className="text-rose-300">{sovereignOffers[0].offerExpiryDate}</span>
+                  </div>
+                  {sovereignOffers[0].waitlistBackupCandidate && (
+                    <div className="flex justify-between border-t border-slate-800 pt-1 text-[10px] text-amber-400">
+                      <span>Waitlist Cascade Backup:</span>
+                      <span>{sovereignOffers[0].waitlistBackupCandidate}</span>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-[10px] text-slate-400 font-sans">
+                  This document is cryptographically verified by CampusNex AI and minted on the institution placement consensus ledger.
+                </p>
               </div>
 
-              {/* DOMAIN 1: ENGINEERING (CONCURRENCY) */}
-              {activeAssessmentDomain === 'engineering' && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-[#05091a] border border-cyan-900/60 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-rose-400 font-bold uppercase tracking-wider">
-                        Scenario: Distributed Flash-Sale Spike (10,000 req/sec)
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${concurrencySolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300 animate-pulse'}`}>
-                        {concurrencySolved ? 'SYSTEM STABLE' : 'CRITICAL BOTTLENECK'}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 py-2 font-mono">
-                      <div className="p-3 bg-[#0d1430] rounded-xl border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">POSTGRESQL DISK I/O</span>
-                        <span className={`text-lg font-black block mt-0.5 ${concurrencySolved ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {concurrencySolved ? '12% Load (Optimal)' : '98% Load (Saturated)'}
-                        </span>
-                      </div>
-                      <div className="p-3 bg-[#0d1430] rounded-xl border border-slate-800">
-                        <span className="text-[10px] text-slate-400 block">P99 API LATENCY</span>
-                        <span className={`text-lg font-black block mt-0.5 ${concurrencySolved ? 'text-cyan-300' : 'text-rose-400'}`}>
-                          {concurrencySolved ? '4.2 ms (Sub-ms Cache)' : '1,420 ms (Timeout)'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex flex-col sm:flex-row gap-2.5 mt-5 pt-3 border-t border-slate-800">
+                {sovereignOffers[0].offerStatus === 'Dispatched' ? (
+                  <>
                     <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !redisEnabled;
-                        setRedisEnabled(next);
-                        if (next && rateLimiterEnabled) {
-                          setConcurrencySolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        redisEnabled
-                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
-                      }`}
+                      onClick={() => handleOfferResponse('Accepted')}
+                      className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:opacity-95 transition"
                     >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">1. Redis In-Memory Cache</div>
-                        <div className="text-[10px] text-slate-400 font-sans">Bypasses 88% of DB reads</div>
-                      </div>
-                      <span className="text-base">{redisEnabled ? '✅' : '⚪'}</span>
+                      ✓ Accept Offer Letter
                     </button>
-
                     <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !rateLimiterEnabled;
-                        setRateLimiterEnabled(next);
-                        if (next && redisEnabled) {
-                          setConcurrencySolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        rateLimiterEnabled
-                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
-                      }`}
+                      onClick={() => handleOfferResponse('Declined')}
+                      className="px-4 py-2.5 bg-rose-950/80 border border-rose-600/60 rounded-xl text-rose-300 font-bold text-xs hover:bg-rose-900 transition"
                     >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">2. Token-Bucket Rate Limiter</div>
-                        <div className="text-[10px] text-slate-400 font-sans">Cap max 100 req/sec per IP</div>
-                      </div>
-                      <span className="text-base">{rateLimiterEnabled ? '✅' : '⚪'}</span>
+                      Decline & Cascade to Waitlist
                     </button>
+                  </>
+                ) : (
+                  <div className="flex-1 py-2 rounded-xl bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-center font-bold text-xs">
+                    Offer Status: {sovereignOffers[0].offerStatus.toUpperCase()}
                   </div>
-
-                  {concurrencySolved && (
-                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
-                      <div>
-                        <div className="font-bold text-emerald-300">✓ Concurrency Lab Passed!</div>
-                        <div className="text-[10px] text-slate-300 font-sans">
-                          Redis cache absorbed the read surge. Proof of Execution minted.
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
-                        COMPETENCE VERIFIED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* DOMAIN 2: DATA SCIENCE & SQL QUERY SURGERY */}
-              {activeAssessmentDomain === 'datasql' && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-[#05091a] border border-emerald-900/60 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-emerald-400 font-bold uppercase tracking-wider">
-                        Scenario: 5,000,000 Record Table Scan Bottleneck
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${databaseSolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                        {databaseSolved ? 'OPTIMIZED (4.1ms)' : 'SLOW QUERY (850ms)'}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-[#0d1430] rounded-xl font-mono text-[10px] text-slate-300 space-y-1">
-                      <div className="text-amber-300">EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 942 AND status = 'COMPLETE';</div>
-                      <div className="text-slate-400">{databaseSolved ? 'Index Scan using idx_orders_user_status (Cost: 0.28..4.02)' : 'Seq Scan on orders (cost=0.00..89240.00 rows=5000000)'}</div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !bTreeIndexEnabled;
-                        setBTreeIndexEnabled(next);
-                        if (next && batchingEnabled) {
-                          setDatabaseSolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        bTreeIndexEnabled
-                          ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">1. Composite B-Tree Index</div>
-                        <div className="text-[10px] text-slate-400 font-sans">INDEX ON (user_id, status)</div>
-                      </div>
-                      <span className="text-base">{bTreeIndexEnabled ? '✅' : '⚪'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !batchingEnabled;
-                        setBatchingEnabled(next);
-                        if (next && bTreeIndexEnabled) {
-                          setDatabaseSolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        batchingEnabled
-                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">2. Batch Fetch (Kill N+1 Loop)</div>
-                        <div className="text-[10px] text-slate-400 font-sans">Single query with WHERE IN (...)</div>
-                      </div>
-                      <span className="text-base">{batchingEnabled ? '✅' : '⚪'}</span>
-                    </button>
-                  </div>
-
-                  {databaseSolved && (
-                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
-                      <div>
-                        <div className="font-bold text-emerald-300">✓ Database Surgery Completed!</div>
-                        <div className="text-[10px] text-slate-300 font-sans">
-                          Execution time dropped from 850ms to 4.1ms. Database load down to 11%.
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
-                        DATA RIGOR VERIFIED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* DOMAIN 3: PHARMACY & CLINICAL REGULATORY CASE STUDY (B.PHARM) */}
-              {activeAssessmentDomain === 'pharmacy' && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-[#05091a] border border-pink-900/60 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-pink-400 font-bold uppercase tracking-wider">
-                        Scenario: Accelerated Drug Stability & ICH Q1A Regulatory Audit
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${pharmacyPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-pink-500/20 text-pink-300'}`}>
-                        {pharmacyPassed ? 'REGULATORY PASS' : 'AUDIT PENDING'}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-300 font-sans">
-                      Case: Accelerated testing of a newly formulated oral solid dosage form reveals 2.8% degradation at 40°C/75% RH at 3 months. Identify the corrective stabilization parameter.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      'Incorporate moisture-barrier packaging (Alu-Alu blister) and adjust antioxidant buffer to maintain pH stability.',
-                      'Increase formulation drying temperature to 60°C to dehydrate active pharmaceutical ingredient.',
-                      'Switch clinical batch directly to Room Temperature without logging accelerated degradation kinetics.'
-                    ].map((opt, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          cyberAudio.playBlip();
-                          if (i === 0) {
-                            setPharmacyPassed(true);
-                            cyberAudio.playLaser();
-                          } else {
-                            setPharmacyPassed(false);
-                            cyberAudio.playAlarm();
-                          }
-                        }}
-                        className={`w-full p-2.5 rounded-xl border text-left text-[11px] font-sans transition ${
-                          pharmacyPassed && i === 0
-                            ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
-                            : 'bg-[#0d1430] border-slate-800 text-slate-300 hover:border-slate-700'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-
-                  {pharmacyPassed && (
-                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
-                      <div>
-                        <div className="font-bold text-emerald-300">✓ Clinical Regulatory QA Cleared!</div>
-                        <div className="text-[10px] text-slate-300 font-sans">
-                          Candidate accurately solved ICH Q1A stability criteria. Pharma credential minted.
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
-                        PHARMA QA VERIFIED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* DOMAIN 4: MANAGEMENT & BUSINESS MODELING (MBA) */}
-              {activeAssessmentDomain === 'business' && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-[#05091a] border border-amber-900/60 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-amber-400 font-bold uppercase tracking-wider">
-                        Scenario: Customer Acquisition Cost (CAC) & LTV Unit Economics
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${businessPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
-                        {businessPassed ? 'STRATEGY VERIFIED' : 'ANALYSIS PENDING'}
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-slate-300 font-sans">
-                      Problem: A B2B SaaS platform spends ₹18,000 on blended CAC with an Average Revenue Per User (ARPU) of ₹1,500/mo and a monthly churn rate of 5%. What is the LTV:CAC ratio and health verdict?
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    {[
-                      'LTV is ₹30,000 (1,500 / 0.05). LTV:CAC = 1.67x (Unhealthy: Payback period exceeds 12 months, requiring immediate churn reduction).',
-                      'LTV is ₹18,000. LTV:CAC = 1.0x (Optimal, break-even achieved immediately).',
-                      'LTV is ₹90,000. LTV:CAC = 5.0x (Excessive margin, capital is under-invested).'
-                    ].map((opt, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          cyberAudio.playBlip();
-                          if (i === 0) {
-                            setBusinessPassed(true);
-                            cyberAudio.playLaser();
-                          } else {
-                            setBusinessPassed(false);
-                            cyberAudio.playAlarm();
-                          }
-                        }}
-                        className={`w-full p-2.5 rounded-xl border text-left text-[11px] font-sans transition ${
-                          businessPassed && i === 0
-                            ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
-                            : 'bg-[#0d1430] border-slate-800 text-slate-300 hover:border-slate-700'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-
-                  {businessPassed && (
-                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
-                      <div>
-                        <div className="font-bold text-emerald-300">✓ Quantitative Business Rigor Cleared!</div>
-                        <div className="text-[10px] text-slate-300 font-sans">
-                          SaaS unit economics and churn impact correctly calculated. MBA credential minted.
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
-                        MBA STRATEGY VERIFIED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="mt-5 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400 font-sans">
-                <span>Completed assessments mint cryptographic Proof-of-Execution tokens on your sovereign profile.</span>
+                )}
                 <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setIsSandboxOpen(false);
-                  }}
-                  className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
+                  onClick={() => setShowOfferModal(false)}
+                  className="px-4 py-2.5 bg-slate-800 rounded-xl text-slate-300 font-bold text-xs hover:bg-slate-700 transition"
                 >
-                  Return to Dashboard
+                  Close
                 </button>
               </div>
             </div>
@@ -2501,9 +2106,6 @@ export default function CampusNexPlatform() {
                       Execute Triage
                     </button>
                   </div>
-                  <div className="text-[10px] text-slate-500">
-                    Hint: Fix memory saturation by commanding an eviction policy shift or trigger Sentinel replica failover.
-                  </div>
                 </form>
               ) : (
                 <div className="p-4 bg-emerald-950/40 border border-emerald-500/40 rounded-2xl text-center space-y-2">
@@ -2524,166 +2126,10 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* Holographic 3D Identity Badge */}
-        {showIdBadgeModal && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-sm p-6 text-xs relative shadow-2xl overflow-hidden font-mono text-center animate-in zoom-in-95 duration-200">
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
-
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowIdBadgeModal(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <span className="text-[9px] text-cyan-300 bg-cyan-950/80 border border-cyan-800/60 px-3 py-0.5 rounded-full uppercase tracking-widest inline-block mb-3">
-                PROOF-OF-EXECUTION {candidateProfile.poeHash}
-              </span>
-
-              <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 p-0.5 shadow-xl shadow-cyan-500/30 mb-3 relative group">
-                <div className="w-full h-full bg-[#080f24] rounded-2xl flex items-center justify-center font-black text-2xl text-white">
-                  {candidateProfile.name.slice(0, 2).toUpperCase()}
-                </div>
-                <span className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#0b1021] flex items-center justify-center text-[10px] text-black font-bold">
-                  ✓
-                </span>
-              </div>
-
-              <h3 className="text-lg font-black text-white">{candidateProfile.name}</h3>
-              <p className="text-slate-400 text-[11px] font-sans">{candidateProfile.course} • Batch {candidateProfile.batch}</p>
-
-              <div className="my-3 py-1.5 px-3 bg-purple-950/60 border border-purple-500/40 rounded-xl text-purple-300 text-[10px] font-bold">
-                ⚡ {candidateProfile.clearance}
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 my-3 text-left">
-                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-500 block">DSA BENCHMARK</span>
-                  <span className="text-cyan-300 font-bold text-xs mt-0.5 block">{candidateProfile.dsaRank}</span>
-                </div>
-                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-500 block">STRESS INDEX</span>
-                  <span className="text-emerald-400 font-bold text-xs mt-0.5 block">{candidateProfile.eusiScore} (EUSI)</span>
-                </div>
-                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-500 block">CODE PURITY</span>
-                  <span className="text-purple-300 font-bold text-xs mt-0.5 block">99.4th Pctl</span>
-                </div>
-                <div className="p-2.5 bg-[#070d1e] rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-500 block">CONSENSUS HASH</span>
-                  <span className="text-slate-300 font-bold text-xs mt-0.5 block">{candidateProfile.poeHash}</span>
-                </div>
-              </div>
-
-              <div className="p-2 bg-black/40 rounded-xl border border-dashed border-slate-800 text-[9px] text-slate-500">
-                CAMPUS RECRUITMENT CONSENSUS PROOF • CRYPTOGRAPHICALLY VALIDATED
-              </div>
-
-              <button
-                onClick={() => {
-                  cyberAudio.playLaser();
-                  setShowIdBadgeModal(false);
-                }}
-                className="w-full mt-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 rounded-xl text-white font-bold text-xs shadow-lg transition"
-              >
-                Close Hologram HUD
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Sovereign Offer Letter Modal */}
-        {showOfferModal && selectedCandidateOffer && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 sm:p-8 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowOfferModal(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="flex justify-between items-start border-b border-slate-800 pb-4 mb-4">
-                <div>
-                  <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest font-bold">
-                    OFFICIAL APPOINTMENT DISPATCH
-                  </span>
-                  <h3 className="text-xl font-black text-white mt-0.5">{selectedCandidateOffer.company}</h3>
-                  <p className="text-[11px] text-slate-400 font-mono">Consensus Proof: #0x8942-APEX-OFFER</p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
-                  📜
-                </div>
-              </div>
-
-              <div className="space-y-3 leading-relaxed text-slate-300">
-                <p>
-                  Dear <strong className="text-white">{selectedCandidateOffer.name}</strong>,
-                </p>
-                <p>
-                  Following your performance in the CampusNex Proof-of-Execution Ledger benchmark and Incident War-Room Outage triage, we are pleased to extend an offer for:
-                </p>
-
-                <div className="p-3.5 bg-[#0f172a] rounded-2xl border border-slate-800 font-mono">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-400">Designation:</span>
-                    <span className="text-white font-bold">{selectedCandidateOffer.role}</span>
-                  </div>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-400">Annual Compensation (CTC):</span>
-                    <span className="text-emerald-400 font-black">{selectedCandidateOffer.salary}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Verification Status:</span>
-                    <span className="text-cyan-300 font-bold">Day-1 Direct Joining Clearance</span>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-400">
-                  This document is cryptographically verified by CampusNex AI and minted on the institution placement ledger.
-                </p>
-              </div>
-
-              <div className="flex gap-2.5 mt-5 pt-3 border-t border-slate-800">
-                <button
-                  onClick={() => {
-                    cyberAudio.playLaser();
-                    alert("Official PDF Offer Document successfully compiled and queued for print!");
-                    setShowOfferModal(false);
-                  }}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-xl text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:opacity-95 transition"
-                >
-                  📥 Download Cryptographic PDF
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setShowOfferModal(false);
-                  }}
-                  className="px-4 py-2.5 bg-slate-800 rounded-xl text-slate-300 font-bold text-xs hover:bg-slate-700 transition"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Welcome Momentum Modal */}
         {showWelcomeModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              <div className="absolute -top-14 -right-14 w-36 h-36 bg-purple-500/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-14 -left-14 w-36 h-36 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none" />
-
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
@@ -2697,28 +2143,28 @@ export default function CampusNexPlatform() {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">🔥</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 4 Practical Assessments Live
+                  Phase 5 Interview & Offer Engine Live
                 </span>
               </div>
 
               <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                Multi-Discipline Assessments & Incident War-Room
+                Multi-Round Interviews & Sovereign Offers
               </h3>
 
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Objective evaluation across B.Tech, B.Pharm & MBA domains: Distributed caching architecture, SQL query surgery, regulatory clinical case studies, and live production outage triage.
+                Stage 8 & 9 enterprise deployment: Automated calendar round scheduling, technical rubric scoring, itemized CTC appointment letters, and waitlist cascade fallback.
               </p>
 
               <div className="grid grid-cols-2 gap-3 my-4">
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Assessment Engines</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">5 Multi-Tracks</span>
-                  <span className="text-[10px] text-slate-400">Class of 2026</span>
+                  <span className="text-slate-400 text-[10px] block">Active Dispatched Offer</span>
+                  <span className="text-base font-black text-emerald-400 mt-0.5 block">₹22.0 LPA CTC</span>
+                  <span className="text-[10px] text-slate-400">TechCorp India</span>
                 </div>
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Candidate Standing</span>
-                  <span className="text-base font-black text-cyan-300 mt-0.5 block">CGPA {candidateProfile.cgpa}</span>
-                  <span className="text-[10px] text-slate-400">{candidateProfile.course.split(' ')[0]}</span>
+                  <span className="text-slate-400 text-[10px] block">Interview Schedule</span>
+                  <span className="text-base font-black text-cyan-300 mt-0.5 block">Today • 11:30 AM</span>
+                  <span className="text-[10px] text-slate-400">Dr. Priya Sen</span>
                 </div>
               </div>
 
@@ -2726,14 +2172,12 @@ export default function CampusNexPlatform() {
                 <button
                   onClick={() => {
                     setShowWelcomeModal(false);
-                    cyberAudio.playAlarm();
-                    setIsWarRoomOpen(true);
-                    setWarRoomSeconds(180);
-                    setWarRoomSolved(false);
+                    cyberAudio.playLaser();
+                    setShowOfferModal(true);
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 hover:scale-[1.02] transition"
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 hover:scale-[1.02] transition"
                 >
-                  🚨 Enter Assessment Stage
+                  📜 Inspect Sovereign Offer
                 </button>
                 <button
                   onClick={() => {
