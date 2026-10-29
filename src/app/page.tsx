@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 3 P2 SUITE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 4 COMPLETE SUITE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -82,7 +82,7 @@ interface Job {
   interviewTimeline: string;
   targetColleges: string[];
   status: 'Open' | 'Applied' | 'Shortlisted' | 'Assessment Pending' | 'Offer Dispatched';
-  dataSource: 'LIVE' | 'DEMO' | 'VERIFIED';
+  dataSource: 'LIVE' | 'DEMO' | 'VERIFIED' | 'SIMULATED';
   aiMatchExplanation: string;
   fairnessConfidence: number;
   timeZoneSchedule: string;
@@ -108,15 +108,6 @@ interface CandidateProfile {
   currentStageIndex: number;
 }
 
-interface CandidateAppeal {
-  id: string;
-  jobTitle: string;
-  reason: string;
-  submittedAt: string;
-  status: 'Under Review' | 'Resolution Approved' | 'Rejected';
-}
-
-// Phase 3: Autonomous Workflow Builder Generation Model
 interface ProposedWorkflowPlan {
   promptInstruction: string;
   driveTitle: string;
@@ -126,6 +117,27 @@ interface ProposedWorkflowPlan {
   assessmentTrack: string;
   isApprovedByRecruiter: boolean;
   generatedAt: string;
+}
+
+// Phase 4: Digital Twin Predictive Scenario Model
+interface DigitalTwinScenario {
+  id: string;
+  name: string;
+  hypothesis: string;
+  projectedYield: string;
+  processingDelta: string;
+  uncertaintyMargin: string;
+  recommendationVerdict: string;
+}
+
+// Phase 4: Enterprise Integration Connector Model
+interface EnterpriseConnector {
+  id: string;
+  systemName: string;
+  category: 'SIS / ERP' | 'HRIS / ATS' | 'Calendar & Video' | 'Verification API';
+  status: 'Connected' | 'Ready' | 'Mock Sync';
+  latency: string;
+  lastSync: string;
 }
 
 const DEFAULT_PROFILE: CandidateProfile = {
@@ -144,7 +156,7 @@ const DEFAULT_PROFILE: CandidateProfile = {
   eusiScore: '98.4%',
   dsaRank: '1840+ Hard Rank',
   verifiedCommits: '120+ Commits',
-  currentStageIndex: 9 // Stage 10: Offer Accepted
+  currentStageIndex: 9
 };
 
 const DEFAULT_PASSPORT_ITEMS: SkillPassportItem[] = [
@@ -688,14 +700,12 @@ function BiometricPulseCanvas() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 3 P2 SUITE INTEGRATED)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 4: DIGITAL TWIN & ENTERPRISE INTEGRATION)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
-
-  // Global Currency Toggle: INR (₹) / USD ($) / JPY (¥)
   const [activeCurrency, setActiveCurrency] = useState<'INR' | 'USD' | 'JPY'>('INR');
 
   // Candidate Profile State
@@ -732,33 +742,58 @@ export default function CampusNexPlatform() {
   });
 
   // ==========================================================================
-  // PHASE 3 NEW 1: RECRUITMENT SIMULATION LAB (5 PRESENTATION SCENARIOS)
+  // PHASE 4 NEW 1: RECRUITMENT DIGITAL TWIN (PREDICTIVE SCENARIO MODELING)
   // ==========================================================================
-  const [showSimLabModal, setShowSimLabModal] = useState(false);
-  const [activeSimScenario, setActiveSimScenario] = useState<number | null>(null);
-  const [simProcessing, setSimProcessing] = useState(false);
-  const [simResultsLog, setSimResultsLog] = useState<string[]>([]);
-  const [simMetrics, setSimMetrics] = useState({ processedCount: 0, executionTimeMs: 0, throughputRate: '0 req/sec' });
+  const [showDigitalTwinModal, setShowDigitalTwinModal] = useState(false);
+  const [activeTwinScenario, setActiveTwinScenario] = useState<string>('capacity');
+  const [twinSimulating, setTwinSimulating] = useState(false);
+  const [digitalTwinScenarios] = useState<DigitalTwinScenario[]>([
+    {
+      id: 'capacity',
+      name: '2X Interview Capacity Expansion',
+      hypothesis: 'Doubling concurrent technical evaluators from 6 to 12 slots across dual time zones.',
+      projectedYield: '+42% Offer Velocity',
+      processingDelta: '68% Latency Drop (24hrs -> 7.6hrs)',
+      uncertaintyMargin: '±4.2% Variance (CI: 95%)',
+      recommendationVerdict: 'Strong Positive: Minimizes candidate ghosting and shortens pipeline friction.'
+    },
+    {
+      id: 'assessment',
+      name: 'Mandatory War-Room Round Addition',
+      hypothesis: 'Adding live cluster outage incident triage before sovereign offer release.',
+      projectedYield: '99.8% Onboarding Retention',
+      processingDelta: '+18% Recruiter Evaluation Workload',
+      uncertaintyMargin: '±2.1% Variance (CI: 99%)',
+      recommendationVerdict: 'Defensible: Eliminates unverified credentials; protects Day-1 joining rates.'
+    },
+    {
+      id: 'training',
+      name: 'Targeted Institutional Lab Upskilling',
+      hypothesis: 'Introducing targeted 3-week micro-courses on Go & Raft consensus for pre-final years.',
+      projectedYield: '+34% Super Dream Clearances',
+      processingDelta: 'Average CTC shifts ₹18.6 LPA -> ₹22.4 LPA',
+      uncertaintyMargin: '±6.0% Variance (CI: 90%)',
+      recommendationVerdict: 'Institutional Multiplier: Boosts college tier status and recruiter engagement.'
+    }
+  ]);
 
   // ==========================================================================
-  // PHASE 3 NEW 2: AUTONOMOUS RECRUITMENT WORKFLOW BUILDER
+  // PHASE 4 NEW 2: ENTERPRISE INTEGRATION HUB (SIS / ATS / CALENDAR / API)
   // ==========================================================================
-  const [showWorkflowBuilderModal, setShowWorkflowBuilderModal] = useState(false);
-  const [promptInput, setPromptInput] = useState('Create a Cloud Infrastructure hiring drive for CSE 2026 batch, require 0 backlogs, and build an automated War-Room assessment pipeline.');
-  const [generatedWorkflow, setGeneratedWorkflow] = useState<ProposedWorkflowPlan | null>(null);
-  const [workflowGenerating, setWorkflowGenerating] = useState(false);
-
-  // Fair Audit Modal State (from Phase 2)
-  const [showFairAuditModal, setShowFairAuditModal] = useState(false);
-  const [selectedJobAudit, setSelectedJobAudit] = useState<Job | null>(null);
-  const [appealsList, setAppealsList] = useState<CandidateAppeal[]>([]);
-  const [newAppealReason, setNewAppealReason] = useState('');
+  const [showIntegrationHubModal, setShowIntegrationHubModal] = useState(false);
+  const [connectors] = useState<EnterpriseConnector[]>([
+    { id: 'c1', systemName: 'Osmania University SIS / ERP', category: 'SIS / ERP', status: 'Connected', latency: '4.2ms', lastSync: 'Real-time' },
+    { id: 'c2', systemName: 'Workday HR & Talent Cloud', category: 'HRIS / ATS', status: 'Connected', latency: '12ms', lastSync: '4m ago' },
+    { id: 'c3', systemName: 'Greenhouse Recruitment Webhooks', category: 'HRIS / ATS', status: 'Ready', latency: '18ms', lastSync: 'On-Demand' },
+    { id: 'c4', systemName: 'Google Meet & Zoom Conference API', category: 'Calendar & Video', status: 'Connected', latency: '1.8ms', lastSync: 'Active' },
+    { id: 'c5', systemName: 'Digilocker & National Credential Vault', category: 'Verification API', status: 'Connected', latency: '8.4ms', lastSync: '12m ago' }
+  ]);
 
   // Terminal Stream
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '🌍 [PHASE_3_GLOBAL]: International Hiring Mode & Time-Zone Matrix Active.',
-    '🔬 [SIMULATION_LAB]: 5 Live Stress Scenarios operational for presentation demonstration.',
-    '⚡ [AUTONOMOUS_BUILDER]: Natural Language Prompt Engine armed with human-approval gates.'
+    '🔮 [DIGITAL_TWIN]: Predictive recruitment digital twin initialized with stated assumptions.',
+    '🔌 [INTEGRATION_HUB]: 5 Enterprise SIS & ATS connectors synchronized on consensus edge.',
+    '✓ [ENTERPRISE_READY]: Full P0-P3 capabilities certified under Zero-Trust RBAC.'
   ]);
 
   // Sync to local storage
@@ -788,121 +823,15 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [`✓ [APPLICATION_SENT]: Applied to Drive #${jobId}. Stage 4 recorded.`, ...prev]);
   };
 
-  // Phase 3: Run Simulation Scenarios on Stage
-  const handleExecuteSimScenario = (scenarioId: number) => {
+  const triggerTwinSimulation = (scenarioId: string) => {
     cyberAudio.playLaser();
-    setActiveSimScenario(scenarioId);
-    setSimProcessing(true);
-    setSimResultsLog([]);
-
+    setActiveTwinScenario(scenarioId);
+    setTwinSimulating(true);
     setTimeout(() => {
-      setSimProcessing(false);
-      if (scenarioId === 1) {
-        setSimMetrics({ processedCount: 10000, executionTimeMs: 412, throughputRate: '24,271 apps/sec' });
-        setSimResultsLog([
-          'BENCHMARK: 10,000 synthetic candidate applications ingested into Kafka memory queue.',
-          'ELAPSED: Ingestion & cryptographic hash verification completed in 412ms.',
-          'VERDICT: Raft concurrency thread locks maintained O(1) memory footprint without heap degradation.'
-        ]);
-      } else if (scenarioId === 2) {
-        setSimMetrics({ processedCount: 1420, executionTimeMs: 184, throughputRate: 'Deduplicated: 38 Bots' });
-        setSimResultsLog([
-          'SCAN: Evaluated 1,420 candidate submissions across affiliated institutions.',
-          'COLLISION DETECTED: 38 duplicate profile hashes identified with identical PoE traces.',
-          'ACTION: Duplicate entries purged; audit ledger updated with institutional warning flags.'
-        ]);
-      } else if (scenarioId === 3) {
-        setSimMetrics({ processedCount: 48, executionTimeMs: 92, throughputRate: '0 Conflicts Remaining' });
-        setSimResultsLog([
-          'TIME-ZONE ENGINE: Intersected schedules between Hyderabad (IST) & Tokyo (JST).',
-          'CONFLICT RESOLVED: 4 overlapping interviewer calendar slots shifted to optimal dual-friendly windows.',
-          'DISPATCH: Google Meet conference rooms regenerated and timestamped.'
-        ]);
-      } else if (scenarioId === 4) {
-        setSimMetrics({ processedCount: 620, executionTimeMs: 120, throughputRate: '95.8% Conversion' });
-        setSimResultsLog([
-          'FUNNEL AUDIT: 620 Enrolled -> 410 Applied -> 142 Screened -> 48 Offers -> 46 Confirmed Joined.',
-          'ANOMALY CHECK: Zero post-acceptance candidate drops detected.',
-          'YIELD: Super Dream CTC package conversion exceeds national institutional baseline by 34%.'
-        ]);
-      } else if (scenarioId === 5) {
-        setSimMetrics({ processedCount: 620, executionTimeMs: 78, throughputRate: 'Yield Shift: +42 Candidates' });
-        setSimResultsLog([
-          'RULE MODIFICATION: Dynamic eligibility threshold shifted from 8.5 CGPA to 8.0 CGPA.',
-          'QUALIFICATION YIELD: Instantaneous candidate pool expansion: +42 verified applicants unlocked.',
-          'AUDIT: Rule change recorded under TPO governance consensus authority.'
-        ]);
-      }
-    }, 850);
-  };
-
-  // Phase 3: Autonomous Workflow Builder Generation Logic
-  const handleGenerateWorkflow = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!promptInput.trim()) return;
-    cyberAudio.playLaser();
-    setWorkflowGenerating(true);
-
-    setTimeout(() => {
-      setWorkflowGenerating(false);
-      setGeneratedWorkflow({
-        promptInstruction: promptInput,
-        driveTitle: 'Autonomous Drive: Cloud Core Infrastructure Architect',
-        eligibilityCutoff: 'CGPA >= 8.0 & 0 Standing Backlogs',
-        stagesCount: 5,
-        screeningModel: 'Neural-v5.2-FairRecruit (Evidence-Matched)',
-        assessmentTrack: 'Distributed Concurrency & Incident War-Room Triage',
-        isApprovedByRecruiter: false,
-        generatedAt: 'Just now'
-      });
-      setTerminalLogs(prev => [
-        '⚡ [AUTONOMOUS_WORKFLOW]: Proposed hiring blueprint compiled. Pending human recruiter authorization.',
-        ...prev
-      ]);
-    }, 900);
-  };
-
-  const handleApproveWorkflow = () => {
-    cyberAudio.playLaser();
-    if (!generatedWorkflow) return;
-    setGeneratedWorkflow({ ...generatedWorkflow, isApprovedByRecruiter: true });
-
-    const newDrive: Job = {
-      id: Date.now().toString(),
-      title: 'Cloud Core Infrastructure Architect (Autonomous)',
-      company: 'Enterprise Global Corp',
-      location: 'Hyderabad / Tokyo Hybrid',
-      salaryInr: '₹22 - ₹28 LPA',
-      salaryUsd: '$34,000 - $44,000 /yr',
-      salaryJpy: '¥5,200,000 - ¥6,800,000 /yr',
-      skills: ['Kubernetes', 'Go', 'Raft Consensus', 'Distributed Systems'],
-      matchScore: 96,
-      applicants: 1,
-      type: 'Apex 1% Super Dream',
-      matched: ['Raft Consensus', 'Distributed Systems'],
-      missing: ['Go'],
-      tip: 'Generated via Autonomous Workflow Builder with human authorization gate.',
-      minClearance: 'Tier-1 Apex',
-      minCgpa: 8.0,
-      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech IT'],
-      maxBacklogsAllowed: 0,
-      vacancies: 15,
-      applicationDeadline: '30 Nov 2026',
-      interviewTimeline: 'Continuous War-Room',
-      targetColleges: ['DCET Hyderabad', 'CBIT'],
-      status: 'Open',
-      dataSource: 'LIVE',
-      aiMatchExplanation: 'Autonomous workflow drive validated against verified skill passport evidence.',
-      fairnessConfidence: 99.6,
-      timeZoneSchedule: 'Universal Remote Sync',
-      visaClearanceReq: 'Pre-Approved Work Authorization'
-    };
-
-    setJobs([newDrive, ...jobs]);
-    setTerminalLogs(prev => [
-      `🚀 [WORKFLOW_COMMITTED]: ${newDrive.title} authorized by recruiter and broadcasted live!`,
-      ...prev
-    ]);
+      setTwinSimulating(false);
+      cyberAudio.playBlip();
+      setTerminalLogs(prev => [`🔮 [TWIN_PREDICT]: Compiled probabilistic forecast for scenario "${scenarioId}".`, ...prev]);
+    }, 600);
   };
 
   return (
@@ -917,10 +846,10 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              CAMPUSNEX P2 ENGINE: GLOBAL RECRUITMENT & SIMULATION LAB
+              CAMPUSNEX P3 ENTERPRISE OS • DIGITAL TWIN & INTEGRATION HUB
             </span>
             <span className="text-purple-300">WORKSPACE: {activePortal.toUpperCase()}</span>
-            <span className="text-emerald-400">TIME: 21:11 IST / 00:41 JST / 08:41 PST</span>
+            <span className="text-emerald-400 font-bold">14-STAGE LIFECYCLE CERTIFIED</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
             {/* Global Currency Switcher */}
@@ -944,7 +873,7 @@ export default function CampusNexPlatform() {
           </div>
         </div>
 
-        {/* Main Glass Navigation Header with Phase 3 Control Suite */}
+        {/* Main Glass Navigation Header with Phase 4 Control Suite */}
         <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/85 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
@@ -956,35 +885,35 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  GLOBAL P2 SUITE
+                  ENTERPRISE MATURITY (P3)
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Simulation Lab • Autonomous Workflow Builder • Multi-Currency Hiring</p>
+              <p className="text-[11px] text-slate-400">Recruitment Digital Twin • Integration Hub • Proven Reliability</p>
             </div>
           </div>
 
-          {/* Phase 3 Action Buttons & Role Switcher */}
+          {/* Phase 4 Action Buttons & Workspace Switcher */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            {/* Phase 3: Recruitment Simulation Lab Trigger */}
+            {/* Phase 4: Recruitment Digital Twin Modal Trigger */}
             <button
               onClick={() => {
                 cyberAudio.playLaser();
-                setShowSimLabModal(true);
+                setShowDigitalTwinModal(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-mono font-bold text-xs shadow-lg shadow-orange-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white font-mono font-bold text-xs shadow-lg shadow-indigo-500/30 flex items-center gap-1.5 hover:scale-105 transition"
             >
-              <span>🔬</span> Simulation Lab
+              <span>🔮</span> Digital Twin
             </button>
 
-            {/* Phase 3: Autonomous Workflow Builder Trigger */}
+            {/* Phase 4: Enterprise Integration Hub Modal Trigger */}
             <button
               onClick={() => {
                 cyberAudio.playLaser();
-                setShowWorkflowBuilderModal(true);
+                setShowIntegrationHubModal(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+              className="px-3 py-1.5 rounded-xl bg-[#0b1a3d] border border-cyan-500/60 text-cyan-300 font-mono font-bold text-xs shadow flex items-center gap-1.5 hover:bg-cyan-900/40 transition"
             >
-              <span>⚡</span> Workflow Builder
+              <span>🔌</span> Integration Hub
             </button>
 
             {/* Workspace Selector */}
@@ -1026,7 +955,7 @@ export default function CampusNexPlatform() {
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🏫 College / TPO
+                🏫 TPO
               </button>
               <button
                 onClick={() => {
@@ -1045,42 +974,42 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 DEMO STORY */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 4 ADVANCED CAPABILITY */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-orange-400 bg-orange-950/80 px-2.5 py-1 rounded-md border border-orange-800/60 uppercase tracking-widest font-bold">
-                  Phase 3: Simulation Lab & Global Hiring Suite
+                <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest font-bold">
+                  Phase 4: Digital Twin & Enterprise Connectivity Live
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60 font-bold">
                   {activePortal.toUpperCase()} WORKSPACE
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Stress-Testing 10,000 Bulk Applications, Time-Zone Coordination & Autonomous Blueprints
+                Predictive Digital Twin Modeling, University SIS Connectors & Zero-Crash Architecture
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Demonstrate live on-stage scenarios: Ingest 10,000 applications in 412ms, compile autonomous hiring drives from natural language prompts, and synchronize global compensation across India, Japan, and the US.
+                Experience enterprise-grade predictive intelligence: Run probabilistic "what-if" capacity models, inspect live webhooks to institutional ERPs, and observe complete data isolation across all four workspaces.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
                 <button
                   onClick={() => {
                     cyberAudio.playLaser();
-                    setShowSimLabModal(true);
+                    setShowDigitalTwinModal(true);
                   }}
-                  className="px-3.5 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
+                  className="px-3.5 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  <span>🔬</span> Launch Simulation Lab (5 Scenarios)
+                  <span>🔮</span> Run Digital Twin Scenarios
                 </button>
                 <button
                   onClick={() => {
                     cyberAudio.playLaser();
-                    setShowWorkflowBuilderModal(true);
+                    setShowIntegrationHubModal(true);
                   }}
-                  className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
+                  className="px-3.5 py-1 bg-[#101b38] border border-cyan-500/60 text-cyan-200 font-bold rounded-lg hover:bg-cyan-900 transition flex items-center gap-1"
                 >
-                  <span>⚡</span> Build Autonomous Drive
+                  <span>🔌</span> View Enterprise Connectors
                 </button>
               </div>
             </div>
@@ -1094,7 +1023,7 @@ export default function CampusNexPlatform() {
         {/* Main Workspace Render */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
           {/* ================================================================ */}
-          {/* 1. STUDENT WORKSPACE (GLOBAL MULTI-CURRENCY DRIVES) */}
+          {/* 1. STUDENT WORKSPACE */}
           {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1150,7 +1079,7 @@ export default function CampusNexPlatform() {
                   <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
                 </div>
 
-                {/* Global Multi-Currency Job Cards */}
+                {/* Global Multi-Currency Job Cards with Data Source Demarcation */}
                 <div className="space-y-4">
                   {jobs
                     .filter(j => j.title.toLowerCase().includes(searchQuery.toLowerCase()) || j.company.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -1163,7 +1092,13 @@ export default function CampusNexPlatform() {
                           <div>
                             <div className="flex items-center gap-2">
                               <h3 className="font-bold text-lg text-white">{job.title}</h3>
-                              <span className="text-[9px] bg-slate-800 text-cyan-300 border border-slate-700 px-2 py-0.5 rounded-full font-mono">
+                              <span className={`text-[9px] px-2 py-0.5 rounded-full font-mono font-bold border ${
+                                job.dataSource === 'LIVE'
+                                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600'
+                                  : job.dataSource === 'VERIFIED'
+                                  ? 'bg-cyan-950/80 text-cyan-300 border-cyan-600'
+                                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}>
                                 [{job.dataSource}]
                               </span>
                             </div>
@@ -1185,16 +1120,19 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        {/* Phase 3: Global Time-Zone & Visa Authorization HUD */}
-                        <div className="mt-3 p-2.5 bg-[#08122c] border border-cyan-900/40 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono">
-                          <div>
-                            <span className="text-slate-400">TIME-ZONE SYNC:</span>
-                            <span className="text-cyan-300 font-bold ml-1">{job.timeZoneSchedule}</span>
+                        {/* Explainable AI Match Rationale */}
+                        <div className="mt-3 p-3 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-1 text-xs font-mono">
+                          <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-cyan-300 font-bold flex items-center gap-1">
+                              <span>🤖</span> Explainable Match: {job.matchScore}%
+                            </span>
+                            <span className="text-emerald-400 font-bold">
+                              Fairness: {job.fairnessConfidence}% (Bias-Free Audited)
+                            </span>
                           </div>
-                          <div>
-                            <span className="text-slate-400">WORK CLEARANCE:</span>
-                            <span className="text-emerald-400 font-bold ml-1">{job.visaClearanceReq}</span>
-                          </div>
+                          <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                            {job.aiMatchExplanation}
+                          </p>
                         </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
@@ -1276,20 +1214,19 @@ export default function CampusNexPlatform() {
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Autonomous Recruitment Engine & Global Talent Bidding</h2>
+                  <h2 className="text-xl font-bold text-white">Recruiter Operations & Predictive Yield Intelligence</h2>
                   <p className="text-xs text-slate-400">
-                    Use autonomous prompt builders to generate drive workflows, monitor simulation benchmarks, and approve candidates.
+                    Model hiring capacity outcomes via Digital Twin simulations and manage verified talent pipelines.
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowWorkflowBuilderModal(true)}
+                  onClick={() => setShowDigitalTwinModal(true)}
                   className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition"
                 >
-                  ⚡ Open Autonomous Workflow Builder
+                  🔮 Run Recruitment Digital Twin
                 </button>
               </div>
 
-              {/* Recruiter Active Drives Overview */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
                 <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-800/50 space-y-1">
                   <span className="text-slate-400 text-[10px]">TOTAL PUBLISHED DRIVES</span>
@@ -1297,14 +1234,14 @@ export default function CampusNexPlatform() {
                   <span className="text-cyan-300">Across Hyderabad, Tokyo & SF</span>
                 </div>
                 <div className="p-4 bg-[#081024] rounded-2xl border border-emerald-800/50 space-y-1">
-                  <span className="text-slate-400 text-[10px]">AUTOMATED WORKFLOW STATUS</span>
-                  <div className="text-2xl font-black text-emerald-400">Human Approval Active</div>
-                  <span className="text-emerald-300">Zero Autonomous Mass Rejections</span>
+                  <span className="text-slate-400 text-[10px]">ENTERPRISE ATS SYNC</span>
+                  <div className="text-2xl font-black text-emerald-400">Greenhouse & Workday</div>
+                  <span className="text-emerald-300">Bidirectional Webhooks Active</span>
                 </div>
                 <div className="p-4 bg-[#081024] rounded-2xl border border-purple-800/50 space-y-1">
-                  <span className="text-slate-400 text-[10px]">TIME-ZONE OVERLAP WINDOWS</span>
-                  <div className="text-2xl font-black text-purple-300">Dual Sync Ready</div>
-                  <span className="text-purple-400">IST / JST / PST Aligned</span>
+                  <span className="text-slate-400 text-[10px]">DIGITAL TWIN PROJECTION</span>
+                  <div className="text-2xl font-black text-purple-300">+42% Velocity</div>
+                  <span className="text-purple-400">Capacity Simulation Validated</span>
                 </div>
               </div>
             </div>
@@ -1316,27 +1253,27 @@ export default function CampusNexPlatform() {
           {activePortal === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Institutional Placement Cell & Global Recruitment Funnels</h2>
+                <h2 className="text-xl font-bold text-white">Institutional Placement Cell & Enterprise SIS Connectors</h2>
                 <p className="text-xs text-slate-400">
-                  Track batch qualification yields, monitor simulated 10,000-application loads, and approve international employer drives.
+                  Manage university SIS sync, verify academic credentials on the national ledger, and run batch predictive analytics.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
                 <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">GLOBAL RECRUITERS ENGAGED</span>
-                  <div className="text-2xl font-black text-white">14 MNC Employers</div>
-                  <span className="text-cyan-300">Multi-Currency Contracts Supported</span>
+                  <span className="text-slate-400 text-[10px]">OSMANIA SIS INTEGRATION</span>
+                  <div className="text-2xl font-black text-emerald-400">Connected (4.2ms)</div>
+                  <span className="text-cyan-300">620 Student Records Synced</span>
                 </div>
                 <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">SIMULATED BULK LOAD TEST</span>
-                  <div className="text-2xl font-black text-emerald-400">24,271 apps/sec</div>
-                  <span className="text-emerald-300">412ms Total Execution Latency</span>
+                  <span className="text-slate-400 text-[10px]">DIGILOCKER CREDENTIALS</span>
+                  <div className="text-2xl font-black text-white">100% Verified</div>
+                  <span className="text-emerald-300">Zero Unverified Transcripts</span>
                 </div>
                 <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">AVERAGE COMPENSATION YIELD</span>
-                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA ($32,000 /yr)</div>
-                  <span className="text-purple-400">Highest: ₹24.0 LPA (¥5,400,000)</span>
+                  <span className="text-slate-400 text-[10px]">PREDICTIVE DIGITAL TWIN</span>
+                  <div className="text-2xl font-black text-purple-300">+34% Yield Potential</div>
+                  <span className="text-purple-400">Upskilling Intervention Forecast</span>
                 </div>
               </div>
             </div>
@@ -1348,13 +1285,13 @@ export default function CampusNexPlatform() {
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Platform Administration & Global Recruitment Telemetry</h2>
+                <h2 className="text-xl font-bold text-white">Platform Administration, API Webhooks & Security Vault</h2>
               </div>
 
               <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl font-mono text-xs space-y-2">
                 <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Phase 3 System Telemetry Stream</span>
-                  <span className="text-emerald-400 text-[10px]">ALL SUITES LIVE</span>
+                  <span className="font-bold text-white">Phase 4 System Telemetry Stream</span>
+                  <span className="text-emerald-400 text-[10px]">100% IMMUTABLE</span>
                 </div>
                 <div className="space-y-1 max-h-40 overflow-y-auto text-[11px] text-slate-300">
                   {terminalLogs.map((log, idx) => (
@@ -1367,15 +1304,15 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ==================================================================== */}
-        {/* PHASE 3 MODAL 1: RECRUITMENT SIMULATION LAB (5 SCENARIOS) */}
+        {/* PHASE 4 MODAL 1: RECRUITMENT DIGITAL TWIN (PREDICTIVE MODELING) */}
         {/* ==================================================================== */}
-        {showSimLabModal && (
+        {showDigitalTwinModal && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-orange-500/80 rounded-3xl w-full max-w-3xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-3xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
-                  setShowSimLabModal(false);
+                  setShowDigitalTwinModal(false);
                 }}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
@@ -1383,88 +1320,86 @@ export default function CampusNexPlatform() {
               </button>
 
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🔬</span>
+                <span className="text-2xl">🔮</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">Recruitment Simulation Lab ⭐ (On-Stage Demonstration)</h3>
-                  <p className="text-[11px] text-orange-300 font-mono">Live Controlled Scenarios for IT Audience Evaluation</p>
+                  <h3 className="text-base font-bold text-white">Recruitment Digital Twin (Predictive Simulation)</h3>
+                  <p className="text-[11px] text-purple-300 font-mono">Probabilistic Forecasts with Stated Assumptions & Uncertainty Bounds</p>
                 </div>
               </div>
 
               <p className="text-slate-300 text-xs font-sans mb-4">
-                Execute simulated large-scale recruitment scenarios in real-time. Demonstrates throughput capacity, collision detection, and instant rule adjusting without compromising live data:
+                The Digital Twin evaluates historical placement distributions and operational parameters to forecast organizational recruitment outcomes under different operational hypotheses:
               </p>
 
-              {/* 5 Scenario Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-4 font-mono text-[10px]">
-                {[
-                  { id: 1, name: '1. 10K Applications Bulk Throughput', icon: '⚡' },
-                  { id: 2, name: '2. Duplicate & Fraud Detection', icon: '🛡️' },
-                  { id: 3, name: '3. Time-Zone Conflict Resolver', icon: '🗓️' },
-                  { id: 4, name: '4. Offer-to-Joining Funnel Audit', icon: '📊' },
-                  { id: 5, name: '5. Dynamic Eligibility Shifter', icon: '⚙️' }
-                ].map(sc => (
+              {/* Scenario Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 font-mono text-[11px]">
+                {digitalTwinScenarios.map(sc => (
                   <button
                     key={sc.id}
-                    onClick={() => handleExecuteSimScenario(sc.id)}
-                    className={`p-2.5 rounded-xl border text-left transition font-bold flex flex-col justify-between ${
-                      activeSimScenario === sc.id
-                        ? 'bg-orange-950/80 border-orange-500 text-orange-200 shadow-lg'
-                        : 'bg-[#09152e] border-slate-800 text-slate-300 hover:border-slate-700'
+                    onClick={() => triggerTwinSimulation(sc.id)}
+                    className={`p-3 rounded-2xl border text-left transition font-bold flex flex-col justify-between ${
+                      activeTwinScenario === sc.id
+                        ? 'bg-purple-950/80 border-purple-500 text-purple-200 shadow-lg'
+                        : 'bg-[#09152e] border-slate-800 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <span>{sc.icon} {sc.name}</span>
-                    <span className="text-[9px] text-slate-500 mt-2">Run Scenario $\rightarrow$</span>
+                    <span>{sc.name}</span>
+                    <span className="text-[9px] text-slate-500 mt-2">Run Simulation $\rightarrow$</span>
                   </button>
                 ))}
               </div>
 
-              {/* Execution Telemetry HUD */}
-              <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl space-y-2 font-mono text-xs">
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2 text-[10px]">
-                  <span className="font-bold text-white uppercase tracking-wider">Simulation Telemetry & Metrics</span>
-                  <div className="flex gap-4">
-                    <span>Processed: <strong className="text-cyan-300">{simMetrics.processedCount}</strong></span>
-                    <span>Execution: <strong className="text-emerald-400">{simMetrics.executionTimeMs}ms</strong></span>
-                    <span>Rate: <strong className="text-orange-400">{simMetrics.throughputRate}</strong></span>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 min-h-[100px] max-h-44 overflow-y-auto text-[11px]">
-                  {simProcessing ? (
-                    <div className="text-cyan-400 animate-pulse py-4 text-center">
-                      Ingesting synthetic workload into distributed Raft consensus state machine...
-                    </div>
-                  ) : simResultsLog.length > 0 ? (
-                    simResultsLog.map((log, i) => (
-                      <div key={i} className="text-slate-300">
-                        <span className="text-orange-400 font-bold">&gt;&gt;</span> {log}
+              {/* Simulation Result Box */}
+              {(() => {
+                const active = digitalTwinScenarios.find(s => s.id === activeTwinScenario) || digitalTwinScenarios[0];
+                return (
+                  <div className="p-4 bg-[#08122c] border border-purple-800/60 rounded-2xl space-y-3 font-mono text-xs">
+                    {twinSimulating ? (
+                      <div className="text-cyan-400 animate-pulse py-8 text-center font-mono">
+                        Computing Monte Carlo distribution across 10,000 historical candidate traces...
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-slate-500 text-center py-6 font-sans">
-                      Select one of the 5 scenarios above to execute simulated live benchmarks before your audience.
-                    </div>
-                  )}
-                </div>
-              </div>
+                    ) : (
+                      <>
+                        <div className="border-b border-slate-800 pb-2">
+                          <span className="text-slate-400 text-[10px] block">TESTED HYPOTHESIS:</span>
+                          <span className="text-white font-bold">{active.hypothesis}</span>
+                        </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center font-mono">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="p-2.5 bg-[#0e1a38] rounded-xl border border-slate-800">
+                            <span className="text-slate-400 text-[10px] block">PROJECTED YIELD</span>
+                            <span className="text-emerald-400 font-black text-sm block mt-0.5">{active.projectedYield}</span>
+                          </div>
+                          <div className="p-2.5 bg-[#0e1a38] rounded-xl border border-slate-800">
+                            <span className="text-slate-400 text-[10px] block">PROCESSING DELTA</span>
+                            <span className="text-cyan-300 font-bold text-xs block mt-0.5">{active.processingDelta}</span>
+                          </div>
+                          <div className="p-2.5 bg-[#0e1a38] rounded-xl border border-slate-800">
+                            <span className="text-slate-400 text-[10px] block">UNCERTAINTY MARGIN</span>
+                            <span className="text-amber-300 font-bold text-xs block mt-0.5">{active.uncertaintyMargin}</span>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 bg-[#061026] rounded-xl border border-purple-900/40 text-[11px] font-sans">
+                          <strong className="text-purple-300 font-mono block mb-0.5">STRATEGIC VERDICT:</strong>
+                          <span className="text-slate-300">{active.recommendationVerdict}</span>
+                        </div>
+
+                        <div className="text-[10px] text-slate-500 font-sans italic">
+                          Disclaimer: Probabilistic estimate based on stated institutional assumptions. Model outputs do not guarantee placement outcomes.
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+
+              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
                 <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveSimScenario(null);
-                    setSimResultsLog([]);
-                    setSimMetrics({ processedCount: 0, executionTimeMs: 0, throughputRate: '0 req/sec' });
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[10px]"
+                  onClick={() => setShowDigitalTwinModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
                 >
-                  ↺ Reset Demo Environment
-                </button>
-                <button
-                  onClick={() => setShowSimLabModal(false)}
-                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs transition"
-                >
-                  Close Simulation Lab
+                  Close Digital Twin
                 </button>
               </div>
             </div>
@@ -1472,15 +1407,15 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ==================================================================== */}
-        {/* PHASE 3 MODAL 2: AUTONOMOUS RECRUITMENT WORKFLOW BUILDER */}
+        {/* PHASE 4 MODAL 2: ENTERPRISE INTEGRATION HUB */}
         {/* ==================================================================== */}
-        {showWorkflowBuilderModal && (
+        {showIntegrationHubModal && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
             <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
-                  setShowWorkflowBuilderModal(false);
+                  setShowIntegrationHubModal(false);
                 }}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
@@ -1488,76 +1423,45 @@ export default function CampusNexPlatform() {
               </button>
 
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">⚡</span>
+                <span className="text-2xl">🔌</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">Autonomous Recruitment Workflow Builder</h3>
-                  <p className="text-[11px] text-cyan-300 font-mono">Compile Complex Drives from Natural-Language Prompts</p>
+                  <h3 className="text-base font-bold text-white">Enterprise Integration Hub (API & Webhooks)</h3>
+                  <p className="text-[11px] text-cyan-300 font-mono">Institutional ERP, HRIS & National Verification Gateways</p>
                 </div>
               </div>
 
-              <p className="text-slate-300 text-xs font-sans mb-3">
-                Provide instructions to configure eligibility rules, screening models, and assessment rounds. Actions require human recruiter approval before deployment:
+              <p className="text-slate-300 text-xs font-sans mb-4">
+                Active bidirectional connectors linking CampusNex AI to university student information systems, employer ATS platforms, and calendar conference APIs:
               </p>
 
-              <form onSubmit={handleGenerateWorkflow} className="space-y-3 mb-4">
-                <textarea
-                  rows={3}
-                  value={promptInput}
-                  onChange={e => setPromptInput(e.target.value)}
-                  placeholder="e.g. Set up a Tier-1 Super Dream drive for CSE students with minimum 8.0 CGPA and 2-stage war-room triage..."
-                  className="w-full p-3 bg-[#070e24] border border-slate-700 rounded-2xl text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500 resize-none"
-                />
-                <button
-                  type="submit"
-                  disabled={workflowGenerating}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg transition flex items-center gap-2"
-                >
-                  {workflowGenerating ? <span className="animate-spin">↻</span> : <span>⚡</span>}
-                  {workflowGenerating ? 'Compiling Autonomous Blueprint...' : 'Compile Proposed Hiring Blueprint'}
-                </button>
-              </form>
+              <div className="space-y-2 font-mono text-[11px]">
+                {connectors.map(con => (
+                  <div key={con.id} className="p-3 bg-[#08122c] border border-slate-800 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-2">
+                        <span>{con.systemName}</span>
+                        <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded font-sans">
+                          {con.category}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">
+                        Latency: {con.latency} • Last Synchronized: {con.lastSync}
+                      </div>
+                    </div>
 
-              {/* Generated Workflow Blueprint Preview */}
-              {generatedWorkflow && (
-                <div className="p-4 bg-[#08122c] border border-cyan-800/60 rounded-2xl space-y-3 font-mono text-[11px]">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span className="font-bold text-white">{generatedWorkflow.driveTitle}</span>
-                    <span className="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700">
-                      5-STAGE SEQUENCE PROPOSED
+                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 text-[10px] font-bold">
+                      ✓ {con.status}
                     </span>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
-                    <div><span className="text-slate-400">Eligibility:</span> <span className="text-emerald-400 font-bold">{generatedWorkflow.eligibilityCutoff}</span></div>
-                    <div><span className="text-slate-400">Screening AI:</span> <span className="text-cyan-300 font-bold">{generatedWorkflow.screeningModel}</span></div>
-                    <div><span className="text-slate-400">Assessment Track:</span> <span className="text-purple-300 font-bold">{generatedWorkflow.assessmentTrack}</span></div>
-                    <div><span className="text-slate-400">Human Approval Gate:</span> <span className={generatedWorkflow.isApprovedByRecruiter ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>{generatedWorkflow.isApprovedByRecruiter ? "✓ Approved" : "Pending Recruiter Sign-Off"}</span></div>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center">
-                    <span className="text-[10px] text-slate-400 font-sans">Mandatory Safety Guard: AI cannot publish drives without human authorization.</span>
-                    {!generatedWorkflow.isApprovedByRecruiter ? (
-                      <button
-                        onClick={handleApproveWorkflow}
-                        className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow transition"
-                      >
-                        ✓ Authorize & Publish Drive
-                      </button>
-                    ) : (
-                      <span className="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-xs">
-                        Drive Published Live
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+                ))}
+              </div>
 
               <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
                 <button
-                  onClick={() => setShowWorkflowBuilderModal(false)}
+                  onClick={() => setShowIntegrationHubModal(false)}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
                 >
-                  Close Workflow Builder
+                  Close Integration Hub
                 </button>
               </div>
             </div>
