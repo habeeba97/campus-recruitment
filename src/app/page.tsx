@@ -3,10 +3,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 + PHASE 2 ENGINE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1, 2 & 3 COMPREHENSIVE ENGINE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
+
+type ApplicationStatus = 
+  | 'Eligible'
+  | 'Not Eligible'
+  | 'Application Submitted'
+  | 'Under Review'
+  | 'Shortlisted'
+  | 'Assessment Pending'
+  | 'Interview Scheduled'
+  | 'Selected'
+  | 'Rejected'
+  | 'Withdrawn';
 
 interface CollegeDepartment {
   id: string;
@@ -55,7 +67,8 @@ interface Job {
   applicationDeadline: string;
   interviewTimeline: string;
   targetColleges: string[];
-  eligibilityStatus: 'Eligible' | 'Criteria Mismatch';
+  status: ApplicationStatus;
+  aiExplanation: string;
 }
 
 interface CandidateProfile {
@@ -64,10 +77,14 @@ interface CandidateProfile {
   course: string;
   batch: string;
   cgpa: string;
+  backlogs: number;
   skills: string[];
   resumeFileName: string;
   preferredRole: string;
   locationPreference: string;
+  githubUrl: string;
+  portfolioUrl: string;
+  certifications: string[];
   clearance: string;
   poeHash: string;
   eusiScore: string;
@@ -688,23 +705,20 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 2 INTEGRATED: STAGES 1, 2 & 3)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 3: PROFILE, EXPLAINABLE AI & APPS ENGINE)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [selectedAtsJob, setSelectedAtsJob] = useState<Job | null>(null);
-  const [appliedJobs, setAppliedJobs] = useState<string[]>(['1']);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // ==========================================================================
-  // PHASE 2 STATE: STAGE 1 (COLLEGE & TPO INSTITUTIONAL REGISTRATION)
-  // ==========================================================================
+  // College & Institutional State (Phase 2 preserved)
   const [isRulebookModalOpen, setIsRulebookModalOpen] = useState(false);
-  const [collegeDetails, setCollegeDetails] = useState({
+  const [collegeDetails] = useState({
     name: 'Deccan College of Engineering & Technology',
     universityAffiliation: 'Osmania University, Hyderabad',
     institutionalCode: 'DCET-HYD-042',
@@ -714,7 +728,7 @@ export default function CampusNexPlatform() {
     accreditationGrade: 'NAAC A+ / NBA Autonomous'
   });
 
-  const [departments, setDepartments] = useState<CollegeDepartment[]>([
+  const [departments] = useState<CollegeDepartment[]>([
     { id: 'd1', name: 'Computer Science & Engineering', code: 'CSE', enrolledStudents: 154, activeBatch: '2026', hodName: 'Dr. Head of CSE' },
     { id: 'd2', name: 'Electronics & Communication', code: 'ECE', enrolledStudents: 120, activeBatch: '2026', hodName: 'Dr. Head of ECE' },
     { id: 'd3', name: 'Pharmacy & Pharmaceutical Tech', code: 'B.Pharm', enrolledStudents: 64, activeBatch: '2026', hodName: 'Dr. Head of Pharmacy' },
@@ -729,61 +743,16 @@ export default function CampusNexPlatform() {
     tier1DtcThresholdLpa: 16.0
   });
 
-  // ==========================================================================
-  // PHASE 2 STATE: STAGE 2 (COMPANY & RECRUITER VERIFICATION ENGINE)
-  // ==========================================================================
-  const [recruiterTeam, setRecruiterTeam] = useState<RecruiterTeamMember[]>([
+  const [recruiterTeam] = useState<RecruiterTeamMember[]>([
     { id: 'r1', name: 'Arjun Mehta', email: 'arjun.mehta@techcorp.in', role: 'Lead Recruiter', verifiedDomain: true, canIssueOffers: true },
     { id: 'r2', name: 'Dr. Priya Sen', email: 'priya.sen@techcorp.in', role: 'Technical Evaluator', verifiedDomain: true, canIssueOffers: false },
     { id: 'r3', name: 'Kunal Singhania', email: 'kunal.s@techcorp.in', role: 'Campus Coordinator', verifiedDomain: true, canIssueOffers: false },
   ]);
 
-  // ==========================================================================
-  // PHASE 2 STATE: STAGE 3 (CAMPUS DRIVE & MULTI-COLLEGE BROADCAST CREATOR)
-  // ==========================================================================
-  const [newDriveTitle, setNewDriveTitle] = useState('');
-  const [newDriveCompany, setNewDriveCompany] = useState('');
-  const [newDriveSalary, setNewDriveSalary] = useState('');
-  const [newDriveMinCgpa, setNewDriveMinCgpa] = useState(7.5);
-  const [newDriveBacklogs, setNewDriveBacklogs] = useState(0);
-  const [newDriveVacancies, setNewDriveVacancies] = useState(15);
-  const [newDriveDeadline, setNewDriveDeadline] = useState('15 Nov 2026');
-  const [newDriveTimeline, setNewDriveTimeline] = useState('Assessment $\\rightarrow$ War-Room $\\rightarrow$ Final Offer');
-  const [newDriveCourses, setNewDriveCourses] = useState('B.Tech CSE, B.Tech IT, MCA');
-  const [newDriveTargetCampuses, setNewDriveTargetCampuses] = useState('DCET Hyderabad, JNTUH Main Campus, CBIT');
-
-  // Notifications
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-  const [notifications, setNotifications] = useState<AppNotification[]>([
-    {
-      id: 'n1',
-      title: '🚨 Phase 2 Institutional Rules Synced',
-      message: 'Placement rulebook: Max 0 backlogs & 7.5 CGPA threshold updated.',
-      timestamp: 'Just now',
-      type: 'info',
-      read: false
-    },
-    {
-      id: 'n2',
-      title: '🏛️ Multi-Campus Drive Broadcasted',
-      message: 'TechCorp India drive dispatched across 3 affiliated campuses.',
-      timestamp: '15m ago',
-      type: 'success',
-      read: false
-    },
-    {
-      id: 'n3',
-      title: '💼 Recruiter Domain Verified',
-      message: 'Corporate domain @techcorp.in verified by Admin Security Vault.',
-      timestamp: '1h ago',
-      type: 'info',
-      read: true
-    }
-  ]);
-
-  // Profile Modal State
+  // Phase 3: Comprehensive Multi-Stream Profile State (Stage 4)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [newSkillInput, setNewSkillInput] = useState('');
+  const [newCertInput, setNewCertInput] = useState('');
 
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>({
     name: 'Verified Candidate (#APEX-01)',
@@ -791,17 +760,126 @@ export default function CampusNexPlatform() {
     course: 'B.Tech Computer Science & Engineering',
     batch: '2026',
     cgpa: '8.85',
+    backlogs: 0,
     skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis', 'Docker'],
     resumeFileName: 'Candidate_APEX01_Verified_Portfolio.pdf',
     preferredRole: 'Backend Systems & Concurrency Engineer',
     locationPreference: 'Hyderabad / Bengaluru / Hybrid',
+    githubUrl: 'https://github.com/apex-candidate-01',
+    portfolioUrl: 'https://apex-portfolio.dev',
+    certifications: ['AWS Cloud Practitioner', 'CKA Kubernetes Specialist', 'PostgreSQL Advanced Tuning'],
     clearance: 'Tier-1 Apex (Top 0.8%)',
     poeHash: '#0x8942-APEX',
     eusiScore: '98.4%',
     dsaRank: '1840+ Hard Rank',
     verifiedCommits: '120+ Commits',
-    currentStep: 4
+    currentStep: 4 // Stage 4: Applied
   });
+
+  // Phase 3: Job Drives with Stage 5 10-State Application Tracking & Stage 6 Explainable AI Matcher
+  const [jobs, setJobs] = useState<Job[]>([
+    {
+      id: '1',
+      title: 'Full Stack Engineer (Elite Core)',
+      company: 'TechCorp India',
+      location: 'Hyderabad / Remote',
+      salary: '₹16 - ₹24 LPA',
+      skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind', 'Redis'],
+      matchScore: 94,
+      applicants: 12,
+      type: 'Apex 1% Exclusive',
+      matched: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis'],
+      missing: ['Tailwind'],
+      tip: 'Requires Proof-of-Execution Hash clearance. Direct war-room assessment enabled.',
+      minClearance: 'Tier-1 Apex',
+      minCgpa: 8.0,
+      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech IT', 'MCA'],
+      maxBacklogsAllowed: 0,
+      vacancies: 20,
+      applicationDeadline: '10 Nov 2026',
+      interviewTimeline: '12-15 Nov 2026',
+      targetColleges: ['DCET Hyderabad', 'JNTUH Campus', 'CBIT'],
+      status: 'Application Submitted',
+      aiExplanation: 'Strong 94% alignment. Proven execution in Raft consensus and high-concurrency Redis caching. Missing explicit evidence for Tailwind responsive design.'
+    },
+    {
+      id: '2',
+      title: 'Data Analyst & ML Associate',
+      company: 'DataMetrics AI',
+      location: 'Bengaluru',
+      salary: '₹12 - ₹16 LPA',
+      skills: ['Python', 'SQL', 'Tableau', 'Pandas', 'FastAPI'],
+      matchScore: 82,
+      applicants: 34,
+      type: 'Dream Drive',
+      matched: ['SQL', 'PostgreSQL'],
+      missing: ['Python', 'Tableau', 'Pandas', 'FastAPI'],
+      tip: 'Open for Tier-1 & Tier-2 Verified candidates.',
+      minClearance: 'Tier-2 Verified',
+      minCgpa: 7.5,
+      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech ECE', 'MBA'],
+      maxBacklogsAllowed: 1,
+      vacancies: 35,
+      applicationDeadline: '18 Nov 2026',
+      interviewTimeline: '20-22 Nov 2026',
+      targetColleges: ['DCET Hyderabad', 'Vasavi College', 'VNR VJIET'],
+      status: 'Eligible',
+      aiExplanation: 'Academic metrics and relational DB query capability validated. Skill-gap identified in Python Pandas and Tableau business visualization.'
+    },
+    {
+      id: '3',
+      title: 'Backend Systems Core Architect',
+      company: 'CloudScale Global',
+      location: 'Pune / Hybrid',
+      salary: '₹22 - ₹30 LPA',
+      skills: ['Go', 'Kubernetes', 'Microservices', 'PostgreSQL', 'gRPC'],
+      matchScore: 71,
+      applicants: 8,
+      type: 'Apex 1% Super Dream',
+      matched: ['PostgreSQL'],
+      missing: ['Go', 'Kubernetes', 'Microservices', 'gRPC'],
+      tip: 'High-bar concurrency evaluation. Zero-Knowledge talent bids prioritized.',
+      minClearance: 'Tier-1 Apex',
+      minCgpa: 8.5,
+      eligibleCourses: ['B.Tech Computer Science & Engineering'],
+      maxBacklogsAllowed: 0,
+      vacancies: 10,
+      applicationDeadline: '25 Nov 2026',
+      interviewTimeline: '28-30 Nov 2026',
+      targetColleges: ['DCET Hyderabad', 'IIT Hyderabad', 'NIT Warangal'],
+      status: 'Eligible',
+      aiExplanation: 'Candidate CGPA 8.85 exceeds 8.5 threshold. PostgreSQL optimized. Requires verifiable Go microservices demonstration to reach 90th percentile shortlisting.'
+    }
+  ]);
+
+  // Notifications
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [notifications, setNotifications] = useState<AppNotification[]>([
+    {
+      id: 'n1',
+      title: '🤖 Explainable AI Screening Ready',
+      message: 'TechCorp India: 94% Skills-to-Job alignment report minted.',
+      timestamp: 'Just now',
+      type: 'success',
+      read: false
+    },
+    {
+      id: 'n2',
+      title: '📑 Application Audit Log Updated',
+      message: 'Drive #1 status updated to Application Submitted.',
+      timestamp: '15m ago',
+      type: 'info',
+      read: false
+    },
+    {
+      id: 'n3',
+      title: '⚡ Career Portfolio Verified',
+      message: 'GitHub repository and cloud certifications verified on ledger.',
+      timestamp: '1h ago',
+      type: 'info',
+      read: true
+    }
+  ]);
 
   const [showIdBadgeModal, setShowIdBadgeModal] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -850,9 +928,9 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_2_ACTIVE]: College Registration, Recruiter Verification & Multi-Drive Broadcasting Engine Online.',
-    '✦ [INSTITUTIONAL_RULES]: Placement Rulebook enforcing 7.5 CGPA & 0 Backlog threshold.',
-    '✓ [AFFILIATION_GATEWAY]: Osmania University central multi-campus node verified.'
+    '⚡ [PHASE_3_INTELLIGENCE]: Explainable AI Matcher & 10-State Application Engine Active.',
+    '✦ [SKILL_GAP_ANALYSIS]: Real-time evidence mapping active on 3 campus drives.',
+    '✓ [STUDENT_SOVEREIGNTY]: Multi-stream career credentials cryptographically protected.'
   ]);
 
   useEffect(() => {
@@ -867,10 +945,10 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🏛️ [COLLEGE_PORTAL]: 620 Students actively governed across 4 academic departments.',
-      '💼 [COMPANY_VERIFY]: TechCorp India corporate domain @techcorp.in cryptographically authorized.',
-      '🚀 [DRIVE_BROADCAST]: Multi-campus recruitment drive active for 3 affiliated colleges.',
-      '✓ [RULEBOOK_ENGINE]: Automated eligibility filtration running on application queue.'
+      '🤖 [AI_SCREENING]: Explainable skill matching generated for candidate profile.',
+      '📑 [APPLICATION_TRACKER]: 10-State workflow audit history synchronized.',
+      '🎓 [CAREER_PORTFOLIO]: Multi-stream B.Tech/B.Pharm/MBA records locked.',
+      '✓ [VERIFICATION]: Proof-of-Execution Consensus Ledger online.'
     ];
 
     const interval = setInterval(() => {
@@ -940,79 +1018,6 @@ export default function CampusNexPlatform() {
     },
   ]);
 
-  // Phase 2: Enhanced Drives with Backlogs, Deadlines, Vacancies & Target Campuses
-  const [jobs, setJobs] = useState<Job[]>([
-    {
-      id: '1',
-      title: 'Full Stack Engineer (Elite Core)',
-      company: 'TechCorp India',
-      location: 'Hyderabad / Remote',
-      salary: '₹16 - ₹24 LPA',
-      skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind'],
-      matchScore: 94,
-      applicants: 12,
-      type: 'Apex 1% Exclusive',
-      matched: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
-      missing: ['Docker', 'AWS ECS'],
-      tip: 'Requires Proof-of-Execution Hash clearance. Direct war-room assessment enabled.',
-      minClearance: 'Tier-1 Apex',
-      minCgpa: 8.0,
-      eligibleCourses: ['B.Tech CSE', 'B.Tech IT', 'MCA'],
-      maxBacklogsAllowed: 0,
-      vacancies: 20,
-      applicationDeadline: '10 Nov 2026',
-      interviewTimeline: '12-15 Nov 2026',
-      targetColleges: ['DCET Hyderabad', 'JNTUH Campus', 'CBIT'],
-      eligibilityStatus: 'Eligible'
-    },
-    {
-      id: '2',
-      title: 'Data Analyst & ML Associate',
-      company: 'DataMetrics AI',
-      location: 'Bengaluru',
-      salary: '₹12 - ₹16 LPA',
-      skills: ['Python', 'SQL', 'Tableau', 'Pandas', 'FastAPI'],
-      matchScore: 82,
-      applicants: 34,
-      type: 'Dream Drive',
-      matched: ['Python', 'SQL', 'Pandas'],
-      missing: ['PowerBI', 'MLOps CI/CD'],
-      tip: 'Open for Tier-1 & Tier-2 Verified candidates.',
-      minClearance: 'Tier-2 Verified',
-      minCgpa: 7.5,
-      eligibleCourses: ['B.Tech CSE', 'B.Tech ECE', 'MBA'],
-      maxBacklogsAllowed: 1,
-      vacancies: 35,
-      applicationDeadline: '18 Nov 2026',
-      interviewTimeline: '20-22 Nov 2026',
-      targetColleges: ['DCET Hyderabad', 'Vasavi College', 'VNR VJIET'],
-      eligibilityStatus: 'Eligible'
-    },
-    {
-      id: '3',
-      title: 'Backend Systems Core Architect',
-      company: 'CloudScale Global',
-      location: 'Pune / Hybrid',
-      salary: '₹22 - ₹30 LPA',
-      skills: ['Go', 'Kubernetes', 'Microservices', 'PostgreSQL'],
-      matchScore: 71,
-      applicants: 8,
-      type: 'Apex 1% Super Dream',
-      matched: ['PostgreSQL'],
-      missing: ['Golang', 'Kubernetes', 'gRPC'],
-      tip: 'High-bar concurrency evaluation. Zero-Knowledge talent bids prioritized.',
-      minClearance: 'Tier-1 Apex',
-      minCgpa: 8.5,
-      eligibleCourses: ['B.Tech CSE'],
-      maxBacklogsAllowed: 0,
-      vacancies: 10,
-      applicationDeadline: '25 Nov 2026',
-      interviewTimeline: '28-30 Nov 2026',
-      targetColleges: ['DCET Hyderabad', 'IIT Hyderabad', 'NIT Warangal'],
-      eligibilityStatus: 'Eligible'
-    }
-  ]);
-
   const toggleSound = () => {
     const nextState = !soundEnabled;
     setSoundEnabled(nextState);
@@ -1020,78 +1025,46 @@ export default function CampusNexPlatform() {
     if (nextState) cyberAudio.playBlip();
   };
 
+  // Phase 3: Stage 5 Transparent Application Submission & Withdrawal Handler
   const handleApply = (id: string) => {
     cyberAudio.playLaser();
-    if (!appliedJobs.includes(id)) {
-      setAppliedJobs([...appliedJobs, id]);
-      setJobs(jobs.map(j => (j.id === id ? { ...j, applicants: j.applicants + 1 } : j)));
-      setCandidateProfile(prev => ({ ...prev, currentStep: 5 }));
-      
-      const newNotif: AppNotification = {
-        id: Date.now().toString(),
-        title: '🎯 Application Dispatched',
-        message: `Applied to ${jobs.find(j => j.id === id)?.title}. Stage 5 Assessment Queued.`,
-        timestamp: 'Just now',
-        type: 'info',
-        read: false
-      };
-      setNotifications(prev => [newNotif, ...prev]);
-
-      setTerminalLogs(prev => [
-        `✓ [APPLICATION_HISTORY]: Applied to ${jobs.find(j => j.id === id)?.title}. Stage 5 Assessment Queued.`,
-        ...prev
-      ]);
-    }
-  };
-
-  // Phase 2: Stage 3 Advanced Drive Creator Submission Handler
-  const handleCreateStage3Drive = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDriveTitle || !newDriveCompany) return;
-    cyberAudio.playLaser();
-
-    const createdDrive: Job = {
-      id: Date.now().toString(),
-      title: newDriveTitle,
-      company: newDriveCompany,
-      location: 'Hyderabad / Bengaluru',
-      salary: newDriveSalary || '₹18 - ₹24 LPA',
-      skills: ['Distributed Systems', 'Cloud Edge', 'Database Optimization'],
-      matchScore: 92,
-      applicants: 1,
-      type: 'Apex 1% Multi-Campus',
-      matched: ['Distributed Systems'],
-      missing: ['Cloud Edge'],
-      tip: 'Multi-campus drive with strict 0 backlog threshold.',
-      minClearance: 'Tier-1 Apex',
-      minCgpa: Number(newDriveMinCgpa) || 7.5,
-      eligibleCourses: newDriveCourses.split(',').map(s => s.trim()),
-      maxBacklogsAllowed: Number(newDriveBacklogs) || 0,
-      vacancies: Number(newDriveVacancies) || 15,
-      applicationDeadline: newDriveDeadline || '30 Nov 2026',
-      interviewTimeline: newDriveTimeline || 'Continuous Assessment',
-      targetColleges: newDriveTargetCampuses.split(',').map(c => c.trim()),
-      eligibilityStatus: 'Eligible'
-    };
-
-    setJobs([createdDrive, ...jobs]);
-    setIsPostModalOpen(false);
-    setNewDriveTitle('');
-    setNewDriveCompany('');
-    setNewDriveSalary('');
-
+    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Application Submitted', applicants: j.applicants + 1 } : j)));
+    setCandidateProfile(prev => ({ ...prev, currentStep: 4 }));
+    
+    const targetJob = jobs.find(j => j.id === id);
     const newNotif: AppNotification = {
       id: Date.now().toString(),
-      title: '🚀 Multi-Campus Drive Broadcasted',
-      message: `${newDriveTitle} published across ${newDriveTargetCampuses}.`,
+      title: '🎯 Application Dispatched',
+      message: `Application submitted for ${targetJob?.title}. Audit trail initialized.`,
       timestamp: 'Just now',
-      type: 'success',
+      type: 'info',
       read: false
     };
     setNotifications(prev => [newNotif, ...prev]);
 
     setTerminalLogs(prev => [
-      `🚀 [DRIVE_BROADCAST]: Published ${createdDrive.title} targeting ${createdDrive.targetColleges.join(', ')}.`,
+      `✓ [STAGE_5_APPLICATION]: Candidate submitted application for ${targetJob?.title}. Audit Status: Active.`,
+      ...prev
+    ]);
+  };
+
+  const handleWithdraw = (id: string) => {
+    cyberAudio.playBlip();
+    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Withdrawn', applicants: Math.max(0, j.applicants - 1) } : j)));
+    
+    const targetJob = jobs.find(j => j.id === id);
+    const newNotif: AppNotification = {
+      id: Date.now().toString(),
+      title: '↩️ Application Withdrawn',
+      message: `Withdrawn application for ${targetJob?.title}. Recruiter notified.`,
+      timestamp: 'Just now',
+      type: 'alert',
+      read: false
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+
+    setTerminalLogs(prev => [
+      `⚠️ [STAGE_5_WITHDRAW]: Candidate withdrew application from ${targetJob?.title}.`,
       ...prev
     ]);
   };
@@ -1203,6 +1176,26 @@ export default function CampusNexPlatform() {
     });
   };
 
+  const handleAddCert = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newCertInput.trim()) {
+      e.preventDefault();
+      if (!candidateProfile.certifications.includes(newCertInput.trim())) {
+        setCandidateProfile({
+          ...candidateProfile,
+          certifications: [...candidateProfile.certifications, newCertInput.trim()]
+        });
+      }
+      setNewCertInput('');
+    }
+  };
+
+  const handleRemoveCert = (certToRemove: string) => {
+    setCandidateProfile({
+      ...candidateProfile,
+      certifications: candidateProfile.certifications.filter(c => c !== certToRemove)
+    });
+  };
+
   const filteredJobs = jobs.filter(
     j =>
       j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1221,9 +1214,9 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 2 ENGINE
+              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 3 ENGINE
             </span>
-            <span>UNIVERSITY AFFILIATION: {collegeDetails.universityAffiliation.split(',')[0]}</span>
+            <span>EXPLAINABLE AI MATCHER: ACTIVE</span>
             <span className="text-purple-300">STAGE {candidateProfile.currentStep}/9 ACTIVE</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
@@ -1237,7 +1230,7 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400">MULTI-CAMPUS ZERO-TRUST</span>
+            <span className="hidden sm:inline text-emerald-400">ZERO-TRUST VERIFIED</span>
           </div>
         </div>
 
@@ -1253,10 +1246,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  ENTERPRISE OS • PHASE 2
+                  ENTERPRISE OS • PHASE 3
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Institutional Setup • Recruiter Verification • Multi-Campus Broadcast Drives</p>
+              <p className="text-[11px] text-slate-400">Multi-Stream Career Portfolio • 10-State Application Engine • Explainable AI</p>
             </div>
           </div>
 
@@ -1390,72 +1383,50 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 2 ENGINE SUMMARY */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 ENGINE SUMMARY */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  Phase 2: Institutional Governance & Multi-Drive Engine
+                  Phase 3: Multi-Stream Profile & Explainable AI
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
                   {activePortal.toUpperCase()} COMMAND PORTAL
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                {activePortal === 'student' && 'Candidate Career Track & Multi-Drive Eligibility Checker'}
-                {activePortal === 'recruiter' && 'Multi-Campus Drive Launcher, Team Authorization & ZK Pipeline'}
-                {activePortal === 'tpo' && 'University Affiliation, Department Batches & Eligibility Rulebook'}
-                {activePortal === 'admin' && 'Enterprise Verification, Recruiter Domain Auth & Audit Trail'}
+                {activePortal === 'student' && 'Transparent 10-State Application Engine & Explainable AI Matcher'}
+                {activePortal === 'recruiter' && 'AI Screening Explanations, Candidate Skill-Gap Feedback & Pipeline'}
+                {activePortal === 'tpo' && 'Batch Eligibility Verification & Institutional Placement Conversion'}
+                {activePortal === 'admin' && 'Enterprise System Security, Identity Vault & Audit Oversight'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                {activePortal === 'student' && 'Discover campus drives filtered by your department, standing backlogs policy, and verified Proof-of-Execution clearance.'}
-                {activePortal === 'recruiter' && 'Broadcast hiring drives across multiple affiliated colleges simultaneously with custom vacancies, CGPA thresholds, and interview timelines.'}
-                {activePortal === 'tpo' && 'Configure institutional eligibility rulebooks (max backlogs, CGPA cutoffs), govern batch quotas across B.Tech, B.Pharm, and MBA, and generate placement audit records.'}
-                {activePortal === 'admin' && 'Verify employer email domains (@company.com), authorize lead recruiters vs evaluators, and inspect the cryptographic consensus ledger.'}
+                {activePortal === 'student' && 'Discover transparent application statuses (Eligible, Under Review, Shortlisted, Withdrawn) backed by explainable skill-gap intelligence.'}
+                {activePortal === 'recruiter' && 'Review AI match justifications, missing evidence flags, and candidate rankings without personal demographic bias.'}
+                {activePortal === 'tpo' && 'Enforce institutional cutoffs across departments (B.Tech, B.Pharm, MBA) and inspect audited student applications.'}
+                {activePortal === 'admin' && 'Audit employer email verifications, monitor consensus ledger health, and govern zero-knowledge identity safeguards.'}
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
-                {activePortal === 'tpo' ? (
-                  <button
-                    onClick={() => {
-                      cyberAudio.playWarp();
-                      setIsRulebookModalOpen(true);
-                    }}
-                    className="px-3 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-                  >
-                    ⚙️ Configure Placement Rulebook
-                  </button>
-                ) : activePortal === 'recruiter' ? (
-                  <button
-                    onClick={() => {
-                      cyberAudio.playWarp();
-                      setIsPostModalOpen(true);
-                    }}
-                    className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-                  >
-                    🚀 Broadcast Multi-Campus Drive
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      cyberAudio.playAlarm();
-                      setIsWarRoomOpen(true);
-                      setWarRoomSeconds(180);
-                      setWarRoomSolved(false);
-                    }}
-                    className="px-3 py-1 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-                  >
-                    🚨 Trigger War-Room Simulation
-                  </button>
-                )}
                 <button
                   onClick={() => {
                     cyberAudio.playWarp();
                     setIsEditProfileOpen(true);
                   }}
-                  className="bg-cyan-950/80 hover:bg-cyan-900 px-2.5 py-1 rounded border border-cyan-500/60 text-cyan-200 transition font-bold"
+                  className="px-3 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
                 >
-                  ✏️ Edit Profile Parameters
+                  ✏️ Edit Career Profile & Links
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playAlarm();
+                    setIsWarRoomOpen(true);
+                    setWarRoomSeconds(180);
+                    setWarRoomSolved(false);
+                  }}
+                  className="bg-rose-950/80 hover:bg-rose-900 px-2.5 py-1 rounded border border-rose-500/60 text-rose-200 transition font-bold"
+                >
+                  🚨 Trigger War-Room Simulation
                 </button>
               </div>
             </div>
@@ -1468,7 +1439,7 @@ export default function CampusNexPlatform() {
 
         {/* Main Dynamic Portal Container */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* Phase 2 KPI Telemetry */}
+          {/* Phase 3 KPI Telemetry */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
               <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
@@ -1476,24 +1447,26 @@ export default function CampusNexPlatform() {
               <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Institutional Threshold</span>
-              <div className="text-2xl font-black text-emerald-400 mt-1">Min {institutionalRules.minCgpaCutoff} CGPA</div>
-              <span className="text-cyan-400 font-bold mt-1 block">Max {institutionalRules.maxStandingBacklogs} Backlogs Allowed</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Active Applications</span>
+              <div className="text-2xl font-black text-emerald-400 mt-1">
+                {jobs.filter(j => j.status === 'Application Submitted').length} Drives
+              </div>
+              <span className="text-cyan-400 font-bold mt-1 block">Full Audit Trail Active</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Active Portal Focus</span>
-              <div className="text-2xl font-black text-white mt-1">{activePortal.toUpperCase()}</div>
-              <span className="text-amber-400 font-bold mt-1 block">Stage {candidateProfile.currentStep}/9 Synchronized</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Explainable AI Match</span>
+              <div className="text-2xl font-black text-white mt-1">94% Max Alignment</div>
+              <span className="text-amber-400 font-bold mt-1 block">Skill-Gap Evidence Parsed</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Enrolled Students</span>
-              <div className="text-2xl font-black text-white mt-1">{collegeDetails.totalEnrolled}</div>
-              <span className="text-emerald-400 font-bold mt-1 block">4 Departments Governed</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Academic Standing</span>
+              <div className="text-2xl font-black text-white mt-1">CGPA {candidateProfile.cgpa}</div>
+              <span className="text-emerald-400 font-bold mt-1 block">{candidateProfile.backlogs} Standing Backlogs</span>
             </div>
           </div>
 
           {/* ================================================================ */}
-          {/* PORTAL 1: 🎓 STUDENT SOVEREIGN PORTAL */}
+          {/* PORTAL 1: 🎓 STUDENT SOVEREIGN PORTAL (STAGE 4, 5 & 6 INTEGRATED) */}
           {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1538,74 +1511,7 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Proof-of-Execution Ledger Banner */}
-                <div className="bg-[#0e122b]/75 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
-                      📜
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                          VERIFIED {candidateProfile.poeHash}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Mathematical verification: Distributed raft consensus + 2,840 CPU cycles benchmarked.
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={triggerDigitalTwinSync}
-                    className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
-                  >
-                    <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Re-verify Proof'}
-                  </button>
-                </div>
-
-                {/* Practical Assessment: Static Code & Skill Parser */}
-                <div className="bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-[#0e1629]/60 backdrop-blur-xl border border-cyan-800/40 p-5 rounded-2xl shadow-2xl">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-2xl">
-                        📄
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white text-sm">AI Static Code & Proof-of-Execution Parser</h3>
-                        <p className="text-xs text-slate-400">Verifies actual runtime execution hashes instead of trusting unverified claims</p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={handleSimulateResumeScan}
-                      disabled={isScanning}
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-cyan-600/30 transition flex items-center gap-2"
-                    >
-                      {isScanning ? <span className="animate-spin text-sm">↻</span> : <span>⚡</span>}
-                      {isScanning ? 'Minting Proof Hash...' : 'Audit Portfolio Execution'}
-                    </button>
-                  </div>
-
-                  {resumeParsed && (
-                    <div className="mt-4 pt-4 border-t border-cyan-900/40 flex flex-wrap items-center justify-between gap-3 text-xs">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
-                          {parsedScore}%
-                        </div>
-                        <div>
-                          <div className="font-bold text-white">Mathematical Proof: Top 0.8% Cleared</div>
-                          <div className="text-[11px] text-slate-400">Zero plagiarism. Authentic runtime memory traces timestamped.</div>
-                        </div>
-                      </div>
-                      <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 rounded-lg font-bold">
-                        ✓ Consensus Hash Minted
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Job Search & Matching */}
+                {/* Job Search & Filter Bar */}
                 <div className="relative">
                   <input
                     type="text"
@@ -1617,8 +1523,8 @@ export default function CampusNexPlatform() {
                   <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
                 </div>
 
-                {/* Job Cards with Phase 2 Eligibility Rules */}
-                <div className="space-y-3.5">
+                {/* Stage 5 & 6: Job Discovery, 10-State Application Flow & Explainable AI Matcher */}
+                <div className="space-y-4">
                   {filteredJobs.map(job => (
                     <div
                       key={job.id}
@@ -1647,44 +1553,65 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => {
-                            cyberAudio.playBlip();
-                            setSelectedAtsJob(job);
-                          }}
-                          className="px-3.5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/20 transition flex items-center gap-1.5"
-                        >
-                          <span>🎯 {job.matchScore}% Match Rigor</span>
-                          <span className="text-[10px] underline decoration-dotted text-slate-400">View</span>
-                        </button>
+                        {/* Stage 5: 10-State Application Status Badge */}
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
+                            job.status === 'Application Submitted'
+                              ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50'
+                              : job.status === 'Shortlisted'
+                              ? 'bg-purple-950/80 text-purple-300 border-purple-500/50'
+                              : job.status === 'Withdrawn'
+                              ? 'bg-rose-950/80 text-rose-300 border-rose-500/50'
+                              : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+                          }`}>
+                            {job.status === 'Application Submitted' ? '✓ Application Submitted' : job.status}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Phase 2: Institutional Eligibility & Criteria Checklist */}
-                      <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[10px] font-mono">
+                      {/* Stage 6: Explainable AI Matching & Skill-Gap Analysis Box */}
+                      <div className="mt-3.5 p-3.5 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-2 text-xs font-mono">
+                        <div className="flex justify-between items-center text-[11px]">
+                          <span className="text-cyan-300 font-bold flex items-center gap-1.5">
+                            <span>🤖</span> Explainable AI Skill Match: {job.matchScore}%
+                          </span>
+                          <span className="text-slate-400 text-[10px]">Validated via Execution Footprint</span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                          {job.aiExplanation}
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-1 text-[10px]">
+                          <div className="flex items-center gap-1">
+                            <span className="text-emerald-400 font-bold">Verified Evidence:</span>
+                            <span className="text-emerald-300">{job.matched.join(', ')}</span>
+                          </div>
+                          {job.missing.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-rose-400 font-bold">Skill-Gap:</span>
+                              <span className="text-rose-300">{job.missing.join(', ')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Criteria Roster */}
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono">
                         <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
                           ✓ Min CGPA: {job.minCgpa} (Candidate: {candidateProfile.cgpa})
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/40 text-purple-300">
-                          ✓ Max Backlogs: {job.maxBacklogsAllowed} Allowed
+                          ✓ Backlogs Allowed: {job.maxBacklogsAllowed}
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-cyan-950/60 border border-cyan-500/40 text-cyan-300">
-                          ✓ Eligible: {job.eligibleCourses.join(', ')}
+                          ✓ Course: {candidateProfile.course.split(' ')[0]} Eligible
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/40 text-amber-300">
                           📅 Deadline: {job.applicationDeadline}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {job.skills.map((s, i) => (
-                          <span key={i} className="text-xs bg-[#121a33]/90 text-cyan-300 px-2.5 py-1 rounded-lg border border-cyan-900/40">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-
                       <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                        <span className="text-slate-500 font-mono">👥 {job.applicants} verified candidates • {job.vacancies} vacancies</span>
+                        <span className="text-slate-500 font-mono">👥 {job.applicants} applicants • {job.vacancies} vacancies</span>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
@@ -1695,19 +1622,31 @@ export default function CampusNexPlatform() {
                             }}
                             className="px-3.5 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 font-bold transition flex items-center gap-1"
                           >
-                            <span>🚨</span> Test Outage Triage
+                            <span>🚨</span> War-Room Triage
                           </button>
-                          <button
-                            onClick={() => handleApply(job.id)}
-                            disabled={appliedJobs.includes(job.id)}
-                            className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
-                              appliedJobs.includes(job.id)
-                                ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
-                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30'
-                            }`}
-                          >
-                            {appliedJobs.includes(job.id) ? '✓ Applied (In Assessment)' : 'Apply & Enter Assessment'}
-                          </button>
+
+                          {job.status === 'Application Submitted' ? (
+                            <button
+                              onClick={() => handleWithdraw(job.id)}
+                              className="px-3.5 py-1.5 rounded-xl font-bold bg-rose-950/80 text-rose-300 border border-rose-600/60 hover:bg-rose-900 transition"
+                            >
+                              Withdraw Application
+                            </button>
+                          ) : job.status === 'Withdrawn' ? (
+                            <button
+                              onClick={() => handleApply(job.id)}
+                              className="px-3.5 py-1.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition"
+                            >
+                              Re-Apply to Drive
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleApply(job.id)}
+                              className="px-4 py-1.5 rounded-xl font-bold transition shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30"
+                            >
+                              Submit Application
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1715,7 +1654,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: CANDIDATE PROFILE CARD */}
+              {/* RIGHT COLUMN: STAGE 4 DEEP CAREER PORTFOLIO */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1733,30 +1672,51 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
+                  {/* Stage 4: Comprehensive Career Portfolio Details */}
                   <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5 mt-3">
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">INSTITUTION:</span>
+                      <span className="text-slate-500">COLLEGE / INSTITUTION:</span>
                       <span className="text-white truncate max-w-[170px] text-right font-semibold">{candidateProfile.institution}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">DEGREE & BATCH:</span>
-                      <span className="text-cyan-300 font-semibold">{candidateProfile.course.split(' ')[0]} • Class of {candidateProfile.batch}</span>
+                      <span className="text-slate-500">COURSE & BATCH:</span>
+                      <span className="text-cyan-300 font-semibold">{candidateProfile.course} • Class of {candidateProfile.batch}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">PREFERRED ROLE:</span>
+                      <span className="text-slate-500">CGPA & BACKLOGS:</span>
+                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} CGPA • {candidateProfile.backlogs} Backlogs</span>
+                    </div>
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
+                      <span className="text-slate-500">TARGET ROLE:</span>
                       <span className="text-emerald-300 font-semibold truncate max-w-[160px] text-right">{candidateProfile.preferredRole}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">LOCATION PREF:</span>
+                      <span className="text-slate-500">LOCATION PREFERENCE:</span>
                       <span className="text-purple-300 font-semibold">{candidateProfile.locationPreference}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">PORTFOLIO CV:</span>
                       <span className="text-cyan-400 underline truncate max-w-[160px]">{candidateProfile.resumeFileName}</span>
                     </div>
+                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
+                      <span className="text-slate-500">GITHUB / CODE REPO:</span>
+                      <span className="text-cyan-300 truncate max-w-[160px]">{candidateProfile.githubUrl}</span>
+                    </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">APPLICATION QUEUE:</span>
-                      <span className="text-amber-400 font-bold">{appliedJobs.length} Active Drive</span>
+                      <span className="text-slate-500">LIVE PORTFOLIO:</span>
+                      <span className="text-indigo-300 truncate max-w-[160px]">{candidateProfile.portfolioUrl}</span>
+                    </div>
+                  </div>
+
+                  {/* Stage 4: Verified Certifications */}
+                  <div className="mt-3 p-2.5 bg-[#060c1e] border border-cyan-900/40 rounded-xl space-y-1 font-mono text-[10px]">
+                    <span className="text-slate-400 font-bold block">VERIFIED CERTIFICATIONS & CREDENTIALS:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {candidateProfile.certifications.map((c, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-700/60 text-cyan-300">
+                          ✓ {c}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
@@ -1768,7 +1728,7 @@ export default function CampusNexPlatform() {
                       }}
                       className="py-1.5 bg-gradient-to-r from-cyan-900/50 to-indigo-900/50 hover:from-cyan-800/60 hover:to-indigo-800/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40"
                     >
-                      <span>✏️</span> Edit Profile
+                      <span>✏️</span> Edit Career Profile
                     </button>
 
                     <button
@@ -1821,6 +1781,7 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
+                {/* Neurometric Stress & Latency Vector Box */}
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
@@ -1843,20 +1804,20 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* PORTAL 2: 💼 RECRUITER SOVEREIGN PORTAL (STAGE 2 & 3 INTEGRATED) */}
+          {/* PORTAL 2: 💼 RECRUITER SOVEREIGN PORTAL */}
           {/* ================================================================ */}
           {activePortal === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-white">Multi-Campus Drive Launcher & Recruiter Team Operations</h2>
+                    <h2 className="text-xl font-bold text-white">Reverse Zero-Knowledge Talent Auction & Drive Manager</h2>
                     <span className="text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
-                      STAGE 2 & 3 CORPORATE ENGINE
+                      RECRUITER ENTERPRISE LEVEL
                     </span>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Stage 2 Verified Recruiter: Broadcast hiring drives across affiliated colleges, manage permissions, and track live candidate triage.
+                    Stage 6 AI Match Intelligence: Review skills-to-job matching, missing evidence justifications, and candidate rankings without personal demographic bias.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1878,7 +1839,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Stage 2: Recruiter Team & Domain Verification Roster */}
+              {/* Recruiter Authorized Team */}
               <div className="p-4 bg-[#070b18] border border-cyan-900/40 rounded-2xl space-y-2 font-mono text-xs">
                 <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
                   <span className="font-bold text-white flex items-center gap-2">
@@ -2032,7 +1993,7 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* PORTAL 3: 🏫 COLLEGE / TPO SOVEREIGN PORTAL (STAGE 1 INTEGRATED) */}
+          {/* PORTAL 3: 🏫 COLLEGE / TPO SOVEREIGN PORTAL */}
           {/* ================================================================ */}
           {activePortal === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
@@ -2061,7 +2022,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Stage 1: Active Placement Rulebook Snapshot */}
+              {/* Placement Rulebook Snapshot */}
               <div className="p-3.5 bg-[#070d1e] border border-cyan-800/40 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
                 <div>
                   <span className="text-[10px] text-slate-500 block">MIN CGPA CUTOFF</span>
@@ -2081,7 +2042,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Stage 1: Academic Departments & Enrolled Batches Table */}
+              {/* Academic Departments */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs">
                   <h4 className="font-bold text-white text-sm">Academic Departments & Student Enrollment Roster</h4>
@@ -2103,58 +2064,6 @@ export default function CampusNexPlatform() {
                       </div>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              {/* Placement Conversion Funnel */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-                <div className="p-4 bg-[#0f172a]/75 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
-                  <h4 className="font-bold text-white text-sm">Placement Conversion Across Streams</h4>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-slate-300">Computer Science & Engineering</span>
-                      <span className="text-emerald-400 font-bold">96% (148/154)</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-[96%]" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-slate-300">Electronics & Communication</span>
-                      <span className="text-cyan-400 font-bold">88% (106/120)</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-cyan-500 to-indigo-400 h-full w-[88%]" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-slate-300">Pharmacy & Healthcare Tech</span>
-                      <span className="text-purple-400 font-bold">91% (58/64)</span>
-                    </div>
-                    <div className="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[91%]" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-[#0f172a]/75 rounded-2xl border border-slate-800 space-y-3 backdrop-blur-md">
-                  <h4 className="font-bold text-white text-sm">Package Tiers & Verified Records</h4>
-                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
-                    <span>Super Dream Tier (&gt; ₹16 LPA)</span>
-                    <span className="text-white font-bold">48 Offers</span>
-                  </div>
-                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
-                    <span>Dream Tier (₹10 - ₹16 LPA)</span>
-                    <span className="text-white font-bold">142 Offers</span>
-                  </div>
-                  <div className="flex justify-between p-2.5 bg-[#15203b]/80 rounded-xl">
-                    <span>Core Engineering & Domain (₹6 - ₹10 LPA)</span>
-                    <span className="text-white font-bold">116 Offers</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -2203,25 +2112,230 @@ export default function CampusNexPlatform() {
                   </p>
                 </div>
               </div>
-
-              {/* Security Audit Log Stream */}
-              <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl font-mono text-xs space-y-2">
-                <div className="flex justify-between text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Enterprise Security Audit Log</span>
-                  <span className="text-[10px] text-emerald-400">REAL-TIME MONITORING</span>
-                </div>
-                <div className="space-y-1.5 text-[11px] text-slate-300 max-h-40 overflow-y-auto">
-                  <div className="text-emerald-400">✓ [AUDIT_PHASE2]: DCET Hyderabad affiliated institutional rulebook synced.</div>
-                  <div className="text-cyan-300">⚡ [LEDGER_MINT]: Multi-campus drive broadcasted across Osmania University network.</div>
-                  <div className="text-slate-400">🔒 [PRIVACY_FILTER]: Corporate domain @techcorp.in verified with CIN check.</div>
-                  <div className="text-purple-300">✦ [RBAC_AUTH]: College TPO granted batch eligibility modification permissions.</div>
-                </div>
-              </div>
             </div>
           )}
         </main>
 
-        {/* PHASE 2: STAGE 1 INSTITUTIONAL RULEBOOK MODAL */}
+        {/* PHASE 3: COMPREHENSIVE CAREER PORTFOLIO CONFIGURATION MODAL */}
+        {isEditProfileOpen && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setIsEditProfileOpen(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+                <span>✏️</span> Candidate Career Profile & Credentials Configuration
+              </h3>
+              <p className="text-[11px] text-slate-400 mb-4 font-sans">
+                Stage 4: Self-manage your academic metrics, multi-stream courses (B.Tech, B.Pharm, MBA), live repository links, and verified certifications.
+              </p>
+
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  cyberAudio.playLaser();
+                  setIsEditProfileOpen(false);
+                  setCandidateProfile(prev => ({ ...prev, currentStep: 2 }));
+                  setTerminalLogs(prev => [
+                    `✓ [CAREER_PORTFOLIO_UPDATED]: Comprehensive profile synced for ${candidateProfile.name}.`,
+                    ...prev
+                  ]);
+                }}
+                className="space-y-3.5 font-mono"
+              >
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">1. Full Name / Verified Identifier *</label>
+                  <input
+                    type="text"
+                    required
+                    value={candidateProfile.name}
+                    onChange={e => setCandidateProfile({ ...candidateProfile, name: e.target.value })}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">2. College / Institution *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.institution}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, institution: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">3. Multi-Stream Degree Program *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.course}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, course: e.target.value })}
+                      placeholder="e.g. B.Tech CSE / B.Pharm / MBA Finance"
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">4. Graduation Year *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.batch}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, batch: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">5. Academic CGPA *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.cgpa}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, cgpa: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">6. Active Backlogs *</label>
+                    <input
+                      type="number"
+                      required
+                      value={candidateProfile.backlogs}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, backlogs: parseInt(e.target.value) || 0 })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">7. Preferred Career Track *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.preferredRole}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">8. Location Preference *</label>
+                    <input
+                      type="text"
+                      required
+                      value={candidateProfile.locationPreference}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, locationPreference: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">9. GitHub / Project Repository</label>
+                    <input
+                      type="text"
+                      value={candidateProfile.githubUrl}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, githubUrl: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-semibold">10. Live Portfolio / Demo Link</label>
+                    <input
+                      type="text"
+                      value={candidateProfile.portfolioUrl}
+                      onChange={e => setCandidateProfile({ ...candidateProfile, portfolioUrl: e.target.value })}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">11. Portfolio Resume File Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={candidateProfile.resumeFileName}
+                    onChange={e => setCandidateProfile({ ...candidateProfile, resumeFileName: e.target.value })}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Skills Tag Management */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">12. Technical Skills (Press Enter to add)</label>
+                  <input
+                    type="text"
+                    value={newSkillInput}
+                    onChange={e => setNewSkillInput(e.target.value)}
+                    onKeyDown={handleAddSkill}
+                    placeholder="Type skill & press Enter (e.g. Next.js, Kubernetes, SQL)..."
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
+                  />
+                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+                    {candidateProfile.skills.map((s, idx) => (
+                      <span key={idx} className="bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
+                        {s}
+                        <button type="button" onClick={() => handleRemoveSkill(s)} className="text-rose-400 hover:text-white">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Certifications Tag Management */}
+                <div>
+                  <label className="text-slate-300 block mb-1 font-semibold">13. Verified Certifications (Press Enter to add)</label>
+                  <input
+                    type="text"
+                    value={newCertInput}
+                    onChange={e => setNewCertInput(e.target.value)}
+                    onKeyDown={handleAddCert}
+                    placeholder="Type certification & press Enter (e.g. AWS Certified, Clinical Trial QA)..."
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
+                  />
+                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+                    {candidateProfile.certifications.map((c, idx) => (
+                      <span key={idx} className="bg-purple-950/80 border border-purple-700 text-purple-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
+                        ✓ {c}
+                        <button type="button" onClick={() => handleRemoveCert(c)} className="text-rose-400 hover:text-white">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-3 flex gap-2 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditProfileOpen(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold shadow-lg shadow-cyan-600/30 transition hover:scale-[1.02]"
+                  >
+                    Save & Lock Verification
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 2: Institutional Rulebook Modal */}
         {isRulebookModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
             <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
@@ -2239,7 +2353,7 @@ export default function CampusNexPlatform() {
                 <span>⚙️</span> Institutional Placement Rulebook Configuration
               </h3>
               <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Stage 1: Define automated eligibility policies enforced across all upcoming campus drives for your batches.
+                Stage 1: Define automated eligibility policies enforced across all upcoming campus drives.
               </p>
 
               <form
@@ -2317,7 +2431,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* PHASE 2: STAGE 3 ADVANCED MULTI-CAMPUS DRIVE POSTING MODAL */}
+        {/* Phase 2: Stage 3 Multi-Campus Drive Modal */}
         {isPostModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
             <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
@@ -2334,120 +2448,35 @@ export default function CampusNexPlatform() {
                 <span>🚀</span> Stage 3: Multi-Campus Drive & Job Architect
               </h3>
               <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Broadcast recruitment drive across multiple affiliated colleges simultaneously with custom criteria.
+                Broadcast recruitment drive across multiple affiliated colleges simultaneously.
               </p>
 
-              <form onSubmit={handleCreateStage3Drive} className="space-y-3 font-mono">
+              <form onSubmit={e => { e.preventDefault(); setIsPostModalOpen(false); }} className="space-y-3 font-mono">
+                <div>
+                  <label className="text-slate-300 block mb-1">Job Role Title *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Distributed Core Systems Architect"
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Job Role Title *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. AI Cloud Architect"
-                      value={newDriveTitle}
-                      onChange={e => setNewDriveTitle(e.target.value)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
                   <div>
                     <label className="text-slate-300 block mb-1">Company Entity *</label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Google India"
-                      value={newDriveCompany}
-                      onChange={e => setNewDriveCompany(e.target.value)}
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-slate-300 block mb-1">Package Offered (CTC) *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. ₹18 - ₹24 LPA"
-                      value={newDriveSalary}
-                      onChange={e => setNewDriveSalary(e.target.value)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Vacancies Count</label>
-                    <input
-                      type="number"
-                      value={newDriveVacancies}
-                      onChange={e => setNewDriveVacancies(parseInt(e.target.value) || 1)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Minimum CGPA Filter</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={newDriveMinCgpa}
-                      onChange={e => setNewDriveMinCgpa(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Max Standing Backlogs Allowed</label>
-                    <input
-                      type="number"
-                      value={newDriveBacklogs}
-                      onChange={e => setNewDriveBacklogs(parseInt(e.target.value) || 0)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-slate-300 block mb-1">Eligible Courses (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={newDriveCourses}
-                    onChange={e => setNewDriveCourses(e.target.value)}
-                    placeholder="B.Tech CSE, B.Tech IT, MCA"
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-300 block mb-1">Target Affiliated Campuses (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={newDriveTargetCampuses}
-                    onChange={e => setNewDriveTargetCampuses(e.target.value)}
-                    placeholder="DCET Hyderabad, JNTUH Main Campus, CBIT"
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Application Deadline</label>
-                    <input
-                      type="text"
-                      value={newDriveDeadline}
-                      onChange={e => setNewDriveDeadline(e.target.value)}
-                      placeholder="e.g. 25 Nov 2026"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Interview Timeline & Rounds</label>
-                    <input
-                      type="text"
-                      value={newDriveTimeline}
-                      onChange={e => setNewDriveTimeline(e.target.value)}
-                      placeholder="e.g. Technical -> War-Room -> HR"
+                      placeholder="e.g. ₹20 - ₹28 LPA"
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                     />
                   </div>
@@ -2473,186 +2502,13 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* Phase 3 & 4: Profile Verification & Edit Modal */}
-        {isEditProfileOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsEditProfileOpen(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>✏️</span> Candidate Profile Configuration & Security Vault
-              </h3>
-              <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Self-manage your academic parameters, course credentials, and portfolio assets. Sensitive identifiers are never publicly exposed.
-              </p>
-
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  cyberAudio.playLaser();
-                  setIsEditProfileOpen(false);
-                  setCandidateProfile(prev => ({ ...prev, currentStep: 2 }));
-                  setTerminalLogs(prev => [
-                    `✓ [PROFILE_UPDATED]: Profile parameters verified for ${candidateProfile.name}.`,
-                    ...prev
-                  ]);
-                }}
-                className="space-y-3.5 font-mono"
-              >
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">1. Full Name / Verified Identifier *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.name}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, name: e.target.value })}
-                    placeholder="Candidate Name or Verified Identifier"
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">2. College / Institution *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.institution}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, institution: e.target.value })}
-                      placeholder="e.g. Deccan College of Engineering"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">3. Course / Degree Program *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.course}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, course: e.target.value })}
-                      placeholder="e.g. B.Tech CSE / B.Pharm / MBA"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">4. Graduation Year *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.batch}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, batch: e.target.value })}
-                      placeholder="e.g. 2026"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">5. Academic CGPA / Score *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.cgpa}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, cgpa: e.target.value })}
-                      placeholder="e.g. 8.85"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">6. Preferred Role *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.preferredRole}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
-                      placeholder="e.g. Backend Systems Architect"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">7. Location Preference *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.locationPreference}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, locationPreference: e.target.value })}
-                      placeholder="e.g. Hyderabad / Bengaluru / Remote"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">8. Portfolio Resume File Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.resumeFileName}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, resumeFileName: e.target.value })}
-                    placeholder="Candidate_Verified_Resume.pdf"
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">9. Relevant Competencies / Skills (Press Enter to add)</label>
-                  <input
-                    type="text"
-                    value={newSkillInput}
-                    onChange={e => setNewSkillInput(e.target.value)}
-                    onKeyDown={handleAddSkill}
-                    placeholder="Type skill & press Enter (e.g. Next.js, Kubernetes, SQL)..."
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
-                  />
-                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                    {candidateProfile.skills.map((s, idx) => (
-                      <span key={idx} className="bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
-                        {s}
-                        <button type="button" onClick={() => handleRemoveSkill(s)} className="text-rose-400 hover:text-white">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-3 flex gap-2 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditProfileOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold shadow-lg shadow-cyan-600/30 transition hover:scale-[1.02]"
-                  >
-                    Save & Lock Verification
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
         {/* Interactive CLI Developer Console */}
         <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
           <div className="bg-[#070b16]/90 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-2xl overflow-hidden font-mono text-[11px]">
             <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE2_CLI</span>
+                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE3_CLI</span>
               </div>
               <button
                 onClick={() => {
@@ -3385,51 +3241,6 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
           </div>
         )}
 
-        {/* ATS Match Modal */}
-        {selectedAtsJob && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-cyan-800/60 rounded-3xl w-full max-w-md p-6 text-xs relative">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setSelectedAtsJob(null);
-                }}
-                className="absolute top-4 right-4 text-slate-400 text-lg"
-              >
-                ✕
-              </button>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-black">
-                  {selectedAtsJob.matchScore}%
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-base">Proof-of-Execution Compatibility</h3>
-                  <p className="text-slate-400">
-                    {selectedAtsJob.title} • {selectedAtsJob.company}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3 mt-4">
-                <div>
-                  <span className="text-emerald-400 font-bold block mb-1">✓ Validated Execution Capabilities:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {selectedAtsJob.matched.map((m, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 rounded-md">
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="p-3 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-slate-300">
-                  <span className="text-cyan-300 font-bold block mb-1">✦ Architectural War-Room Metric:</span>
-                  {selectedAtsJob.tip}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Welcome Momentum Modal */}
         {showWelcomeModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -3450,28 +3261,28 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">🔥</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 2 Institutional Engine Live
+                  Phase 3 AI & Portfolio Engine Live
                 </span>
               </div>
 
               <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                Institutional Setup, Recruiter Verification & Multi-Campus Drives
+                Multi-Stream Career Portfolio & Explainable AI Screening
               </h3>
 
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Full Stage 1, 2 & 3 enterprise deployment: Osmania University affiliated campus management, corporate domain authorization (@company.in), institutional eligibility rulebooks, and multi-college broadcast drives.
+                Full Stage 4, 5 & 6 enterprise deployment: Multi-stream degree records (B.Tech, B.Pharm, MBA), transparent 10-state application engine with withdrawal safeguards, and explainable AI skill-gap evidence parsing.
               </p>
 
               <div className="grid grid-cols-2 gap-3 my-4">
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Institutional Rulebook</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">0 Backlogs Max</span>
+                  <span className="text-slate-400 text-[10px] block">AI Screening Layer</span>
+                  <span className="text-base font-black text-purple-400 mt-0.5 block">Explainable Evidence</span>
                   <span className="text-[10px] text-slate-400">Class of 2026</span>
                 </div>
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Affiliated Network</span>
-                  <span className="text-base font-black text-cyan-300 mt-0.5 block">620 Students</span>
-                  <span className="text-[10px] text-slate-400">4 Enrolled Departments</span>
+                  <span className="text-slate-400 text-[10px] block">Candidate Standing</span>
+                  <span className="text-base font-black text-cyan-300 mt-0.5 block">CGPA {candidateProfile.cgpa}</span>
+                  <span className="text-[10px] text-slate-400">{candidateProfile.course.split(' ')[0]}</span>
                 </div>
               </div>
 
