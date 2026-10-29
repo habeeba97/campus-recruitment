@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 FOUNDATION & PERSISTENCE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 2: INTELLIGENCE & SKILL PASSPORT)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -41,6 +41,23 @@ const ALL_LIFECYCLE_STAGES: LifecycleStage[] = [
   '14. Placement Analytics'
 ];
 
+type VerificationTier = 
+  | 'Institution Verified'
+  | 'Issuer Verified'
+  | 'Evidence Submitted'
+  | 'Self-Reported'
+  | 'Pending Verification';
+
+interface SkillPassportItem {
+  id: string;
+  name: string;
+  category: 'Core' | 'Cloud & Systems' | 'Database' | 'Certification';
+  verificationTier: VerificationTier;
+  issuerOrInstitution: string;
+  evidenceLink?: string;
+  verifiedAt: string;
+}
+
 interface Job {
   id: string;
   title: string;
@@ -64,6 +81,8 @@ interface Job {
   targetColleges: string[];
   status: 'Open' | 'Applied' | 'Shortlisted' | 'Assessment Pending' | 'Offer Dispatched';
   dataSource: 'LIVE' | 'DEMO' | 'VERIFIED';
+  aiMatchExplanation: string;
+  fairnessConfidence: number; // e.g. 99.2%
 }
 
 interface CandidateProfile {
@@ -82,7 +101,7 @@ interface CandidateProfile {
   eusiScore: string;
   dsaRank: string;
   verifiedCommits: string;
-  currentStageIndex: number; // 0 to 13
+  currentStageIndex: number;
 }
 
 interface PreJoiningDoc {
@@ -102,7 +121,14 @@ interface AppNotification {
   read: boolean;
 }
 
-// Default initial state data for cold starts
+interface CandidateAppeal {
+  id: string;
+  jobTitle: string;
+  reason: string;
+  submittedAt: string;
+  status: 'Under Review' | 'Resolution Approved' | 'Rejected';
+}
+
 const DEFAULT_PROFILE: CandidateProfile = {
   name: 'Verified Candidate (#APEX-01)',
   institution: 'Deccan College of Engineering & Technology',
@@ -121,6 +147,14 @@ const DEFAULT_PROFILE: CandidateProfile = {
   verifiedCommits: '120+ Commits',
   currentStageIndex: 9 // Stage 10: Offer Accepted
 };
+
+const DEFAULT_PASSPORT_ITEMS: SkillPassportItem[] = [
+  { id: 'sp-1', name: 'High-Concurrency Concurrency & Raft', category: 'Core', verificationTier: 'Issuer Verified', issuerOrInstitution: 'CampusNex Proof-of-Execution Engine', evidenceLink: 'https://github.com/apex-candidate-01/raft-core', verifiedAt: '24 Oct 2026' },
+  { id: 'sp-2', name: 'PostgreSQL Advanced Indexing (B-Tree)', category: 'Database', verificationTier: 'Institution Verified', issuerOrInstitution: 'DCET Computer Science Dept', verifiedAt: '12 Sep 2026' },
+  { id: 'sp-3', name: 'AWS Cloud Practitioner (CLF-C02)', category: 'Certification', verificationTier: 'Issuer Verified', issuerOrInstitution: 'Amazon Web Services', evidenceLink: 'Credly-ID: #0x88f21a', verifiedAt: '18 Aug 2026' },
+  { id: 'sp-4', name: 'Docker & Kubernetes Containerization', category: 'Cloud & Systems', verificationTier: 'Evidence Submitted', issuerOrInstitution: 'GitHub CI/CD Action Artifacts', evidenceLink: 'https://github.com/apex-candidate-01/k8s-manifests', verifiedAt: '02 Oct 2026' },
+  { id: 'sp-5', name: 'React & TypeScript Enterprise UI', category: 'Core', verificationTier: 'Self-Reported', issuerOrInstitution: 'Portfolio Assessment', verifiedAt: '01 Oct 2026' }
+];
 
 const DEFAULT_JOBS: Job[] = [
   {
@@ -145,7 +179,9 @@ const DEFAULT_JOBS: Job[] = [
     interviewTimeline: '12-15 Nov 2026',
     targetColleges: ['DCET Hyderabad', 'JNTUH Campus', 'CBIT'],
     status: 'Offer Dispatched',
-    dataSource: 'LIVE'
+    dataSource: 'LIVE',
+    aiMatchExplanation: 'Candidate verified in Raft CAS concurrency, Redis memory cache, and relational query plans. Zero demographic bias factored.',
+    fairnessConfidence: 99.4
   },
   {
     id: '2',
@@ -169,7 +205,9 @@ const DEFAULT_JOBS: Job[] = [
     interviewTimeline: '20-22 Nov 2026',
     targetColleges: ['DCET Hyderabad', 'Vasavi College', 'VNR VJIET'],
     status: 'Open',
-    dataSource: 'DEMO'
+    dataSource: 'DEMO',
+    aiMatchExplanation: 'Relational query execution validated. Missing explicit Python pandas and Tableau visualization artifacts.',
+    fairnessConfidence: 98.8
   },
   {
     id: '3',
@@ -193,7 +231,9 @@ const DEFAULT_JOBS: Job[] = [
     interviewTimeline: '28-30 Nov 2026',
     targetColleges: ['DCET Hyderabad', 'IIT Hyderabad', 'NIT Warangal'],
     status: 'Open',
-    dataSource: 'DEMO'
+    dataSource: 'DEMO',
+    aiMatchExplanation: 'CGPA 8.85 exceeds threshold. Missing practical Go microservice runtime evidence.',
+    fairnessConfidence: 99.1
   }
 ];
 
@@ -573,98 +613,16 @@ class CyberAudioEngine {
       osc.stop(this.ctx.currentTime + 0.15);
     } catch {}
   }
-
-  playAlarm() {
-    if (!this.enabled) return;
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(750, this.ctx.currentTime + 0.2);
-      gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + 0.25);
-    } catch {}
-  }
 }
 
 const cyberAudio = new CyberAudioEngine();
 
-// Biometric Pulse Oscilloscope
-function BiometricPulseCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationFrameId: number;
-    let step = 0;
-    const width = (canvas.width = canvas.offsetWidth);
-    const height = (canvas.height = canvas.offsetHeight);
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 20) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += 15) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      ctx.beginPath();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = '#22d3ee';
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = '#06b6d4';
-
-      for (let x = 0; x < width; x++) {
-        const spike = Math.sin((x + step) * 0.05);
-        const cardiacKick = (x + step) % 120 > 50 && (x + step) % 120 < 70 ? Math.sin((x + step) * 0.3) * 22 : 0;
-        const y = height / 2 + spike * 8 + cardiacKick;
-
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      step += 2.5;
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
-  return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20]/80 border border-cyan-900/50 backdrop-blur-md" />;
-}
-
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 1: 4-PORTALS & DATA PERSISTENCE)
+// 4. MAIN PLATFORM (PHASE 2: VERIFIED SKILL PASSPORT & FAIR AI AUDIT CENTER)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // Phase 1 Persistence Hook: Candidate Profile
@@ -689,7 +647,27 @@ export default function CampusNexPlatform() {
     return DEFAULT_JOBS;
   });
 
-  // Save to LocalStorage on state modifications (Zero Data Loss on Refresh)
+  // Phase 2 Persistence Hook: 5-Tier Verified Skill Passport
+  const [skillPassport, setSkillPassport] = useState<SkillPassportItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('campusnex_skill_passport');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return DEFAULT_PASSPORT_ITEMS;
+  });
+
+  // Phase 2 State: Fair Hiring & AI Audit Center
+  const [showFairAuditModal, setShowFairAuditModal] = useState(false);
+  const [selectedJobAudit, setSelectedJobAudit] = useState<Job | null>(null);
+  const [appealsList, setAppealsList] = useState<CandidateAppeal[]>([
+    { id: 'app-1', jobTitle: 'Full Stack Engineer (Elite Core)', reason: 'Attached live production deployment link for Tailwind responsive component.', submittedAt: '28 Oct 2026', status: 'Resolution Approved' }
+  ]);
+  const [newAppealReason, setNewAppealReason] = useState('');
+  const [humanReviewOverrideActive, setHumanReviewOverrideActive] = useState(false);
+
+  // State Persistence
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('campusnex_candidate_profile', JSON.stringify(candidateProfile));
@@ -702,39 +680,17 @@ export default function CampusNexPlatform() {
     }
   }, [jobs]);
 
-  // Stage 11 & 12 Pre-joining & Actual Joining State
-  const [preJoiningDocs, setPreJoiningDocs] = useState<PreJoiningDoc[]>([
-    { id: 'doc-1', name: 'Degree Consolidated Transcript', type: 'Academic', status: 'Verified', verifiedHash: '0x99a4e-TRANSCRIPT-OK' },
-    { id: 'doc-2', name: 'Aadhaar / National ID Proof', type: 'Identity', status: 'Verified', verifiedHash: '0x42b10-IDENTITY-CLEARED' },
-    { id: 'doc-3', name: 'Corporate Background Check (BGV)', type: 'BackgroundCheck', status: 'Verified', verifiedHash: '0x88c12-BGV-ZERO-FLAGS' },
-    { id: 'doc-4', name: 'Medical Fitness Certificate', type: 'Medical', status: 'Verified', verifiedHash: '0x11f42-MED-FIT' }
-  ]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('campusnex_skill_passport', JSON.stringify(skillPassport));
+    }
+  }, [skillPassport]);
 
-  const [actualJoiningStatus, setActualJoiningStatus] = useState<'Pending Onboarding' | 'Confirmed Joined' | 'Deferred'>('Confirmed Joined');
-
-  // New Drive Posting Form States
-  const [newDriveTitle, setNewDriveTitle] = useState('');
-  const [newDriveCompany, setNewDriveCompany] = useState('');
-  const [newDriveSalary, setNewDriveSalary] = useState('');
-  const [newDriveMinCgpa, setNewDriveMinCgpa] = useState(7.5);
-  const [newDriveVacancies, setNewDriveVacancies] = useState(15);
-
-  // Edit Profile Form State
-  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [newSkillInput, setNewSkillInput] = useState('');
-
-  // Notifications
-  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-  const [notifications, setNotifications] = useState<AppNotification[]>([
-    { id: 'n1', title: '🎓 Actual Joining Confirmed', message: 'Candidate physically onboarded at TechCorp India Knowledge City.', timestamp: 'Just now', type: 'success', read: false },
-    { id: 'n2', title: '🛡️ Storage Synchronized', message: 'Local persistent ledger active. Refresh will not erase changes.', timestamp: '5m ago', type: 'info', read: false }
-  ]);
-
-  // Interactive Terminal Logs
+  // Terminal Logs
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_1_FOUNDATION]: 4-Portal Sovereign RBAC & Data Persistence Online.',
-    '✦ [PERSISTENCE_SHIELD]: localStorage memory mirrored. Zero data loss on refresh.',
-    '✓ [LIFECYCLE_ENGINE]: 14-Stage recruitment pipeline verified.'
+    '⚡ [PHASE_2_INTELLIGENCE]: AI Talent Intelligence & Verified Skill Passport active.',
+    '✦ [FAIR_HIRING_AUDIT]: Zero-demographic bias firewall active (Neural-v5.2-FairRecruit).',
+    '✓ [VERIFICATION_TIER]: 5-tier verifiable credentials signed on consensus ledger.'
   ]);
 
   const toggleSound = () => {
@@ -747,67 +703,26 @@ export default function CampusNexPlatform() {
   const handleApplyJob = (jobId: string) => {
     cyberAudio.playLaser();
     setJobs(prev => prev.map(j => (j.id === jobId ? { ...j, status: 'Applied', applicants: j.applicants + 1 } : j)));
-    setCandidateProfile(prev => ({ ...prev, currentStageIndex: 3 })); // Advance to Stage 4: Applied
+    setCandidateProfile(prev => ({ ...prev, currentStageIndex: 3 }));
     setTerminalLogs(prev => [`✓ [APPLICATION_SENT]: Applied to Drive #${jobId}. Stage 4 recorded.`, ...prev]);
   };
 
-  const handlePostDrive = (e: React.FormEvent) => {
+  const handleAddAppeal = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDriveTitle || !newDriveCompany) return;
+    if (!newAppealReason.trim() || !selectedJobAudit) return;
     cyberAudio.playLaser();
 
-    const createdDrive: Job = {
+    const createdAppeal: CandidateAppeal = {
       id: Date.now().toString(),
-      title: newDriveTitle,
-      company: newDriveCompany,
-      location: 'Hyderabad / Bengaluru',
-      salary: newDriveSalary || '₹18 - ₹24 LPA',
-      skills: ['Distributed Systems', 'Cloud Edge', 'Database Optimization'],
-      matchScore: 92,
-      applicants: 1,
-      type: 'Apex 1% Multi-Campus',
-      matched: ['Distributed Systems'],
-      missing: ['Cloud Edge'],
-      tip: 'Multi-campus drive with strict 0 backlog threshold.',
-      minClearance: 'Tier-1 Apex',
-      minCgpa: Number(newDriveMinCgpa) || 7.5,
-      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech IT'],
-      maxBacklogsAllowed: 0,
-      vacancies: Number(newDriveVacancies) || 15,
-      applicationDeadline: '30 Nov 2026',
-      interviewTimeline: 'Continuous Assessment',
-      targetColleges: ['DCET Hyderabad', 'CBIT'],
-      status: 'Open',
-      dataSource: 'LIVE'
+      jobTitle: selectedJobAudit.title,
+      reason: newAppealReason.trim(),
+      submittedAt: 'Just now',
+      status: 'Under Review'
     };
 
-    setJobs([createdDrive, ...jobs]);
-    setIsPostModalOpen(false);
-    setNewDriveTitle('');
-    setNewDriveCompany('');
-    setNewDriveSalary('');
-
-    setTerminalLogs(prev => [`🚀 [RECRUITER_DRIVE]: Published ${createdDrive.title} under persistent storage.`, ...prev]);
-  };
-
-  const handleAddSkill = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newSkillInput.trim()) {
-      e.preventDefault();
-      if (!candidateProfile.skills.includes(newSkillInput.trim())) {
-        setCandidateProfile({
-          ...candidateProfile,
-          skills: [...candidateProfile.skills, newSkillInput.trim()]
-        });
-      }
-      setNewSkillInput('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setCandidateProfile({
-      ...candidateProfile,
-      skills: candidateProfile.skills.filter(s => s !== skillToRemove)
-    });
+    setAppealsList([createdAppeal, ...appealsList]);
+    setNewAppealReason('');
+    setTerminalLogs(prev => [`⚖️ [AI_APPEAL]: Candidate submitted evidence review request for ${selectedJobAudit.title}.`, ...prev]);
   };
 
   return (
@@ -822,7 +737,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PHASE 1: FOUNDATION & 4-PORTAL PERSISTENCE
+              PHASE 2: VERIFIED SKILL PASSPORT & FAIR AI AUDIT CENTER
             </span>
             <span className="text-purple-300">WORKSPACE: {activePortal.toUpperCase()}</span>
             <span className="text-emerald-400">STAGE {candidateProfile.currentStageIndex + 1}/14 ACTIVE</span>
@@ -838,7 +753,7 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400 font-bold">🔒 LOCAL PERSISTENT STORAGE MIRRORED</span>
+            <span className="hidden sm:inline text-emerald-400 font-bold">🔒 FAIR RECRUIT AUDIT ACTIVE</span>
           </div>
         </div>
 
@@ -854,15 +769,27 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  ENTERPRISE OS • P0 FOUNDATION
+                  PHASE 2 INTELLIGENCE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">4 Isolated Workspaces • 14-Stage Lifecycle • Persistent Ledger</p>
+              <p className="text-[11px] text-slate-400">Verified Skill Passport • Explainable AI Matching • Human-in-the-Loop Audit</p>
             </div>
           </div>
 
-          {/* Role-Based Workspace Switcher */}
+          {/* Role-Based Workspace Switcher & Audit Center Button */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
+            {/* Phase 2: Fair Hiring & AI Audit Center Trigger */}
+            <button
+              onClick={() => {
+                cyberAudio.playLaser();
+                setSelectedJobAudit(jobs[0]);
+                setShowFairAuditModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+            >
+              <span>⚖️</span> Fair AI Audit Center
+            </button>
+
             <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
               <button
                 onClick={() => {
@@ -917,111 +844,46 @@ export default function CampusNexPlatform() {
                 🛡️ Admin
               </button>
             </div>
-
-            {/* Notification Bell */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowNotificationDrawer(!showNotificationDrawer);
-                }}
-                className="p-2 rounded-xl bg-[#0e162e] border border-cyan-800/60 text-cyan-300 hover:bg-cyan-900/60 text-xs font-semibold flex items-center justify-center transition relative"
-              >
-                <span>🔔</span>
-                {notifications.some(n => !n.read) && (
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
-                )}
-              </button>
-
-              {showNotificationDrawer && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#070d1e]/95 border border-cyan-500/60 rounded-2xl p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-800 text-xs font-mono">
-                    <span className="font-bold text-white flex items-center gap-1.5">
-                      <span>⚡</span> System Audit Alerts
-                    </span>
-                    <button
-                      onClick={() => setNotifications(notifications.map(n => ({ ...n, read: true })))}
-                      className="text-[10px] text-cyan-400 hover:text-white"
-                    >
-                      Mark all read
-                    </button>
-                  </div>
-                  <div className="space-y-2 max-h-56 overflow-y-auto">
-                    {notifications.map(notif => (
-                      <div
-                        key={notif.id}
-                        className={`p-2.5 rounded-xl border text-[11px] transition ${
-                          notif.read ? 'bg-[#0a1126]/60 border-slate-800/80 text-slate-400' : 'bg-[#101b3d] border-cyan-500/40 text-slate-200 font-medium'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-white">{notif.title}</span>
-                          <span className="text-[9px] text-slate-500">{notif.timestamp}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-300 mt-1 font-sans">{notif.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + ACTIVE WORKSPACE SUMMARY */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 2 CORE INTELLIGENCE */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest font-bold">
-                  Phase 1: Persistent Workspaces & Lifecycle Standard
+                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60 uppercase tracking-widest font-bold">
+                  Phase 2: Verified Skill Passport & Fair Intelligence
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60 font-bold">
                   {activePortal.toUpperCase()} WORKSPACE
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                {activePortal === 'student' && 'Candidate Career Track & 14-Stage Verified Recruitment Progression'}
-                {activePortal === 'recruiter' && 'Multi-Campus Drive Launcher, Candidate Screening & Offer Dispatch'}
-                {activePortal === 'tpo' && 'Institutional Placement Governance, Department Batches & Conversion Ratios'}
-                {activePortal === 'admin' && 'Enterprise System Administration, Cryptographic Audit & Role Isolation'}
+                Beyond Degrees: Institutional Evidence, Verified Credentials & Transparent AI Matching
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                All state modifications, profile parameters, and job drive applications are persisted directly to browser local storage. Refreshing the browser will preserve your inputs.
+                Candidate capabilities are judged by verifiable runtime evidence and institutional stamps rather than unverified CV claims. AI matching provides complete mathematical explanations without demographic bias.
               </p>
-              <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
-                {activePortal === 'recruiter' ? (
-                  <button
-                    onClick={() => {
-                      cyberAudio.playLaser();
-                      setIsPostModalOpen(true);
-                    }}
-                    className="px-3.5 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-                  >
-                    + Post Real Hiring Drive
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      cyberAudio.playLaser();
-                      setIsEditProfileOpen(true);
-                    }}
-                    className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
-                  >
-                    ✏️ Configure Candidate Profile
-                  </button>
-                )}
+              <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
                 <button
                   onClick={() => {
-                    localStorage.removeItem('campusnex_candidate_profile');
-                    localStorage.removeItem('campusnex_jobs_roster');
-                    setCandidateProfile(DEFAULT_PROFILE);
-                    setJobs(DEFAULT_JOBS);
-                    setTerminalLogs(prev => ['✓ [LEDGER_RESET]: Local persistence reset to pristine verified defaults.', ...prev]);
+                    cyberAudio.playLaser();
+                    setSelectedJobAudit(jobs[0]);
+                    setShowFairAuditModal(true);
                   }}
-                  className="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded border border-slate-600 text-slate-300 transition text-[10px]"
+                  className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  Reset Ledger Data
+                  <span>⚖️</span> Open Fair AI Audit Center
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    alert("Skill Passport cryptographically shared with verified employers for active recruitment session!");
+                  }}
+                  className="bg-purple-950/80 hover:bg-purple-900 px-2.5 py-1 rounded border border-purple-500/60 text-purple-200 transition font-bold"
+                >
+                  🌐 Share Verified Skill Passport
                 </button>
               </div>
             </div>
@@ -1035,7 +897,7 @@ export default function CampusNexPlatform() {
         {/* Main Workspace Render */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
           {/* ================================================================ */}
-          {/* 1. STUDENT WORKSPACE */}
+          {/* 1. STUDENT WORKSPACE (PHASE 2 SKILL PASSPORT & JOBS) */}
           {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1044,7 +906,7 @@ export default function CampusNexPlatform() {
                 <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🔄</span> Complete 14-Stage Recruitment Sequence
+                      <span>🔄</span> Recruitment Progression Lifecycle
                     </span>
                     <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded-full font-bold">
                       Stage {candidateProfile.currentStageIndex + 1} of 14
@@ -1079,66 +941,60 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Stage 12 & 13: Distinct Offer Accepted vs Actual Joining Banner */}
-                <div className="bg-[#09152e]/85 border border-emerald-500/60 p-4 rounded-2xl shadow-xl space-y-2 font-mono text-xs">
-                  <div className="flex justify-between items-center border-b border-emerald-900/60 pb-2">
-                    <span className="font-bold text-emerald-300 flex items-center gap-2">
-                      <span>🎉</span> Stage 12 & 13 Placement Distinction: Offer vs Actual Joining
+                {/* PHASE 2: VERIFIED SKILL PASSPORT MATRIX */}
+                <div className="bg-[#08122c]/85 border border-cyan-500/50 p-4 rounded-2xl shadow-xl space-y-3 font-mono text-xs">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span className="font-bold text-white flex items-center gap-2">
+                      <span>📜</span> Verified Skill Passport (5-Tier Verification Model)
                     </span>
-                    <span className="text-[9px] bg-emerald-500 text-black px-2 py-0.5 rounded font-black">
-                      STATUS: {actualJoiningStatus.toUpperCase()}
+                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold">
+                      INSTITUTIONAL CONSENSUS ACTIVE
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] pt-1">
-                    <div className="p-2.5 bg-[#0d1a3a] rounded-xl border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">STAGE 10 / 12: OFFER ACCEPTANCE</span>
-                      <span className="text-white font-bold block mt-0.5">TechCorp India (₹22.0 LPA CTC)</span>
-                      <span className="text-emerald-400 text-[10px] block">Accepted on 29 Oct 2026</span>
-                    </div>
+                  <div className="space-y-2">
+                    {skillPassport.map(item => (
+                      <div key={item.id} className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <span>{item.name}</span>
+                            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded font-sans">
+                              {item.category}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            Issuer/Signer: {item.issuerOrInstitution} • Verified on {item.verifiedAt}
+                          </div>
+                          {item.evidenceLink && (
+                            <div className="text-[9px] text-cyan-400 underline mt-0.5">{item.evidenceLink}</div>
+                          )}
+                        </div>
 
-                    <div className="p-2.5 bg-[#0d1a3a] rounded-xl border border-slate-800">
-                      <span className="text-slate-400 block text-[10px]">STAGE 13: ACTUAL JOINING DATE</span>
-                      <span className="text-cyan-300 font-bold block mt-0.5">01 July 2027 (Confirmed Physical Presence)</span>
-                      <div className="flex gap-2 mt-1.5">
-                        <button
-                          onClick={() => {
-                            cyberAudio.playLaser();
-                            setActualJoiningStatus('Confirmed Joined');
-                            setCandidateProfile(prev => ({ ...prev, currentStageIndex: 12 }));
-                          }}
-                          className="px-2 py-0.5 bg-emerald-600 text-white rounded text-[9px] font-bold"
-                        >
-                          Mark Joined
-                        </button>
-                        <button
-                          onClick={() => {
-                            cyberAudio.playBlip();
-                            setActualJoiningStatus('Deferred');
-                          }}
-                          className="px-2 py-0.5 bg-slate-800 border border-slate-700 text-slate-300 rounded text-[9px]"
-                        >
-                          Defer Joining
-                        </button>
+                        <div>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                            item.verificationTier === 'Institution Verified'
+                              ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                              : item.verificationTier === 'Issuer Verified'
+                              ? 'bg-cyan-950 text-cyan-300 border-cyan-600'
+                              : item.verificationTier === 'Evidence Submitted'
+                              ? 'bg-purple-950 text-purple-300 border-purple-600'
+                              : 'bg-slate-800 text-slate-400 border-slate-700'
+                          }`}>
+                            ✓ {item.verificationTier}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Job Search & Matching Roster */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search drives by role, stack, or company..."
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    className="w-full bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner"
-                  />
-                  <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
-                </div>
-
-                {/* Job Cards */}
+                {/* Job Cards with Explainable AI Match Reasons */}
                 <div className="space-y-3.5">
+                  <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="text-slate-400">Available Campus Recruitment Drives</span>
+                    <span className="text-cyan-400 font-bold">Explainable AI Matching Engine</span>
+                  </div>
+
                   {jobs
                     .filter(j => j.title.toLowerCase().includes(searchQuery.toLowerCase()) || j.company.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map(job => (
@@ -1170,20 +1026,39 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[10px] font-mono">
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
-                            ✓ Min CGPA: {job.minCgpa} (Candidate: {candidateProfile.cgpa})
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/40 text-purple-300">
-                            ✓ Backlogs: {job.maxBacklogsAllowed} Max Allowed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/40 text-amber-300">
-                            📅 Deadline: {job.applicationDeadline}
-                          </span>
+                        {/* Phase 2: Explainable Match Explanation & Fairness Score */}
+                        <div className="mt-3 p-3 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-1 text-xs font-mono">
+                          <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-cyan-300 font-bold flex items-center gap-1">
+                              <span>🤖</span> Explainable AI Match: {job.matchScore}%
+                            </span>
+                            <span className="text-emerald-400 font-bold">
+                              Fairness Index: {job.fairnessConfidence}% (Zero Demographic Bias)
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                            {job.aiMatchExplanation}
+                          </p>
+                          <div className="flex flex-wrap gap-2 pt-1 text-[10px]">
+                            <span className="text-emerald-400">Verified Evidence: {job.matched.join(', ')}</span>
+                            {job.missing.length > 0 && (
+                              <span className="text-rose-400">Missing Evidence: {job.missing.join(', ')}</span>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                          <span className="text-slate-500 font-mono">👥 {job.applicants} applicants • {job.vacancies} vacancies</span>
+                          <button
+                            onClick={() => {
+                              cyberAudio.playLaser();
+                              setSelectedJobAudit(job);
+                              setShowFairAuditModal(true);
+                            }}
+                            className="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-cyan-300 hover:text-white font-mono text-[10px] flex items-center gap-1 transition"
+                          >
+                            <span>⚖️</span> Inspect Match Breakdown & Appeal
+                          </button>
+
                           <button
                             onClick={() => handleApplyJob(job.id)}
                             disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
@@ -1203,7 +1078,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Right Column: Candidate Profile & Persistent Document Records */}
+              {/* Right Column: Candidate Profile & Skill Passport Summary */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1227,53 +1102,37 @@ export default function CampusNexPlatform() {
                       <span className="text-white truncate max-w-[170px] text-right font-semibold">{candidateProfile.institution}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">CGPA & BACKLOGS:</span>
-                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} CGPA • {candidateProfile.backlogs} Backlogs</span>
+                      <span className="text-slate-500">CGPA:</span>
+                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} (0 Backlogs)</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">TARGET ROLE:</span>
-                      <span className="text-emerald-300 font-semibold truncate max-w-[160px] text-right">{candidateProfile.preferredRole}</span>
+                      <span className="text-slate-500">SKILL PASSPORT:</span>
+                      <span className="text-cyan-300 font-bold">{skillPassport.length} Verified Credentials</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">STORAGE STATUS:</span>
-                      <span className="text-cyan-300 font-bold">localStorage: Active</span>
+                      <span className="text-slate-500">CONSENSUS POE:</span>
+                      <span className="text-purple-300 font-bold">{candidateProfile.poeHash}</span>
                     </div>
                   </div>
-
-                  <button
-                    onClick={() => setIsEditProfileOpen(true)}
-                    className="w-full mt-3 py-2 bg-gradient-to-r from-cyan-900/50 to-indigo-900/50 hover:from-cyan-800/60 hover:to-indigo-800/60 border border-cyan-500/50 text-cyan-200 text-xs font-mono rounded-xl transition"
-                  >
-                    ✏️ Edit Profile (Persistent)
-                  </button>
                 </div>
 
-                {/* Pre-Joining Document Vault */}
+                {/* Candidate Appeals Status Box */}
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5 font-mono text-xs">
                   <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                    <span className="font-bold text-white text-[11px]">Stage 11 Pre-Joining Documents</span>
-                    <span className="text-emerald-400 text-[9px]">4/4 APPROVED</span>
+                    <span className="font-bold text-white text-[11px]">AI Review Appeals & Correction Requests</span>
+                    <span className="text-amber-400 text-[9px]">{appealsList.length} LOGGED</span>
                   </div>
-                  {preJoiningDocs.map(doc => (
-                    <div key={doc.id} className="p-2 bg-[#0e162e] rounded-xl border border-slate-800 flex justify-between items-center text-[10px]">
-                      <div>
-                        <div className="font-bold text-white">{doc.name}</div>
-                        <div className="text-[9px] text-slate-500">{doc.verifiedHash}</div>
+                  {appealsList.map(app => (
+                    <div key={app.id} className="p-2 bg-[#0e162e] rounded-xl border border-slate-800 space-y-1 text-[10px]">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-white">{app.jobTitle}</span>
+                        <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[9px] font-bold">
+                          {app.status}
+                        </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-bold">
-                        ✓ {doc.status}
-                      </span>
+                      <p className="text-slate-400 text-[9px] font-sans">{app.reason}</p>
                     </div>
                   ))}
-                </div>
-
-                {/* Biometric Oscillation Canvas */}
-                <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
-                    <span className="text-emerald-400 font-bold">{candidateProfile.eusiScore} CALM</span>
-                  </div>
-                  <BiometricPulseCanvas />
                 </div>
               </div>
             </div>
@@ -1286,58 +1145,65 @@ export default function CampusNexPlatform() {
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Recruiter Drive Management & Candidate Sourcing</h2>
+                  <h2 className="text-xl font-bold text-white">AI Talent Intelligence & Candidate Evidence Filtering</h2>
                   <p className="text-xs text-slate-400">
-                    Create institutional hiring drives, screen eligible candidate pools, and issue persistent appointment offers.
+                    Filter candidate recommendations using verified evidence, inspect missing competencies, and review appeal submissions.
                   </p>
                 </div>
-                <button
-                  onClick={() => setIsPostModalOpen(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition"
-                >
-                  + Create New Campus Drive
-                </button>
-              </div>
-
-              {/* Recruiter Active Drives Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-                <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-800/50 space-y-1">
-                  <span className="text-slate-400 text-[10px]">ACTIVE HIRING DRIVES</span>
-                  <div className="text-2xl font-black text-white">{jobs.length} Drives</div>
-                  <span className="text-cyan-300">Targeting 3 Colleges</span>
-                </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-emerald-800/50 space-y-1">
-                  <span className="text-slate-400 text-[10px]">ELIGIBLE CANDIDATE POOL</span>
-                  <div className="text-2xl font-black text-emerald-400">154 Students</div>
-                  <span className="text-emerald-300">CGPA &gt;= 8.0 & 0 Backlogs</span>
-                </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-purple-800/50 space-y-1">
-                  <span className="text-slate-400 text-[10px]">OFFERS CONVERTED TO JOINING</span>
-                  <div className="text-2xl font-black text-purple-300">46 / 48 Joined</div>
-                  <span className="text-purple-400">95.8% Conversion Ratio</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setHumanReviewOverrideActive(!humanReviewOverrideActive);
+                      cyberAudio.playLaser();
+                    }}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition ${
+                      humanReviewOverrideActive
+                        ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-lg'
+                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {humanReviewOverrideActive ? '✓ Human Override: Active' : 'Enable Human Review Override'}
+                  </button>
                 </div>
               </div>
 
-              {/* Recruiter Live Postings Table */}
-              <div className="space-y-3">
-                <h3 className="font-bold text-white text-sm">Active Placement Drives Roster</h3>
-                <div className="space-y-2">
-                  {jobs.map(j => (
-                    <div key={j.id} className="p-3.5 bg-[#0e162e] border border-slate-800 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-mono">
-                      <div>
-                        <div className="font-bold text-white">{j.title} • {j.company}</div>
-                        <div className="text-[10px] text-slate-400">{j.salary} • {j.vacancies} Vacancies • Min CGPA: {j.minCgpa}</div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-[10px]">
-                          [{j.dataSource}]
-                        </span>
-                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[10px] font-bold">
-                          {j.applicants} Applicants
-                        </span>
-                      </div>
+              {/* Recruiter Verified Candidate Evidence Pool */}
+              <div className="p-4 bg-[#08122c] border border-cyan-800/50 rounded-2xl space-y-2 font-mono text-xs">
+                <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
+                  <span className="font-bold text-white">Verified Candidate Talent Evidence Roster</span>
+                  <span className="text-cyan-400 text-[10px]">EVIDENCE-BACKED SHORTLISTING</span>
+                </div>
+                <div className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <div className="font-bold text-white text-sm">Verified Candidate (#APEX-01) • DCET Hyderabad</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">
+                      Matched: React, Node.js, Raft Concurrency, Redis, PostgreSQL • CGPA: 8.85
                     </div>
-                  ))}
+                    <div className="text-[10px] text-emerald-300 mt-0.5">
+                      Proof-of-Execution Hash: #0x8942-APEX (Top 0.8% Cleared)
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        cyberAudio.playLaser();
+                        setSelectedJobAudit(jobs[0]);
+                        setShowFairAuditModal(true);
+                      }}
+                      className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] font-bold border border-cyan-800"
+                    >
+                      Audit Match Report
+                    </button>
+                    <button
+                      onClick={() => {
+                        cyberAudio.playBlip();
+                        alert("Offer letter dispatched directly to candidate dashboard via consensus ledger!");
+                      }}
+                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold"
+                    >
+                      Authorize Offer
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1348,33 +1214,26 @@ export default function CampusNexPlatform() {
           {/* ================================================================ */}
           {activePortal === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white">Institutional Placement Cell & Department Batches</h2>
-                  <p className="text-xs text-slate-400">
-                    Govern student eligibility rulebooks, monitor department placement funnels, and certify actual joinings.
-                  </p>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono text-[10px]">
-                  TPO REPOSITORY: DCET HYDERABAD
-                </span>
+              <div className="border-b border-slate-800 pb-4">
+                <h2 className="text-xl font-bold text-white">Institutional Skill Passport Verification Authority</h2>
+                <p className="text-xs text-slate-400">
+                  Verify academic evidence submitted by students before external recruiter synchronization.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">TOTAL REGISTERED STUDENTS</span>
-                  <div className="text-2xl font-black text-white">620 Students</div>
-                  <span className="text-cyan-300">Class of 2026 Batch</span>
+              <div className="p-4 bg-[#08122c] border border-cyan-800/50 rounded-2xl font-mono text-xs space-y-3">
+                <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
+                  <span className="font-bold text-white">Pending Student Credentials for Institutional Signing</span>
+                  <span className="text-emerald-400 text-[10px]">TPO CONSENSUS NODE</span>
                 </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">ELIGIBLE FOR SUPER DREAM</span>
-                  <div className="text-2xl font-black text-emerald-400">148 Students</div>
-                  <span className="text-emerald-300">CGPA &gt; 8.0 & 0 Backlogs</span>
-                </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">AVERAGE SALARY PACKAGE</span>
-                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA CTC</div>
-                  <span className="text-purple-400">Highest: ₹24.0 LPA</span>
+                <div className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-white">PostgreSQL Advanced B-Tree Indexing Project</div>
+                    <div className="text-[10px] text-slate-400">Submitted by: Candidate #APEX-01 (CSE) • Explanatory Benchmarks Attached</div>
+                  </div>
+                  <span className="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 text-[10px] font-bold">
+                    ✓ Institutional Stamp Signed
+                  </span>
                 </div>
               </div>
             </div>
@@ -1386,18 +1245,18 @@ export default function CampusNexPlatform() {
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Platform Administration & Security Vault</h2>
+                <h2 className="text-xl font-bold text-white">Platform Administration & Fair AI Audit Logs</h2>
                 <p className="text-xs text-slate-400">
-                  Zero-trust security oversight, employer domain authorization, and immutable ledger integrity.
+                  Inspect algorithmic recommendation justifications, fairness confidence metrics, and appeal resolution status.
                 </p>
               </div>
 
               <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl font-mono text-xs space-y-2">
                 <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Immutable Ledger Audit Stream</span>
-                  <span className="text-emerald-400 text-[10px]">SHA-256 CONSENSUS VALIDATED</span>
+                  <span className="font-bold text-white">Fairness & Model Versioning Ledger</span>
+                  <span className="text-emerald-400 text-[10px]">ZERO BIAS AUDITED</span>
                 </div>
-                <div className="space-y-1 max-h-40 overflow-y-auto text-[11px] text-slate-300">
+                <div className="space-y-1.5 max-h-40 overflow-y-auto text-[11px] text-slate-300">
                   {terminalLogs.map((log, idx) => (
                     <div key={idx} className="text-slate-400">{log}</div>
                   ))}
@@ -1407,181 +1266,108 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* MODAL: POST DRIVE MODAL (PERSISTENT RECRUITER FORM) */}
-        {isPostModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl animate-in zoom-in-95">
+        {/* ==================================================================== */}
+        {/* PHASE 2 MODAL: FAIR HIRING & AI AUDIT CENTER */}
+        {/* ==================================================================== */}
+        {showFairAuditModal && selectedJobAudit && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
-                onClick={() => setIsPostModalOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-              <h3 className="text-base font-bold text-white mb-3">🚀 Create New Campus Recruitment Drive</h3>
-              <form onSubmit={handlePostDrive} className="space-y-3 font-mono">
-                <div>
-                  <label className="text-slate-300 block mb-1">Job Role Title *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Distributed Core Systems Architect"
-                    value={newDriveTitle}
-                    onChange={e => setNewDriveTitle(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Company Entity *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Google Cloud India"
-                    value={newDriveCompany}
-                    onChange={e => setNewDriveCompany(e.target.value)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Annual CTC *</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. ₹20 - ₹28 LPA"
-                      value={newDriveSalary}
-                      onChange={e => setNewDriveSalary(e.target.value)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Min CGPA</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={newDriveMinCgpa}
-                      onChange={e => setNewDriveMinCgpa(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                </div>
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsPostModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
-                  >
-                    Publish & Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: EDIT CANDIDATE PROFILE (PERSISTENT STUDENT FORM) */}
-        {isEditProfileOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl animate-in zoom-in-95 font-mono">
-              <button
-                onClick={() => setIsEditProfileOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-              <h3 className="text-base font-bold text-white mb-1">✏️ Edit Candidate Profile</h3>
-              <p className="text-[10px] text-slate-400 mb-3 font-sans">
-                Updates persist immediately to browser local storage across refreshes.
-              </p>
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  setIsEditProfileOpen(false);
-                  cyberAudio.playLaser();
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowFairAuditModal(false);
                 }}
-                className="space-y-3"
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">⚖️</span>
                 <div>
-                  <label className="text-slate-300 block mb-1">Candidate Identifier *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.name}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, name: e.target.value })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2 text-white"
-                  />
+                  <h3 className="text-base font-bold text-white">Fair Hiring & AI Decision Audit Center</h3>
+                  <p className="text-[11px] text-cyan-300 font-mono">Model: Neural-v5.2-FairRecruit • Transparent Scoring & Appeals</p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Academic CGPA *</label>
+              </div>
+
+              <div className="space-y-3 font-mono text-[11px] mt-3">
+                {/* Decision Breakdown */}
+                <div className="p-3 bg-[#08122c] border border-slate-800 rounded-xl space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-white font-bold">{selectedJobAudit.title}</span>
+                    <span className="text-emerald-400 font-bold">{selectedJobAudit.matchScore}% Match Score</span>
+                  </div>
+                  <div className="text-slate-400 text-[10px]">
+                    Employer: {selectedJobAudit.company} • Compensation: {selectedJobAudit.salary}
+                  </div>
+                  <p className="text-slate-200 text-[11px] font-sans leading-relaxed pt-1">
+                    {selectedJobAudit.aiMatchExplanation}
+                  </p>
+                </div>
+
+                {/* Evidence vs Missing Breakdown */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div className="p-3 bg-[#061426] border border-emerald-900/50 rounded-xl space-y-1">
+                    <span className="text-emerald-400 font-bold block text-[10px]">VERIFIED EVIDENCE (CONSIDERED):</span>
+                    <ul className="list-disc pl-4 text-emerald-300 text-[10px] space-y-0.5">
+                      {selectedJobAudit.matched.map((m, i) => (
+                        <li key={i}>{m} (Verified via Proof-of-Execution)</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="p-3 bg-[#1a0a1c] border border-rose-900/50 rounded-xl space-y-1">
+                    <span className="text-rose-400 font-bold block text-[10px]">MISSING EVIDENCE (DEDUCTIONS):</span>
+                    <ul className="list-disc pl-4 text-rose-300 text-[10px] space-y-0.5">
+                      {selectedJobAudit.missing.map((m, i) => (
+                        <li key={i}>{m} (No runtime repo artifacts logged)</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Fairness & Legal Safeguard Statement */}
+                <div className="p-3 bg-[#0a1538] border border-indigo-900/50 rounded-xl space-y-1 font-sans">
+                  <span className="text-purple-300 font-bold text-xs block font-mono">
+                    🛡️ Algorithmic Fairness Guarantee (DPDPA & GDPR Compliant):
+                  </span>
+                  <p className="text-slate-300 text-[10px] leading-relaxed">
+                    Personal characteristics (gender, college tier, religion, geographic origin) are 100% masked from scoring matrices. Recommendations are derived strictly from verifiable skill tokens and runtime benchmarks. Final hiring authority remains with authorized human recruiters.
+                  </p>
+                </div>
+
+                {/* Candidate Appeal Mechanism */}
+                <form onSubmit={handleAddAppeal} className="p-3 bg-[#070e24] border border-slate-800 rounded-xl space-y-2">
+                  <span className="font-bold text-white text-[11px] block">
+                    Submit Candidate Appeal or Evidence Correction:
+                  </span>
+                  <div className="flex gap-2">
                     <input
                       type="text"
                       required
-                      value={candidateProfile.cgpa}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, cgpa: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2 text-white"
+                      placeholder="e.g. Attached live deployment URL demonstrating Tailwind responsive UI..."
+                      value={newAppealReason}
+                      onChange={e => setNewAppealReason(e.target.value)}
+                      className="flex-1 bg-[#101b38] border border-slate-700 rounded-xl px-3 py-2 text-white text-[11px] focus:outline-none focus:border-cyan-500"
                     />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow hover:scale-105 transition"
+                    >
+                      Submit Appeal
+                    </button>
                   </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Standing Backlogs *</label>
-                    <input
-                      type="number"
-                      required
-                      value={candidateProfile.backlogs}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, backlogs: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2 text-white"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Target Professional Role *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.preferredRole}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Add Skill (Press Enter)</label>
-                  <input
-                    type="text"
-                    value={newSkillInput}
-                    onChange={e => setNewSkillInput(e.target.value)}
-                    onKeyDown={handleAddSkill}
-                    placeholder="Type skill & press Enter..."
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2 text-white mb-1.5"
-                  />
-                  <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto">
-                    {candidateProfile.skills.map((s, idx) => (
-                      <span key={idx} className="bg-cyan-950 border border-cyan-700 text-cyan-300 text-[9px] px-2 py-0.5 rounded flex items-center gap-1">
-                        {s}
-                        <button type="button" onClick={() => handleRemoveSkill(s)} className="text-rose-400">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditProfileOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold"
-                  >
-                    Save & Persist
-                  </button>
-                </div>
-              </form>
+                </form>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setShowFairAuditModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
+                >
+                  Close Audit Center
+                </button>
+              </div>
             </div>
           </div>
         )}
