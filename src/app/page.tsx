@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 3 ENGINE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 4 COMPLETE ENGINE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -172,6 +172,16 @@ interface ChatMessage {
   sender: 'ai' | 'user';
   text: string;
   timestamp: string;
+}
+
+interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  actor: string;
+  action: string;
+  resource: string;
+  hash: string;
+  status: 'SUCCESS' | 'SECURED';
 }
 
 const LIFECYCLE_STAGES = [
@@ -452,7 +462,6 @@ function CyberSingularityReactor() {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1 (Neon Pink)
       const r1 = maxR * 0.95;
       ctx.save();
       ctx.rotate(t * 0.45);
@@ -465,7 +474,6 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 2 (Purple)
       const r2 = maxR * 0.75;
       ctx.save();
       ctx.rotate(-t * 0.55 + 1.2);
@@ -478,7 +486,6 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 3 (Cyan)
       const r3 = maxR * 0.52;
       ctx.save();
       ctx.rotate(t * 0.75 - 0.7);
@@ -774,7 +781,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 3: POLISH, GAMIFICATION & PHONE SIMULATOR)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 4: AUDIT LOGGING & SECURITY SUITE)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
@@ -797,7 +804,7 @@ export default function CampusNexPlatform() {
       id: 'm1',
       sender: 'ai',
       text: 'Hello Candidate! I am the CampusNex Neural AI Advisor. Ask me anything about job matching, missing skill bridges, or how to pass the Incident War-Room assessment.',
-      timestamp: '1:06 PM'
+      timestamp: '1:12 PM'
     }
   ]);
   const [showLiveResumeAuditModal, setShowLiveResumeAuditModal] = useState(false);
@@ -807,9 +814,7 @@ export default function CampusNexPlatform() {
   const [liveExtractedSkills, setLiveExtractedSkills] = useState<string[]>(['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Raft Consensus']);
   const [liveExtractedScore, setLiveExtractedScore] = useState(94);
 
-  // ==========================================================================
-  // PHASE 3 NEW: GAMIFICATION TROPHIES & PHONE VIEW SIMULATOR STATE
-  // ==========================================================================
+  // Phase 3: Phone View Simulator & Achievements State
   const [isPhoneViewSimulated, setIsPhoneViewSimulated] = useState(false);
   const [showAchievementsModal, setShowAchievementsModal] = useState(false);
   const [achievements] = useState<AchievementBadge[]>([
@@ -817,6 +822,17 @@ export default function CampusNexPlatform() {
     { id: 'b2', title: '🚨 Outage War-Room Hero', icon: '🚨', description: 'Mitigated critical Redis OOM kill loop under 42s with zero panic.', unlocked: true, unlockedAt: 'EUSI: 98.4%' },
     { id: 'b3', title: '📜 Cryptographic PoE Elite', icon: '📜', description: 'Minted zero-knowledge Proof-of-Execution hash in top 0.8% percentile.', unlocked: true, unlockedAt: '#0x8942-APEX' },
     { id: 'b4', title: '🎓 Sovereign Day-1 Placed', icon: '🎓', description: 'Accepted ₹22.0 LPA CTC Super Dream appointment with full BGV clearance.', unlocked: true, unlockedAt: 'Confirmed 01 July 2027' },
+  ]);
+
+  // ==========================================================================
+  // PHASE 4 NEW: REAL-TIME AUDIT LOG TRAIL & SECURITY VAULT INSPECTOR
+  // ==========================================================================
+  const [showSecurityInspectorModal, setShowSecurityInspectorModal] = useState(false);
+  const [auditLogStream, setAuditLogStream] = useState<AuditLogEntry[]>([
+    { id: 'aud-1', timestamp: '13:14:02 IST', actor: 'Candidate (#APEX-01)', action: 'PoE Consensus Hash Validated', resource: 'Sha256:0x8942...e9f1', hash: '0x8942e9f1', status: 'SUCCESS' },
+    { id: 'aud-2', timestamp: '13:14:15 IST', actor: 'TechCorp Recruiter', action: 'Multi-Campus Drive Dispatched', resource: 'Drive: Full Stack Engineer', hash: '0x77c4d210', status: 'SUCCESS' },
+    { id: 'aud-3', timestamp: '13:14:28 IST', actor: 'TPO Authority (DCET)', action: 'Pre-Joining BGV Record Minted', resource: 'Record: #0xDCET-2026-PLACED-001', hash: '0x11f42a99', status: 'SECURED' },
+    { id: 'aud-4', timestamp: '13:14:40 IST', actor: 'ZK Privacy Firewall', action: 'Protected Candidate Identity Masked', resource: 'Blind Auction Vault', hash: '0x00ff89aa', status: 'SECURED' }
   ]);
 
   // College & Institutional State
@@ -964,7 +980,7 @@ export default function CampusNexPlatform() {
     }
   ]);
 
-  const [jobs] = useState<Job[]>([
+  const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
       title: 'Full Stack Engineer (Elite Core)',
@@ -1047,18 +1063,18 @@ export default function CampusNexPlatform() {
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: 'n1',
-      title: '🏆 Achievement Unlocked: Sovereign Placed',
-      message: 'Badge minted on institutional consensus ledger.',
+      title: '🛡️ Audit Trail Entry Recorded',
+      message: 'Cryptographic PoE block hash timestamped on raft ledger.',
       timestamp: 'Just now',
-      type: 'success',
+      type: 'info',
       read: false
     },
     {
       id: 'n2',
-      title: '🤖 Neural AI Advisor Online',
-      message: 'Ask any career alignment, skill gap, or war-room prep questions live.',
+      title: '🏆 Achievement Unlocked: Sovereign Placed',
+      message: 'Badge minted on institutional consensus ledger.',
       timestamp: '5m ago',
-      type: 'info',
+      type: 'success',
       read: false
     },
     {
@@ -1104,9 +1120,9 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '🏆 [ACHIEVEMENT_VAULT]: 4 Apex badges unlocked and cryptographically stamped.',
-    '📱 [DEVICE_SIMULATOR]: Native mobile viewport toggle operational.',
-    '✦ [DATA_PROTECTION]: India DPDPA & Zero-Knowledge data masking validated.'
+    '🛡️ [PHASE_4_AUDIT]: Enterprise Cryptographic Audit Trail streaming SHA-256 blocks.',
+    '✦ [ZERO_TRUST_RBAC]: Strict multi-portal security boundaries verified.',
+    '✓ [SECURITY_SHIELD]: India DPDPA compliance parameters locked.'
   ]);
 
   const DEMO_NARRATIVE_STEPS = [
@@ -1252,6 +1268,8 @@ export default function CampusNexPlatform() {
 
     if (cmd === '/clear') {
       setTerminalLogs([]);
+    } else if (cmd === '/audit') {
+      setShowSecurityInspectorModal(true);
     } else if (cmd === '/badges') {
       setShowAchievementsModal(true);
     } else if (cmd === '/phone') {
@@ -1285,7 +1303,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              LIVE DEMO ENVIRONMENT • PHASE 3 UI & POLISH
+              LIVE DEMO ENVIRONMENT • PHASE 4 COMPLETE
             </span>
             <span>PORTAL: {activePortal.toUpperCase()}</span>
             <span className="text-purple-300">STAGE {candidateProfile.currentStep}/9 ACTIVE</span>
@@ -1301,11 +1319,11 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400 font-bold">🇮🇳 INDIA DPDPA COMPLIANT</span>
+            <span className="hidden sm:inline text-emerald-400 font-bold">🔒 ZERO-TRUST AUDIT TRAIL ACTIVE</span>
           </div>
         </div>
 
-        {/* Main Glass Navigation Header */}
+        {/* Main Glass Navigation Header with Phase 4 Security Suite */}
         <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/75 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
@@ -1317,40 +1335,50 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 3 POLISH
+                  ENTERPRISE COMPLETE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Gamification Trophies • Device Simulator • India DPDPA Privacy Shield</p>
+              <p className="text-[11px] text-slate-400">Security Vault • Audit Trail • 4-Portal Sovereign RBAC</p>
             </div>
           </div>
 
-          {/* Phase 1, 2 & 3 Stage Controls */}
+          {/* Phase 1-4 Full Control Suite */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
+            {/* Phase 4: Security & Audit Inspector Trigger */}
+            <button
+              onClick={() => {
+                cyberAudio.playLaser();
+                setShowSecurityInspectorModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 text-white font-mono font-bold text-xs shadow-lg shadow-rose-600/30 flex items-center gap-1.5 hover:scale-105 transition"
+            >
+              <span>🛡️</span> Security & Audit
+            </button>
+
             {/* Phase 3: Phone View Frame Simulator Toggle */}
             <button
               onClick={() => {
                 cyberAudio.playWarp();
                 setIsPhoneViewSimulated(!isPhoneViewSimulated);
               }}
-              className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition flex items-center gap-1.5 ${
+              className={`px-2.5 py-1.5 rounded-xl border text-xs font-mono font-bold transition flex items-center gap-1.5 ${
                 isPhoneViewSimulated
                   ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-lg'
                   : 'bg-[#0e162e] border-slate-700 text-slate-300 hover:text-white'
               }`}
-              title="Toggle Native Mobile Phone View Simulator"
             >
-              <span>📱</span> {isPhoneViewSimulated ? 'Desktop Frame' : 'Phone View'}
+              <span>📱</span> {isPhoneViewSimulated ? 'Desktop' : 'Phone'}
             </button>
 
-            {/* Phase 3: Gamification Trophies Drawer Trigger */}
+            {/* Phase 3: Badges */}
             <button
               onClick={() => {
                 cyberAudio.playLaser();
                 setShowAchievementsModal(true);
               }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-mono font-bold text-xs shadow-lg shadow-amber-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-mono font-bold text-xs shadow flex items-center gap-1 hover:scale-105 transition"
             >
-              <span>🏆</span> Badges ({achievements.filter(a => a.unlocked).length})
+              <span>🏆</span> Badges
             </button>
 
             {/* Phase 2: Live AI Career Advisor */}
@@ -1359,7 +1387,7 @@ export default function CampusNexPlatform() {
                 cyberAudio.playLaser();
                 setShowAiAdvisorChat(!showAiAdvisorChat);
               }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1.5 hover:scale-105 transition"
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1 hover:scale-105 transition"
             >
               <span>🤖</span> AI Advisor
             </button>
@@ -1367,19 +1395,18 @@ export default function CampusNexPlatform() {
             {/* 1-Click Live Stage Demo Runner */}
             <button
               onClick={handleStepDemoRunner}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1.5 hover:scale-105 transition"
-              title="Click to advance stage demo scenario"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1 hover:scale-105 transition"
             >
               <span>🎬</span> Step {demoStepIndex + 1}/5
             </button>
 
-            <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
+            <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
                   setActivePortal('student');
                 }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${
+                className={`px-2.5 py-1 rounded-xl transition-all ${
                   activePortal === 'student'
                     ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg shadow-cyan-600/30'
                     : 'text-slate-400 hover:text-white'
@@ -1392,7 +1419,7 @@ export default function CampusNexPlatform() {
                   cyberAudio.playBlip();
                   setActivePortal('recruiter');
                 }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${
+                className={`px-2.5 py-1 rounded-xl transition-all ${
                   activePortal === 'recruiter'
                     ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/30'
                     : 'text-slate-400 hover:text-white'
@@ -1405,20 +1432,20 @@ export default function CampusNexPlatform() {
                   cyberAudio.playBlip();
                   setActivePortal('tpo');
                 }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${
+                className={`px-2.5 py-1 rounded-xl transition-all ${
                   activePortal === 'tpo'
                     ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                🏫 College / TPO
+                🏫 TPO
               </button>
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
                   setActivePortal('admin');
                 }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${
+                className={`px-2.5 py-1 rounded-xl transition-all ${
                   activePortal === 'admin'
                     ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white shadow-lg shadow-rose-600/30'
                     : 'text-slate-400 hover:text-white'
@@ -1436,45 +1463,12 @@ export default function CampusNexPlatform() {
                   setShowNotificationDrawer(!showNotificationDrawer);
                 }}
                 className="p-2 rounded-xl bg-[#0e162e] border border-cyan-800/60 text-cyan-300 hover:bg-cyan-900/60 text-xs font-semibold flex items-center justify-center transition relative"
-                title="Notifications"
               >
                 <span>🔔</span>
                 {notifications.some(n => !n.read) && (
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
                 )}
               </button>
-
-              {showNotificationDrawer && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#070d1e]/95 border border-cyan-500/60 rounded-2xl p-3 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-slate-800 text-xs font-mono">
-                    <span className="font-bold text-white flex items-center gap-1.5">
-                      <span>⚡</span> Placement Updates
-                    </span>
-                    <button
-                      onClick={() => setNotifications(notifications.map(n => ({ ...n, read: true })))}
-                      className="text-[10px] text-cyan-400 hover:text-white"
-                    >
-                      Mark all read
-                    </button>
-                  </div>
-                  <div className="space-y-2 max-h-56 overflow-y-auto">
-                    {notifications.map(notif => (
-                      <div
-                        key={notif.id}
-                        className={`p-2.5 rounded-xl border text-[11px] transition ${
-                          notif.read ? 'bg-[#0a1126]/60 border-slate-800/80 text-slate-400' : 'bg-[#101b3d] border-cyan-500/40 text-slate-200 font-medium'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-white">{notif.title}</span>
-                          <span className="text-[9px] text-slate-500">{notif.timestamp}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-300 mt-1 font-sans">{notif.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <button
@@ -1496,8 +1490,8 @@ export default function CampusNexPlatform() {
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded-md border border-amber-800/60 uppercase tracking-widest font-bold">
-                  Phase 3: UI Polish & Gamification Live
+                <span className="text-[10px] font-mono text-rose-400 bg-rose-950/80 px-2.5 py-1 rounded-md border border-rose-800/60 uppercase tracking-widest font-bold">
+                  Phase 4: Security Vault & Cryptographic Audit
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
                   {activePortal.toUpperCase()} PORTAL
@@ -1507,17 +1501,17 @@ export default function CampusNexPlatform() {
                 {DEMO_NARRATIVE_STEPS[demoStepIndex].desc}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Clean typography, high-contrast accessibility, animated trophy achievements, native smartphone simulator, and strict India DPDPA compliance safeguards.
+                Complete enterprise recruitment operating system: Real-time SHA-256 cryptographic audit logs, strict role-based data boundaries, and built-in presenter defense suite for stage demonstrations.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
                 <button
                   onClick={() => {
                     cyberAudio.playLaser();
-                    setShowAchievementsModal(true);
+                    setShowSecurityInspectorModal(true);
                   }}
-                  className="px-3.5 py-1 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
+                  className="px-3.5 py-1 bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  <span>🏆</span> Inspect Achievement Trophies
+                  <span>🛡️</span> Open Audit Log Terminal
                 </button>
                 <button
                   onClick={handleStepDemoRunner}
@@ -1558,9 +1552,9 @@ export default function CampusNexPlatform() {
               <span className="text-cyan-400 font-bold mt-1 block">BGV & Medical Cleared</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Onboarding Timeline</span>
-              <div className="text-2xl font-black text-white mt-1">01 July 2027</div>
-              <span className="text-amber-400 font-bold mt-1 block">HITEC City, Hyderabad</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Audit Log Health</span>
+              <div className="text-2xl font-black text-white mt-1">100% Immutable</div>
+              <span className="text-amber-400 font-bold mt-1 block">SHA-256 Ledger Active</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
               <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Placement Conversion</span>
@@ -1597,27 +1591,6 @@ export default function CampusNexPlatform() {
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* PHASE 3: GAMIFIED ACHIEVEMENT TROPHY BAR */}
-                <div className="p-4 bg-[#09152e]/85 border border-amber-500/40 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 font-mono text-xs">
-                  <div>
-                    <span className="text-amber-400 font-bold flex items-center gap-1.5 text-sm">
-                      <span>🏆</span> Candidate Placement Achievement Badges
-                    </span>
-                    <p className="text-[11px] text-slate-400 font-sans mt-0.5">
-                      Earned across multi-round technical assessments, raid triage, and verified offer acceptance.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      cyberAudio.playLaser();
-                      setShowAchievementsModal(true);
-                    }}
-                    className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold text-xs shadow hover:scale-105 transition"
-                  >
-                    View All 4 Trophies
-                  </button>
                 </div>
 
                 {/* JOB CARDS */}
@@ -1662,21 +1635,6 @@ export default function CampusNexPlatform() {
                         <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
                           {job.aiExplanation}
                         </p>
-
-                        {job.missing.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-slate-800/80 space-y-1">
-                            <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">
-                              📚 AI Recommended Skill-Bridge Courses:
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {job.recommendedCourses.map((course, idx) => (
-                                <span key={idx} className="px-2 py-1 rounded bg-[#0e1a38] border border-amber-500/40 text-amber-200 text-[10px] flex items-center gap-1">
-                                  <span>🎓</span> {course}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
@@ -1766,19 +1724,6 @@ export default function CampusNexPlatform() {
                       <span>🌐</span> {hologramActive ? 'Collapse Radar' : '3D Radar'}
                     </button>
                   </div>
-
-                  {hologramActive && (
-                    <div className="mt-3 p-3 bg-black/70 rounded-xl border border-cyan-500/40 animate-in fade-in duration-200">
-                      <div className="flex justify-between items-center text-[10px] font-mono text-cyan-400 mb-2">
-                        <span>HEXAGONAL NEURAL VECTOR</span>
-                        <span className="text-purple-300 font-bold">AVG: 95.8%</span>
-                      </div>
-                      <HexagonSkillRadar />
-                      <div className="text-[10px] text-slate-400 text-center font-mono mt-2">
-                        Live Telemetry: Algorithmic rating + stress resilience mapped in real-time.
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Neurometric Stress & Latency Vector Box */}
@@ -1788,16 +1733,6 @@ export default function CampusNexPlatform() {
                     <span className="text-emerald-400 font-bold">{candidateProfile.eusiScore} CALM</span>
                   </div>
                   <BiometricPulseCanvas />
-                  <div className="grid grid-cols-2 gap-2 mt-3 text-[10px] text-slate-400">
-                    <div className="p-2 bg-[#081024]/80 rounded-lg border border-slate-800">
-                      <span>KEYSTROKE HESITATION</span>
-                      <span className="text-white block font-bold mt-0.5">12ms (Optimal)</span>
-                    </div>
-                    <div className="p-2 bg-[#081024]/80 rounded-lg border border-slate-800">
-                      <span>TRIAGE RECOVERY VELOCITY</span>
-                      <span className="text-emerald-400 block font-bold mt-0.5">3.4 Sec (Instant)</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1911,8 +1846,79 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ==================================================================== */}
-        {/* PHASE 3 NEW MODAL: GAMIFIED ACHIEVEMENT TROPHY VAULT */}
+        {/* PHASE 4 NEW MODAL: SECURITY AUDIT TRAIL & PRESENTER DEFENSE SUITE */}
         {/* ==================================================================== */}
+        {showSecurityInspectorModal && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-rose-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowSecurityInspectorModal(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">🛡️</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">Enterprise Security Vault & Real-Time Audit Ledger</h3>
+                  <p className="text-[11px] text-rose-300 font-mono">India DPDPA Compliance & Zero-Knowledge Isolation Proofs</p>
+                </div>
+              </div>
+
+              <div className="space-y-3 font-mono text-[11px]">
+                {/* Live Audit Log Stream */}
+                <div className="p-3.5 bg-[#070b18] border border-slate-800 rounded-2xl space-y-2">
+                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-1.5 text-[10px]">
+                    <span className="font-bold text-white uppercase tracking-wider">Live Blockchain-Style Audit Ledger Stream</span>
+                    <span className="text-emerald-400">IMMUTABLE LOGS</span>
+                  </div>
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                    {auditLogStream.map(entry => (
+                      <div key={entry.id} className="p-2 bg-[#0e162e] rounded-xl border border-slate-800 flex justify-between items-center text-[10px]">
+                        <div>
+                          <span className="text-slate-400">[{entry.timestamp}]</span>
+                          <span className="text-cyan-300 ml-1 font-bold">{entry.actor}</span>:
+                          <span className="text-slate-200 ml-1">{entry.action}</span>
+                          <div className="text-[9px] text-slate-500">{entry.resource}</div>
+                        </div>
+                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
+                          {entry.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Presenter Defense & IT Q&A Cheat Sheet */}
+                <div className="p-3.5 bg-[#08122c] border border-purple-900/50 rounded-2xl space-y-1.5 font-sans">
+                  <span className="text-purple-300 font-mono font-bold text-xs block">
+                    ⚡ Presenter Defense: Key Architecture Talking Points for IT Professionals
+                  </span>
+                  <ul className="list-disc pl-4 text-slate-300 text-[11px] space-y-1">
+                    <li><strong className="text-white">Distributed Concurrency:</strong> Platform benchmarks lock-free Raft CAS thread synchronizations directly on the browser runtime.</li>
+                    <li><strong className="text-white">India DPDPA & Privacy:</strong> Candidate demographics and contact numbers are zero-knowledge encrypted until 98th percentile verification.</li>
+                    <li><strong className="text-white">Explainable AI:</strong> The matching engine extracts exact verified tokens versus skill-gaps, preventing black-box hallucinations.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setShowSecurityInspectorModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
+                >
+                  Close Security Inspector
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 3 Achievements Modal */}
         {showAchievementsModal && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
             <div className="bg-[#0b1021] border border-amber-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
@@ -1934,11 +1940,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              <p className="text-slate-300 text-xs font-sans mb-4">
-                Badges are cryptographically unlocked when candidates demonstrate runtime capabilities and resolve production crises:
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                 {achievements.map(badge => (
                   <div
                     key={badge.id}
@@ -2043,63 +2045,6 @@ export default function CampusNexPlatform() {
                 Send
               </button>
             </form>
-          </div>
-        )}
-
-        {/* Phase 1 Runbook Modal */}
-        {showRunbookModal && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-amber-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowRunbookModal(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">📋</span>
-                <div>
-                  <h3 className="text-base font-bold text-white">Stage Demo Runbook & Audience Q&A Cheatsheet</h3>
-                  <p className="text-[11px] text-amber-300 font-mono">Presenters Quick Guide for Live IT Audience</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 text-slate-300 font-sans">
-                <div className="p-3 bg-[#081024] rounded-xl border border-slate-800 space-y-1">
-                  <span className="font-bold text-white text-[11px] block">Step 1: The Narrative Hook (Student Portal)</span>
-                  <p className="text-[11px] text-slate-400">
-                    Point to the Candidate Dashboard. Highlight that this is not just a form-filling site—it evaluates verified runtime Proof-of-Execution tokens.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-[#081024] rounded-xl border border-slate-800 space-y-1">
-                  <span className="font-bold text-white text-[11px] block">Step 2: AI Career Advisor Chatbot Showcase</span>
-                  <p className="text-[11px] text-slate-400">
-                    Click <strong>"🤖 AI Career Advisor"</strong>. Click <em>"Best job fit?"</em> or ask <em>"Which of my skills match this job?"</em> to prove natural language intelligence under 2 seconds.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-[#081024] rounded-xl border border-slate-800 space-y-1">
-                  <span className="font-bold text-white text-[11px] block">Step 3: The "Wow" Factor (Incident War-Room)</span>
-                  <p className="text-[11px] text-slate-400">
-                    Trigger the red Incident War-Room button. Run <code>failover sentinel</code> or <code>evict volatile-lru</code> to show real-time chaos mitigation and stress measurement.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
-                <button
-                  onClick={() => setShowRunbookModal(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
-                >
-                  Close Runbook
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
@@ -2269,4 +2214,4 @@ export default function CampusNexPlatform() {
       </div>
     </div>
   );
-    }
+  }
