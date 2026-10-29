@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 2: INTELLIGENCE & SKILL PASSPORT)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 3 P2 SUITE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -63,7 +63,9 @@ interface Job {
   title: string;
   company: string;
   location: string;
-  salary: string;
+  salaryInr: string;
+  salaryUsd: string;
+  salaryJpy: string;
   skills: string[];
   matchScore: number;
   applicants: number;
@@ -82,7 +84,9 @@ interface Job {
   status: 'Open' | 'Applied' | 'Shortlisted' | 'Assessment Pending' | 'Offer Dispatched';
   dataSource: 'LIVE' | 'DEMO' | 'VERIFIED';
   aiMatchExplanation: string;
-  fairnessConfidence: number; // e.g. 99.2%
+  fairnessConfidence: number;
+  timeZoneSchedule: string;
+  visaClearanceReq: string;
 }
 
 interface CandidateProfile {
@@ -104,29 +108,24 @@ interface CandidateProfile {
   currentStageIndex: number;
 }
 
-interface PreJoiningDoc {
-  id: string;
-  name: string;
-  type: 'Academic' | 'Identity' | 'BackgroundCheck' | 'Medical';
-  status: 'Verified' | 'Pending Verification';
-  verifiedHash: string;
-}
-
-interface AppNotification {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: string;
-  type: 'alert' | 'success' | 'info';
-  read: boolean;
-}
-
 interface CandidateAppeal {
   id: string;
   jobTitle: string;
   reason: string;
   submittedAt: string;
   status: 'Under Review' | 'Resolution Approved' | 'Rejected';
+}
+
+// Phase 3: Autonomous Workflow Builder Generation Model
+interface ProposedWorkflowPlan {
+  promptInstruction: string;
+  driveTitle: string;
+  eligibilityCutoff: string;
+  stagesCount: number;
+  screeningModel: string;
+  assessmentTrack: string;
+  isApprovedByRecruiter: boolean;
+  generatedAt: string;
 }
 
 const DEFAULT_PROFILE: CandidateProfile = {
@@ -139,7 +138,7 @@ const DEFAULT_PROFILE: CandidateProfile = {
   skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis', 'Docker'],
   resumeFileName: 'Candidate_APEX01_Verified_Portfolio.pdf',
   preferredRole: 'Backend Systems & Concurrency Engineer',
-  locationPreference: 'Hyderabad / Bengaluru / Hybrid',
+  locationPreference: 'Hyderabad / Bengaluru / Tokyo Remote',
   clearance: 'Tier-1 Apex (Top 0.8%)',
   poeHash: '#0x8942-APEX',
   eusiScore: '98.4%',
@@ -152,8 +151,7 @@ const DEFAULT_PASSPORT_ITEMS: SkillPassportItem[] = [
   { id: 'sp-1', name: 'High-Concurrency Concurrency & Raft', category: 'Core', verificationTier: 'Issuer Verified', issuerOrInstitution: 'CampusNex Proof-of-Execution Engine', evidenceLink: 'https://github.com/apex-candidate-01/raft-core', verifiedAt: '24 Oct 2026' },
   { id: 'sp-2', name: 'PostgreSQL Advanced Indexing (B-Tree)', category: 'Database', verificationTier: 'Institution Verified', issuerOrInstitution: 'DCET Computer Science Dept', verifiedAt: '12 Sep 2026' },
   { id: 'sp-3', name: 'AWS Cloud Practitioner (CLF-C02)', category: 'Certification', verificationTier: 'Issuer Verified', issuerOrInstitution: 'Amazon Web Services', evidenceLink: 'Credly-ID: #0x88f21a', verifiedAt: '18 Aug 2026' },
-  { id: 'sp-4', name: 'Docker & Kubernetes Containerization', category: 'Cloud & Systems', verificationTier: 'Evidence Submitted', issuerOrInstitution: 'GitHub CI/CD Action Artifacts', evidenceLink: 'https://github.com/apex-candidate-01/k8s-manifests', verifiedAt: '02 Oct 2026' },
-  { id: 'sp-5', name: 'React & TypeScript Enterprise UI', category: 'Core', verificationTier: 'Self-Reported', issuerOrInstitution: 'Portfolio Assessment', verifiedAt: '01 Oct 2026' }
+  { id: 'sp-4', name: 'Docker & Kubernetes Containerization', category: 'Cloud & Systems', verificationTier: 'Evidence Submitted', issuerOrInstitution: 'GitHub CI/CD Action Artifacts', evidenceLink: 'https://github.com/apex-candidate-01/k8s-manifests', verifiedAt: '02 Oct 2026' }
 ];
 
 const DEFAULT_JOBS: Job[] = [
@@ -161,8 +159,10 @@ const DEFAULT_JOBS: Job[] = [
     id: '1',
     title: 'Full Stack Engineer (Elite Core)',
     company: 'TechCorp India',
-    location: 'Hyderabad / Remote',
-    salary: '₹16 - ₹24 LPA',
+    location: 'Hyderabad / Tokyo Hybrid',
+    salaryInr: '₹16 - ₹24 LPA',
+    salaryUsd: '$28,000 - $36,000 /yr',
+    salaryJpy: '¥4,200,000 - ¥5,400,000 /yr',
     skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind', 'Redis'],
     matchScore: 94,
     applicants: 12,
@@ -181,14 +181,18 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Offer Dispatched',
     dataSource: 'LIVE',
     aiMatchExplanation: 'Candidate verified in Raft CAS concurrency, Redis memory cache, and relational query plans. Zero demographic bias factored.',
-    fairnessConfidence: 99.4
+    fairnessConfidence: 99.4,
+    timeZoneSchedule: 'IST 11:30 AM / JST 03:00 PM',
+    visaClearanceReq: 'Pre-Approved Work Authorization'
   },
   {
     id: '2',
     title: 'Data Analyst & ML Associate',
     company: 'DataMetrics AI',
-    location: 'Bengaluru',
-    salary: '₹12 - ₹16 LPA',
+    location: 'Bengaluru / San Francisco Remote',
+    salaryInr: '₹12 - ₹16 LPA',
+    salaryUsd: '$22,000 - $28,000 /yr',
+    salaryJpy: '¥3,200,000 - ¥4,000,000 /yr',
     skills: ['Python', 'SQL', 'Tableau', 'Pandas', 'FastAPI'],
     matchScore: 82,
     applicants: 34,
@@ -207,14 +211,18 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Open',
     dataSource: 'DEMO',
     aiMatchExplanation: 'Relational query execution validated. Missing explicit Python pandas and Tableau visualization artifacts.',
-    fairnessConfidence: 98.8
+    fairnessConfidence: 98.8,
+    timeZoneSchedule: 'IST 07:00 PM / PST 06:30 AM',
+    visaClearanceReq: 'Remote Global Contract'
   },
   {
     id: '3',
     title: 'Backend Systems Core Architect',
     company: 'CloudScale Global',
-    location: 'Pune / Hybrid',
-    salary: '₹22 - ₹30 LPA',
+    location: 'Pune / Remote Worldwide',
+    salaryInr: '₹22 - ₹30 LPA',
+    salaryUsd: '$38,000 - $48,000 /yr',
+    salaryJpy: '¥5,800,000 - ¥7,200,000 /yr',
     skills: ['Go', 'Kubernetes', 'Microservices', 'PostgreSQL', 'gRPC'],
     matchScore: 71,
     applicants: 8,
@@ -233,7 +241,9 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Open',
     dataSource: 'DEMO',
     aiMatchExplanation: 'CGPA 8.85 exceeds threshold. Missing practical Go microservice runtime evidence.',
-    fairnessConfidence: 99.1
+    fairnessConfidence: 99.1,
+    timeZoneSchedule: 'Flexible Universal Sync',
+    visaClearanceReq: 'Global Sovereign Clearance'
   }
 ];
 
@@ -617,15 +627,78 @@ class CyberAudioEngine {
 
 const cyberAudio = new CyberAudioEngine();
 
+// Biometric Pulse Oscilloscope
+function BiometricPulseCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let step = 0;
+    const width = (canvas.width = canvas.offsetWidth);
+    const height = (canvas.height = canvas.offsetHeight);
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 15) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#22d3ee';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#06b6d4';
+
+      for (let x = 0; x < width; x++) {
+        const spike = Math.sin((x + step) * 0.05);
+        const cardiacKick = (x + step) % 120 > 50 && (x + step) % 120 < 70 ? Math.sin((x + step) * 0.3) * 22 : 0;
+        const y = height / 2 + spike * 8 + cardiacKick;
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      step += 2.5;
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-20 block rounded-xl bg-[#070e20]/80 border border-cyan-900/50 backdrop-blur-md" />;
+}
+
 // ============================================================================
-// 4. MAIN PLATFORM (PHASE 2: VERIFIED SKILL PASSPORT & FAIR AI AUDIT CENTER)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 3 P2 SUITE INTEGRATED)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Phase 1 Persistence Hook: Candidate Profile
+  // Global Currency Toggle: INR (₹) / USD ($) / JPY (¥)
+  const [activeCurrency, setActiveCurrency] = useState<'INR' | 'USD' | 'JPY'>('INR');
+
+  // Candidate Profile State
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('campusnex_candidate_profile');
@@ -636,7 +709,7 @@ export default function CampusNexPlatform() {
     return DEFAULT_PROFILE;
   });
 
-  // Phase 1 Persistence Hook: Jobs Roster
+  // Jobs State
   const [jobs, setJobs] = useState<Job[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('campusnex_jobs_roster');
@@ -647,8 +720,8 @@ export default function CampusNexPlatform() {
     return DEFAULT_JOBS;
   });
 
-  // Phase 2 Persistence Hook: 5-Tier Verified Skill Passport
-  const [skillPassport, setSkillPassport] = useState<SkillPassportItem[]>(() => {
+  // Skill Passport State
+  const [skillPassport] = useState<SkillPassportItem[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('campusnex_skill_passport');
       if (saved) {
@@ -658,16 +731,37 @@ export default function CampusNexPlatform() {
     return DEFAULT_PASSPORT_ITEMS;
   });
 
-  // Phase 2 State: Fair Hiring & AI Audit Center
+  // ==========================================================================
+  // PHASE 3 NEW 1: RECRUITMENT SIMULATION LAB (5 PRESENTATION SCENARIOS)
+  // ==========================================================================
+  const [showSimLabModal, setShowSimLabModal] = useState(false);
+  const [activeSimScenario, setActiveSimScenario] = useState<number | null>(null);
+  const [simProcessing, setSimProcessing] = useState(false);
+  const [simResultsLog, setSimResultsLog] = useState<string[]>([]);
+  const [simMetrics, setSimMetrics] = useState({ processedCount: 0, executionTimeMs: 0, throughputRate: '0 req/sec' });
+
+  // ==========================================================================
+  // PHASE 3 NEW 2: AUTONOMOUS RECRUITMENT WORKFLOW BUILDER
+  // ==========================================================================
+  const [showWorkflowBuilderModal, setShowWorkflowBuilderModal] = useState(false);
+  const [promptInput, setPromptInput] = useState('Create a Cloud Infrastructure hiring drive for CSE 2026 batch, require 0 backlogs, and build an automated War-Room assessment pipeline.');
+  const [generatedWorkflow, setGeneratedWorkflow] = useState<ProposedWorkflowPlan | null>(null);
+  const [workflowGenerating, setWorkflowGenerating] = useState(false);
+
+  // Fair Audit Modal State (from Phase 2)
   const [showFairAuditModal, setShowFairAuditModal] = useState(false);
   const [selectedJobAudit, setSelectedJobAudit] = useState<Job | null>(null);
-  const [appealsList, setAppealsList] = useState<CandidateAppeal[]>([
-    { id: 'app-1', jobTitle: 'Full Stack Engineer (Elite Core)', reason: 'Attached live production deployment link for Tailwind responsive component.', submittedAt: '28 Oct 2026', status: 'Resolution Approved' }
-  ]);
+  const [appealsList, setAppealsList] = useState<CandidateAppeal[]>([]);
   const [newAppealReason, setNewAppealReason] = useState('');
-  const [humanReviewOverrideActive, setHumanReviewOverrideActive] = useState(false);
 
-  // State Persistence
+  // Terminal Stream
+  const [terminalLogs, setTerminalLogs] = useState<string[]>([
+    '🌍 [PHASE_3_GLOBAL]: International Hiring Mode & Time-Zone Matrix Active.',
+    '🔬 [SIMULATION_LAB]: 5 Live Stress Scenarios operational for presentation demonstration.',
+    '⚡ [AUTONOMOUS_BUILDER]: Natural Language Prompt Engine armed with human-approval gates.'
+  ]);
+
+  // Sync to local storage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('campusnex_candidate_profile', JSON.stringify(candidateProfile));
@@ -679,19 +773,6 @@ export default function CampusNexPlatform() {
       localStorage.setItem('campusnex_jobs_roster', JSON.stringify(jobs));
     }
   }, [jobs]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('campusnex_skill_passport', JSON.stringify(skillPassport));
-    }
-  }, [skillPassport]);
-
-  // Terminal Logs
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_2_INTELLIGENCE]: AI Talent Intelligence & Verified Skill Passport active.',
-    '✦ [FAIR_HIRING_AUDIT]: Zero-demographic bias firewall active (Neural-v5.2-FairRecruit).',
-    '✓ [VERIFICATION_TIER]: 5-tier verifiable credentials signed on consensus ledger.'
-  ]);
 
   const toggleSound = () => {
     const nextState = !soundEnabled;
@@ -707,22 +788,121 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [`✓ [APPLICATION_SENT]: Applied to Drive #${jobId}. Stage 4 recorded.`, ...prev]);
   };
 
-  const handleAddAppeal = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAppealReason.trim() || !selectedJobAudit) return;
+  // Phase 3: Run Simulation Scenarios on Stage
+  const handleExecuteSimScenario = (scenarioId: number) => {
     cyberAudio.playLaser();
+    setActiveSimScenario(scenarioId);
+    setSimProcessing(true);
+    setSimResultsLog([]);
 
-    const createdAppeal: CandidateAppeal = {
+    setTimeout(() => {
+      setSimProcessing(false);
+      if (scenarioId === 1) {
+        setSimMetrics({ processedCount: 10000, executionTimeMs: 412, throughputRate: '24,271 apps/sec' });
+        setSimResultsLog([
+          'BENCHMARK: 10,000 synthetic candidate applications ingested into Kafka memory queue.',
+          'ELAPSED: Ingestion & cryptographic hash verification completed in 412ms.',
+          'VERDICT: Raft concurrency thread locks maintained O(1) memory footprint without heap degradation.'
+        ]);
+      } else if (scenarioId === 2) {
+        setSimMetrics({ processedCount: 1420, executionTimeMs: 184, throughputRate: 'Deduplicated: 38 Bots' });
+        setSimResultsLog([
+          'SCAN: Evaluated 1,420 candidate submissions across affiliated institutions.',
+          'COLLISION DETECTED: 38 duplicate profile hashes identified with identical PoE traces.',
+          'ACTION: Duplicate entries purged; audit ledger updated with institutional warning flags.'
+        ]);
+      } else if (scenarioId === 3) {
+        setSimMetrics({ processedCount: 48, executionTimeMs: 92, throughputRate: '0 Conflicts Remaining' });
+        setSimResultsLog([
+          'TIME-ZONE ENGINE: Intersected schedules between Hyderabad (IST) & Tokyo (JST).',
+          'CONFLICT RESOLVED: 4 overlapping interviewer calendar slots shifted to optimal dual-friendly windows.',
+          'DISPATCH: Google Meet conference rooms regenerated and timestamped.'
+        ]);
+      } else if (scenarioId === 4) {
+        setSimMetrics({ processedCount: 620, executionTimeMs: 120, throughputRate: '95.8% Conversion' });
+        setSimResultsLog([
+          'FUNNEL AUDIT: 620 Enrolled -> 410 Applied -> 142 Screened -> 48 Offers -> 46 Confirmed Joined.',
+          'ANOMALY CHECK: Zero post-acceptance candidate drops detected.',
+          'YIELD: Super Dream CTC package conversion exceeds national institutional baseline by 34%.'
+        ]);
+      } else if (scenarioId === 5) {
+        setSimMetrics({ processedCount: 620, executionTimeMs: 78, throughputRate: 'Yield Shift: +42 Candidates' });
+        setSimResultsLog([
+          'RULE MODIFICATION: Dynamic eligibility threshold shifted from 8.5 CGPA to 8.0 CGPA.',
+          'QUALIFICATION YIELD: Instantaneous candidate pool expansion: +42 verified applicants unlocked.',
+          'AUDIT: Rule change recorded under TPO governance consensus authority.'
+        ]);
+      }
+    }, 850);
+  };
+
+  // Phase 3: Autonomous Workflow Builder Generation Logic
+  const handleGenerateWorkflow = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promptInput.trim()) return;
+    cyberAudio.playLaser();
+    setWorkflowGenerating(true);
+
+    setTimeout(() => {
+      setWorkflowGenerating(false);
+      setGeneratedWorkflow({
+        promptInstruction: promptInput,
+        driveTitle: 'Autonomous Drive: Cloud Core Infrastructure Architect',
+        eligibilityCutoff: 'CGPA >= 8.0 & 0 Standing Backlogs',
+        stagesCount: 5,
+        screeningModel: 'Neural-v5.2-FairRecruit (Evidence-Matched)',
+        assessmentTrack: 'Distributed Concurrency & Incident War-Room Triage',
+        isApprovedByRecruiter: false,
+        generatedAt: 'Just now'
+      });
+      setTerminalLogs(prev => [
+        '⚡ [AUTONOMOUS_WORKFLOW]: Proposed hiring blueprint compiled. Pending human recruiter authorization.',
+        ...prev
+      ]);
+    }, 900);
+  };
+
+  const handleApproveWorkflow = () => {
+    cyberAudio.playLaser();
+    if (!generatedWorkflow) return;
+    setGeneratedWorkflow({ ...generatedWorkflow, isApprovedByRecruiter: true });
+
+    const newDrive: Job = {
       id: Date.now().toString(),
-      jobTitle: selectedJobAudit.title,
-      reason: newAppealReason.trim(),
-      submittedAt: 'Just now',
-      status: 'Under Review'
+      title: 'Cloud Core Infrastructure Architect (Autonomous)',
+      company: 'Enterprise Global Corp',
+      location: 'Hyderabad / Tokyo Hybrid',
+      salaryInr: '₹22 - ₹28 LPA',
+      salaryUsd: '$34,000 - $44,000 /yr',
+      salaryJpy: '¥5,200,000 - ¥6,800,000 /yr',
+      skills: ['Kubernetes', 'Go', 'Raft Consensus', 'Distributed Systems'],
+      matchScore: 96,
+      applicants: 1,
+      type: 'Apex 1% Super Dream',
+      matched: ['Raft Consensus', 'Distributed Systems'],
+      missing: ['Go'],
+      tip: 'Generated via Autonomous Workflow Builder with human authorization gate.',
+      minClearance: 'Tier-1 Apex',
+      minCgpa: 8.0,
+      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech IT'],
+      maxBacklogsAllowed: 0,
+      vacancies: 15,
+      applicationDeadline: '30 Nov 2026',
+      interviewTimeline: 'Continuous War-Room',
+      targetColleges: ['DCET Hyderabad', 'CBIT'],
+      status: 'Open',
+      dataSource: 'LIVE',
+      aiMatchExplanation: 'Autonomous workflow drive validated against verified skill passport evidence.',
+      fairnessConfidence: 99.6,
+      timeZoneSchedule: 'Universal Remote Sync',
+      visaClearanceReq: 'Pre-Approved Work Authorization'
     };
 
-    setAppealsList([createdAppeal, ...appealsList]);
-    setNewAppealReason('');
-    setTerminalLogs(prev => [`⚖️ [AI_APPEAL]: Candidate submitted evidence review request for ${selectedJobAudit.title}.`, ...prev]);
+    setJobs([newDrive, ...jobs]);
+    setTerminalLogs(prev => [
+      `🚀 [WORKFLOW_COMMITTED]: ${newDrive.title} authorized by recruiter and broadcasted live!`,
+      ...prev
+    ]);
   };
 
   return (
@@ -737,12 +917,20 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              PHASE 2: VERIFIED SKILL PASSPORT & FAIR AI AUDIT CENTER
+              CAMPUSNEX P2 ENGINE: GLOBAL RECRUITMENT & SIMULATION LAB
             </span>
             <span className="text-purple-300">WORKSPACE: {activePortal.toUpperCase()}</span>
-            <span className="text-emerald-400">STAGE {candidateProfile.currentStageIndex + 1}/14 ACTIVE</span>
+            <span className="text-emerald-400">TIME: 21:11 IST / 00:41 JST / 08:41 PST</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
+            {/* Global Currency Switcher */}
+            <div className="flex items-center gap-1 bg-[#09122c] border border-cyan-900/60 px-2 py-0.5 rounded-lg text-[9px]">
+              <span className="text-slate-400">CURRENCY:</span>
+              <button onClick={() => setActiveCurrency('INR')} className={`px-1.5 rounded font-bold ${activeCurrency === 'INR' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}>₹ INR</button>
+              <button onClick={() => setActiveCurrency('USD')} className={`px-1.5 rounded font-bold ${activeCurrency === 'USD' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}>$ USD</button>
+              <button onClick={() => setActiveCurrency('JPY')} className={`px-1.5 rounded font-bold ${activeCurrency === 'JPY' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}>¥ JPY</button>
+            </div>
+
             <button
               onClick={toggleSound}
               className={`px-2 py-0.5 rounded border transition text-[10px] ${
@@ -751,13 +939,12 @@ export default function CampusNexPlatform() {
                   : 'bg-slate-900 border-slate-700 text-slate-500'
               }`}
             >
-              {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
+              {soundEnabled ? '🔊 AUDIO: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400 font-bold">🔒 FAIR RECRUIT AUDIT ACTIVE</span>
           </div>
         </div>
 
-        {/* Main Glass Navigation Header */}
+        {/* Main Glass Navigation Header with Phase 3 Control Suite */}
         <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/85 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
@@ -769,27 +956,38 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 2 INTELLIGENCE
+                  GLOBAL P2 SUITE
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Verified Skill Passport • Explainable AI Matching • Human-in-the-Loop Audit</p>
+              <p className="text-[11px] text-slate-400">Simulation Lab • Autonomous Workflow Builder • Multi-Currency Hiring</p>
             </div>
           </div>
 
-          {/* Role-Based Workspace Switcher & Audit Center Button */}
+          {/* Phase 3 Action Buttons & Role Switcher */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            {/* Phase 2: Fair Hiring & AI Audit Center Trigger */}
+            {/* Phase 3: Recruitment Simulation Lab Trigger */}
             <button
               onClick={() => {
                 cyberAudio.playLaser();
-                setSelectedJobAudit(jobs[0]);
-                setShowFairAuditModal(true);
+                setShowSimLabModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-mono font-bold text-xs shadow-lg shadow-orange-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+            >
+              <span>🔬</span> Simulation Lab
+            </button>
+
+            {/* Phase 3: Autonomous Workflow Builder Trigger */}
+            <button
+              onClick={() => {
+                cyberAudio.playLaser();
+                setShowWorkflowBuilderModal(true);
               }}
               className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 hover:scale-105 transition"
             >
-              <span>⚖️</span> Fair AI Audit Center
+              <span>⚡</span> Workflow Builder
             </button>
 
+            {/* Workspace Selector */}
             <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
               <button
                 onClick={() => {
@@ -847,43 +1045,42 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 2 CORE INTELLIGENCE */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 DEMO STORY */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60 uppercase tracking-widest font-bold">
-                  Phase 2: Verified Skill Passport & Fair Intelligence
+                <span className="text-[10px] font-mono text-orange-400 bg-orange-950/80 px-2.5 py-1 rounded-md border border-orange-800/60 uppercase tracking-widest font-bold">
+                  Phase 3: Simulation Lab & Global Hiring Suite
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60 font-bold">
                   {activePortal.toUpperCase()} WORKSPACE
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Beyond Degrees: Institutional Evidence, Verified Credentials & Transparent AI Matching
+                Stress-Testing 10,000 Bulk Applications, Time-Zone Coordination & Autonomous Blueprints
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Candidate capabilities are judged by verifiable runtime evidence and institutional stamps rather than unverified CV claims. AI matching provides complete mathematical explanations without demographic bias.
+                Demonstrate live on-stage scenarios: Ingest 10,000 applications in 412ms, compile autonomous hiring drives from natural language prompts, and synchronize global compensation across India, Japan, and the US.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
                 <button
                   onClick={() => {
                     cyberAudio.playLaser();
-                    setSelectedJobAudit(jobs[0]);
-                    setShowFairAuditModal(true);
+                    setShowSimLabModal(true);
                   }}
-                  className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
+                  className="px-3.5 py-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  <span>⚖️</span> Open Fair AI Audit Center
+                  <span>🔬</span> Launch Simulation Lab (5 Scenarios)
                 </button>
                 <button
                   onClick={() => {
-                    cyberAudio.playBlip();
-                    alert("Skill Passport cryptographically shared with verified employers for active recruitment session!");
+                    cyberAudio.playLaser();
+                    setShowWorkflowBuilderModal(true);
                   }}
-                  className="bg-purple-950/80 hover:bg-purple-900 px-2.5 py-1 rounded border border-purple-500/60 text-purple-200 transition font-bold"
+                  className="px-3.5 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  🌐 Share Verified Skill Passport
+                  <span>⚡</span> Build Autonomous Drive
                 </button>
               </div>
             </div>
@@ -897,7 +1094,7 @@ export default function CampusNexPlatform() {
         {/* Main Workspace Render */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
           {/* ================================================================ */}
-          {/* 1. STUDENT WORKSPACE (PHASE 2 SKILL PASSPORT & JOBS) */}
+          {/* 1. STUDENT WORKSPACE (GLOBAL MULTI-CURRENCY DRIVES) */}
           {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -906,7 +1103,7 @@ export default function CampusNexPlatform() {
                 <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🔄</span> Recruitment Progression Lifecycle
+                      <span>🔄</span> Complete 14-Stage Recruitment Sequence
                     </span>
                     <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded-full font-bold">
                       Stage {candidateProfile.currentStageIndex + 1} of 14
@@ -941,60 +1138,20 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* PHASE 2: VERIFIED SKILL PASSPORT MATRIX */}
-                <div className="bg-[#08122c]/85 border border-cyan-500/50 p-4 rounded-2xl shadow-xl space-y-3 font-mono text-xs">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span className="font-bold text-white flex items-center gap-2">
-                      <span>📜</span> Verified Skill Passport (5-Tier Verification Model)
-                    </span>
-                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold">
-                      INSTITUTIONAL CONSENSUS ACTIVE
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {skillPassport.map(item => (
-                      <div key={item.id} className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div>
-                          <div className="font-bold text-white flex items-center gap-2">
-                            <span>{item.name}</span>
-                            <span className="text-[9px] bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded font-sans">
-                              {item.category}
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">
-                            Issuer/Signer: {item.issuerOrInstitution} • Verified on {item.verifiedAt}
-                          </div>
-                          {item.evidenceLink && (
-                            <div className="text-[9px] text-cyan-400 underline mt-0.5">{item.evidenceLink}</div>
-                          )}
-                        </div>
-
-                        <div>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                            item.verificationTier === 'Institution Verified'
-                              ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
-                              : item.verificationTier === 'Issuer Verified'
-                              ? 'bg-cyan-950 text-cyan-300 border-cyan-600'
-                              : item.verificationTier === 'Evidence Submitted'
-                              ? 'bg-purple-950 text-purple-300 border-purple-600'
-                              : 'bg-slate-800 text-slate-400 border-slate-700'
-                          }`}>
-                            ✓ {item.verificationTier}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {/* Job Search & Filter Bar */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search drives across Hyderabad, Tokyo, San Francisco..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="w-full bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition shadow-inner font-mono"
+                  />
+                  <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
                 </div>
 
-                {/* Job Cards with Explainable AI Match Reasons */}
-                <div className="space-y-3.5">
-                  <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-slate-400">Available Campus Recruitment Drives</span>
-                    <span className="text-cyan-400 font-bold">Explainable AI Matching Engine</span>
-                  </div>
-
+                {/* Global Multi-Currency Job Cards */}
+                <div className="space-y-4">
                   {jobs
                     .filter(j => j.title.toLowerCase().includes(searchQuery.toLowerCase()) || j.company.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map(job => (
@@ -1015,7 +1172,9 @@ export default function CampusNexPlatform() {
                               <span>•</span>
                               <span>📍 {job.location}</span>
                               <span>•</span>
-                              <span className="text-emerald-400 font-bold">💰 {job.salary}</span>
+                              <span className="text-emerald-400 font-bold">
+                                💰 {activeCurrency === 'INR' ? job.salaryInr : activeCurrency === 'USD' ? job.salaryUsd : job.salaryJpy}
+                              </span>
                             </div>
                           </div>
 
@@ -1026,38 +1185,20 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        {/* Phase 2: Explainable Match Explanation & Fairness Score */}
-                        <div className="mt-3 p-3 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-1 text-xs font-mono">
-                          <div className="flex justify-between items-center text-[10px]">
-                            <span className="text-cyan-300 font-bold flex items-center gap-1">
-                              <span>🤖</span> Explainable AI Match: {job.matchScore}%
-                            </span>
-                            <span className="text-emerald-400 font-bold">
-                              Fairness Index: {job.fairnessConfidence}% (Zero Demographic Bias)
-                            </span>
+                        {/* Phase 3: Global Time-Zone & Visa Authorization HUD */}
+                        <div className="mt-3 p-2.5 bg-[#08122c] border border-cyan-900/40 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] font-mono">
+                          <div>
+                            <span className="text-slate-400">TIME-ZONE SYNC:</span>
+                            <span className="text-cyan-300 font-bold ml-1">{job.timeZoneSchedule}</span>
                           </div>
-                          <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
-                            {job.aiMatchExplanation}
-                          </p>
-                          <div className="flex flex-wrap gap-2 pt-1 text-[10px]">
-                            <span className="text-emerald-400">Verified Evidence: {job.matched.join(', ')}</span>
-                            {job.missing.length > 0 && (
-                              <span className="text-rose-400">Missing Evidence: {job.missing.join(', ')}</span>
-                            )}
+                          <div>
+                            <span className="text-slate-400">WORK CLEARANCE:</span>
+                            <span className="text-emerald-400 font-bold ml-1">{job.visaClearanceReq}</span>
                           </div>
                         </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                          <button
-                            onClick={() => {
-                              cyberAudio.playLaser();
-                              setSelectedJobAudit(job);
-                              setShowFairAuditModal(true);
-                            }}
-                            className="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-cyan-300 hover:text-white font-mono text-[10px] flex items-center gap-1 transition"
-                          >
-                            <span>⚖️</span> Inspect Match Breakdown & Appeal
-                          </button>
+                          <span className="text-slate-500 font-mono">👥 {job.applicants} applicants • {job.vacancies} vacancies</span>
 
                           <button
                             onClick={() => handleApplyJob(job.id)}
@@ -1078,7 +1219,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Right Column: Candidate Profile & Skill Passport Summary */}
+              {/* Right Column: Candidate Profile & Skill Passport */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1116,23 +1257,13 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Candidate Appeals Status Box */}
-                <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2.5 font-mono text-xs">
-                  <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                    <span className="font-bold text-white text-[11px]">AI Review Appeals & Correction Requests</span>
-                    <span className="text-amber-400 text-[9px]">{appealsList.length} LOGGED</span>
+                {/* Biometric Oscillation Canvas */}
+                <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/60 rounded-2xl p-5 shadow-xl font-mono">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold text-cyan-400">NEUROMETRIC STRESS VECTOR (EUSI)</span>
+                    <span className="text-emerald-400 font-bold">{candidateProfile.eusiScore} CALM</span>
                   </div>
-                  {appealsList.map(app => (
-                    <div key={app.id} className="p-2 bg-[#0e162e] rounded-xl border border-slate-800 space-y-1 text-[10px]">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-white">{app.jobTitle}</span>
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[9px] font-bold">
-                          {app.status}
-                        </span>
-                      </div>
-                      <p className="text-slate-400 text-[9px] font-sans">{app.reason}</p>
-                    </div>
-                  ))}
+                  <BiometricPulseCanvas />
                 </div>
               </div>
             </div>
@@ -1145,65 +1276,35 @@ export default function CampusNexPlatform() {
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">AI Talent Intelligence & Candidate Evidence Filtering</h2>
+                  <h2 className="text-xl font-bold text-white">Autonomous Recruitment Engine & Global Talent Bidding</h2>
                   <p className="text-xs text-slate-400">
-                    Filter candidate recommendations using verified evidence, inspect missing competencies, and review appeal submissions.
+                    Use autonomous prompt builders to generate drive workflows, monitor simulation benchmarks, and approve candidates.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setHumanReviewOverrideActive(!humanReviewOverrideActive);
-                      cyberAudio.playLaser();
-                    }}
-                    className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition ${
-                      humanReviewOverrideActive
-                        ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-lg'
-                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white'
-                    }`}
-                  >
-                    {humanReviewOverrideActive ? '✓ Human Override: Active' : 'Enable Human Review Override'}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowWorkflowBuilderModal(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition"
+                >
+                  ⚡ Open Autonomous Workflow Builder
+                </button>
               </div>
 
-              {/* Recruiter Verified Candidate Evidence Pool */}
-              <div className="p-4 bg-[#08122c] border border-cyan-800/50 rounded-2xl space-y-2 font-mono text-xs">
-                <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Verified Candidate Talent Evidence Roster</span>
-                  <span className="text-cyan-400 text-[10px]">EVIDENCE-BACKED SHORTLISTING</span>
+              {/* Recruiter Active Drives Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+                <div className="p-4 bg-[#081024] rounded-2xl border border-cyan-800/50 space-y-1">
+                  <span className="text-slate-400 text-[10px]">TOTAL PUBLISHED DRIVES</span>
+                  <div className="text-2xl font-black text-white">{jobs.length} Drives</div>
+                  <span className="text-cyan-300">Across Hyderabad, Tokyo & SF</span>
                 </div>
-                <div className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                  <div>
-                    <div className="font-bold text-white text-sm">Verified Candidate (#APEX-01) • DCET Hyderabad</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">
-                      Matched: React, Node.js, Raft Concurrency, Redis, PostgreSQL • CGPA: 8.85
-                    </div>
-                    <div className="text-[10px] text-emerald-300 mt-0.5">
-                      Proof-of-Execution Hash: #0x8942-APEX (Top 0.8% Cleared)
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        cyberAudio.playLaser();
-                        setSelectedJobAudit(jobs[0]);
-                        setShowFairAuditModal(true);
-                      }}
-                      className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] font-bold border border-cyan-800"
-                    >
-                      Audit Match Report
-                    </button>
-                    <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        alert("Offer letter dispatched directly to candidate dashboard via consensus ledger!");
-                      }}
-                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold"
-                    >
-                      Authorize Offer
-                    </button>
-                  </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-emerald-800/50 space-y-1">
+                  <span className="text-slate-400 text-[10px]">AUTOMATED WORKFLOW STATUS</span>
+                  <div className="text-2xl font-black text-emerald-400">Human Approval Active</div>
+                  <span className="text-emerald-300">Zero Autonomous Mass Rejections</span>
+                </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-purple-800/50 space-y-1">
+                  <span className="text-slate-400 text-[10px]">TIME-ZONE OVERLAP WINDOWS</span>
+                  <div className="text-2xl font-black text-purple-300">Dual Sync Ready</div>
+                  <span className="text-purple-400">IST / JST / PST Aligned</span>
                 </div>
               </div>
             </div>
@@ -1215,25 +1316,27 @@ export default function CampusNexPlatform() {
           {activePortal === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Institutional Skill Passport Verification Authority</h2>
+                <h2 className="text-xl font-bold text-white">Institutional Placement Cell & Global Recruitment Funnels</h2>
                 <p className="text-xs text-slate-400">
-                  Verify academic evidence submitted by students before external recruiter synchronization.
+                  Track batch qualification yields, monitor simulated 10,000-application loads, and approve international employer drives.
                 </p>
               </div>
 
-              <div className="p-4 bg-[#08122c] border border-cyan-800/50 rounded-2xl font-mono text-xs space-y-3">
-                <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Pending Student Credentials for Institutional Signing</span>
-                  <span className="text-emerald-400 text-[10px]">TPO CONSENSUS NODE</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs">
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">GLOBAL RECRUITERS ENGAGED</span>
+                  <div className="text-2xl font-black text-white">14 MNC Employers</div>
+                  <span className="text-cyan-300">Multi-Currency Contracts Supported</span>
                 </div>
-                <div className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <div>
-                    <div className="font-bold text-white">PostgreSQL Advanced B-Tree Indexing Project</div>
-                    <div className="text-[10px] text-slate-400">Submitted by: Candidate #APEX-01 (CSE) • Explanatory Benchmarks Attached</div>
-                  </div>
-                  <span className="px-2 py-1 rounded bg-emerald-950 text-emerald-300 border border-emerald-600 text-[10px] font-bold">
-                    ✓ Institutional Stamp Signed
-                  </span>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">SIMULATED BULK LOAD TEST</span>
+                  <div className="text-2xl font-black text-emerald-400">24,271 apps/sec</div>
+                  <span className="text-emerald-300">412ms Total Execution Latency</span>
+                </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">AVERAGE COMPENSATION YIELD</span>
+                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA ($32,000 /yr)</div>
+                  <span className="text-purple-400">Highest: ₹24.0 LPA (¥5,400,000)</span>
                 </div>
               </div>
             </div>
@@ -1245,18 +1348,15 @@ export default function CampusNexPlatform() {
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="border-b border-slate-800 pb-4">
-                <h2 className="text-xl font-bold text-white">Platform Administration & Fair AI Audit Logs</h2>
-                <p className="text-xs text-slate-400">
-                  Inspect algorithmic recommendation justifications, fairness confidence metrics, and appeal resolution status.
-                </p>
+                <h2 className="text-xl font-bold text-white">Platform Administration & Global Recruitment Telemetry</h2>
               </div>
 
               <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl font-mono text-xs space-y-2">
                 <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Fairness & Model Versioning Ledger</span>
-                  <span className="text-emerald-400 text-[10px]">ZERO BIAS AUDITED</span>
+                  <span className="font-bold text-white">Phase 3 System Telemetry Stream</span>
+                  <span className="text-emerald-400 text-[10px]">ALL SUITES LIVE</span>
                 </div>
-                <div className="space-y-1.5 max-h-40 overflow-y-auto text-[11px] text-slate-300">
+                <div className="space-y-1 max-h-40 overflow-y-auto text-[11px] text-slate-300">
                   {terminalLogs.map((log, idx) => (
                     <div key={idx} className="text-slate-400">{log}</div>
                   ))}
@@ -1267,15 +1367,15 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ==================================================================== */}
-        {/* PHASE 2 MODAL: FAIR HIRING & AI AUDIT CENTER */}
+        {/* PHASE 3 MODAL 1: RECRUITMENT SIMULATION LAB (5 SCENARIOS) */}
         {/* ==================================================================== */}
-        {showFairAuditModal && selectedJobAudit && (
+        {showSimLabModal && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+            <div className="bg-[#0b1021] border border-orange-500/80 rounded-3xl w-full max-w-3xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
               <button
                 onClick={() => {
                   cyberAudio.playBlip();
-                  setShowFairAuditModal(false);
+                  setShowSimLabModal(false);
                 }}
                 className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
               >
@@ -1283,89 +1383,181 @@ export default function CampusNexPlatform() {
               </button>
 
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">⚖️</span>
+                <span className="text-2xl">🔬</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">Fair Hiring & AI Decision Audit Center</h3>
-                  <p className="text-[11px] text-cyan-300 font-mono">Model: Neural-v5.2-FairRecruit • Transparent Scoring & Appeals</p>
+                  <h3 className="text-base font-bold text-white">Recruitment Simulation Lab ⭐ (On-Stage Demonstration)</h3>
+                  <p className="text-[11px] text-orange-300 font-mono">Live Controlled Scenarios for IT Audience Evaluation</p>
                 </div>
               </div>
 
-              <div className="space-y-3 font-mono text-[11px] mt-3">
-                {/* Decision Breakdown */}
-                <div className="p-3 bg-[#08122c] border border-slate-800 rounded-xl space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white font-bold">{selectedJobAudit.title}</span>
-                    <span className="text-emerald-400 font-bold">{selectedJobAudit.matchScore}% Match Score</span>
-                  </div>
-                  <div className="text-slate-400 text-[10px]">
-                    Employer: {selectedJobAudit.company} • Compensation: {selectedJobAudit.salary}
-                  </div>
-                  <p className="text-slate-200 text-[11px] font-sans leading-relaxed pt-1">
-                    {selectedJobAudit.aiMatchExplanation}
-                  </p>
-                </div>
+              <p className="text-slate-300 text-xs font-sans mb-4">
+                Execute simulated large-scale recruitment scenarios in real-time. Demonstrates throughput capacity, collision detection, and instant rule adjusting without compromising live data:
+              </p>
 
-                {/* Evidence vs Missing Breakdown */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="p-3 bg-[#061426] border border-emerald-900/50 rounded-xl space-y-1">
-                    <span className="text-emerald-400 font-bold block text-[10px]">VERIFIED EVIDENCE (CONSIDERED):</span>
-                    <ul className="list-disc pl-4 text-emerald-300 text-[10px] space-y-0.5">
-                      {selectedJobAudit.matched.map((m, i) => (
-                        <li key={i}>{m} (Verified via Proof-of-Execution)</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="p-3 bg-[#1a0a1c] border border-rose-900/50 rounded-xl space-y-1">
-                    <span className="text-rose-400 font-bold block text-[10px]">MISSING EVIDENCE (DEDUCTIONS):</span>
-                    <ul className="list-disc pl-4 text-rose-300 text-[10px] space-y-0.5">
-                      {selectedJobAudit.missing.map((m, i) => (
-                        <li key={i}>{m} (No runtime repo artifacts logged)</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Fairness & Legal Safeguard Statement */}
-                <div className="p-3 bg-[#0a1538] border border-indigo-900/50 rounded-xl space-y-1 font-sans">
-                  <span className="text-purple-300 font-bold text-xs block font-mono">
-                    🛡️ Algorithmic Fairness Guarantee (DPDPA & GDPR Compliant):
-                  </span>
-                  <p className="text-slate-300 text-[10px] leading-relaxed">
-                    Personal characteristics (gender, college tier, religion, geographic origin) are 100% masked from scoring matrices. Recommendations are derived strictly from verifiable skill tokens and runtime benchmarks. Final hiring authority remains with authorized human recruiters.
-                  </p>
-                </div>
-
-                {/* Candidate Appeal Mechanism */}
-                <form onSubmit={handleAddAppeal} className="p-3 bg-[#070e24] border border-slate-800 rounded-xl space-y-2">
-                  <span className="font-bold text-white text-[11px] block">
-                    Submit Candidate Appeal or Evidence Correction:
-                  </span>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Attached live deployment URL demonstrating Tailwind responsive UI..."
-                      value={newAppealReason}
-                      onChange={e => setNewAppealReason(e.target.value)}
-                      className="flex-1 bg-[#101b38] border border-slate-700 rounded-xl px-3 py-2 text-white text-[11px] focus:outline-none focus:border-cyan-500"
-                    />
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow hover:scale-105 transition"
-                    >
-                      Submit Appeal
-                    </button>
-                  </div>
-                </form>
+              {/* 5 Scenario Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 mb-4 font-mono text-[10px]">
+                {[
+                  { id: 1, name: '1. 10K Applications Bulk Throughput', icon: '⚡' },
+                  { id: 2, name: '2. Duplicate & Fraud Detection', icon: '🛡️' },
+                  { id: 3, name: '3. Time-Zone Conflict Resolver', icon: '🗓️' },
+                  { id: 4, name: '4. Offer-to-Joining Funnel Audit', icon: '📊' },
+                  { id: 5, name: '5. Dynamic Eligibility Shifter', icon: '⚙️' }
+                ].map(sc => (
+                  <button
+                    key={sc.id}
+                    onClick={() => handleExecuteSimScenario(sc.id)}
+                    className={`p-2.5 rounded-xl border text-left transition font-bold flex flex-col justify-between ${
+                      activeSimScenario === sc.id
+                        ? 'bg-orange-950/80 border-orange-500 text-orange-200 shadow-lg'
+                        : 'bg-[#09152e] border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <span>{sc.icon} {sc.name}</span>
+                    <span className="text-[9px] text-slate-500 mt-2">Run Scenario $\rightarrow$</span>
+                  </button>
+                ))}
               </div>
+
+              {/* Execution Telemetry HUD */}
+              <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl space-y-2 font-mono text-xs">
+                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2 text-[10px]">
+                  <span className="font-bold text-white uppercase tracking-wider">Simulation Telemetry & Metrics</span>
+                  <div className="flex gap-4">
+                    <span>Processed: <strong className="text-cyan-300">{simMetrics.processedCount}</strong></span>
+                    <span>Execution: <strong className="text-emerald-400">{simMetrics.executionTimeMs}ms</strong></span>
+                    <span>Rate: <strong className="text-orange-400">{simMetrics.throughputRate}</strong></span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 min-h-[100px] max-h-44 overflow-y-auto text-[11px]">
+                  {simProcessing ? (
+                    <div className="text-cyan-400 animate-pulse py-4 text-center">
+                      Ingesting synthetic workload into distributed Raft consensus state machine...
+                    </div>
+                  ) : simResultsLog.length > 0 ? (
+                    simResultsLog.map((log, i) => (
+                      <div key={i} className="text-slate-300">
+                        <span className="text-orange-400 font-bold">&gt;&gt;</span> {log}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-slate-500 text-center py-6 font-sans">
+                      Select one of the 5 scenarios above to execute simulated live benchmarks before your audience.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center font-mono">
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveSimScenario(null);
+                    setSimResultsLog([]);
+                    setSimMetrics({ processedCount: 0, executionTimeMs: 0, throughputRate: '0 req/sec' });
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-white text-[10px]"
+                >
+                  ↺ Reset Demo Environment
+                </button>
+                <button
+                  onClick={() => setShowSimLabModal(false)}
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs transition"
+                >
+                  Close Simulation Lab
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================================== */}
+        {/* PHASE 3 MODAL 2: AUTONOMOUS RECRUITMENT WORKFLOW BUILDER */}
+        {/* ==================================================================== */}
+        {showWorkflowBuilderModal && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowWorkflowBuilderModal(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">⚡</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">Autonomous Recruitment Workflow Builder</h3>
+                  <p className="text-[11px] text-cyan-300 font-mono">Compile Complex Drives from Natural-Language Prompts</p>
+                </div>
+              </div>
+
+              <p className="text-slate-300 text-xs font-sans mb-3">
+                Provide instructions to configure eligibility rules, screening models, and assessment rounds. Actions require human recruiter approval before deployment:
+              </p>
+
+              <form onSubmit={handleGenerateWorkflow} className="space-y-3 mb-4">
+                <textarea
+                  rows={3}
+                  value={promptInput}
+                  onChange={e => setPromptInput(e.target.value)}
+                  placeholder="e.g. Set up a Tier-1 Super Dream drive for CSE students with minimum 8.0 CGPA and 2-stage war-room triage..."
+                  className="w-full p-3 bg-[#070e24] border border-slate-700 rounded-2xl text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500 resize-none"
+                />
+                <button
+                  type="submit"
+                  disabled={workflowGenerating}
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg transition flex items-center gap-2"
+                >
+                  {workflowGenerating ? <span className="animate-spin">↻</span> : <span>⚡</span>}
+                  {workflowGenerating ? 'Compiling Autonomous Blueprint...' : 'Compile Proposed Hiring Blueprint'}
+                </button>
+              </form>
+
+              {/* Generated Workflow Blueprint Preview */}
+              {generatedWorkflow && (
+                <div className="p-4 bg-[#08122c] border border-cyan-800/60 rounded-2xl space-y-3 font-mono text-[11px]">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span className="font-bold text-white">{generatedWorkflow.driveTitle}</span>
+                    <span className="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700">
+                      5-STAGE SEQUENCE PROPOSED
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                    <div><span className="text-slate-400">Eligibility:</span> <span className="text-emerald-400 font-bold">{generatedWorkflow.eligibilityCutoff}</span></div>
+                    <div><span className="text-slate-400">Screening AI:</span> <span className="text-cyan-300 font-bold">{generatedWorkflow.screeningModel}</span></div>
+                    <div><span className="text-slate-400">Assessment Track:</span> <span className="text-purple-300 font-bold">{generatedWorkflow.assessmentTrack}</span></div>
+                    <div><span className="text-slate-400">Human Approval Gate:</span> <span className={generatedWorkflow.isApprovedByRecruiter ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>{generatedWorkflow.isApprovedByRecruiter ? "✓ Approved" : "Pending Recruiter Sign-Off"}</span></div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800/80 flex justify-between items-center">
+                    <span className="text-[10px] text-slate-400 font-sans">Mandatory Safety Guard: AI cannot publish drives without human authorization.</span>
+                    {!generatedWorkflow.isApprovedByRecruiter ? (
+                      <button
+                        onClick={handleApproveWorkflow}
+                        className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow transition"
+                      >
+                        ✓ Authorize & Publish Drive
+                      </button>
+                    ) : (
+                      <span className="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-xs">
+                        Drive Published Live
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
                 <button
-                  onClick={() => setShowFairAuditModal(false)}
+                  onClick={() => setShowWorkflowBuilderModal(false)}
                   className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
                 >
-                  Close Audit Center
+                  Close Workflow Builder
                 </button>
               </div>
             </div>
