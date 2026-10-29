@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 + PHASE 2 ENGINE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 3 ENGINE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -19,6 +19,15 @@ type ApplicationStatus =
   | 'Selected'
   | 'Rejected'
   | 'Withdrawn';
+
+interface AchievementBadge {
+  id: string;
+  title: string;
+  icon: string;
+  description: string;
+  unlocked: boolean;
+  unlockedAt: string;
+}
 
 interface PreJoiningDocument {
   id: string;
@@ -765,7 +774,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 2: AI CAREER ASSISTANT & SKILL-GAP ENGINE)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 3: POLISH, GAMIFICATION & PHONE SIMULATOR)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
@@ -780,9 +789,7 @@ export default function CampusNexPlatform() {
   const [demoStepIndex, setDemoStepIndex] = useState(0);
   const [showRunbookModal, setShowRunbookModal] = useState(false);
 
-  // ==========================================================================
-  // PHASE 2 NEW: INTERACTIVE AI CAREER ADVISOR CHATBOT STATE
-  // ==========================================================================
+  // Phase 2 AI Advisor & Live Parser State
   const [showAiAdvisorChat, setShowAiAdvisorChat] = useState(false);
   const [aiChatInput, setAiChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -790,17 +797,27 @@ export default function CampusNexPlatform() {
       id: 'm1',
       sender: 'ai',
       text: 'Hello Candidate! I am the CampusNex Neural AI Advisor. Ask me anything about job matching, missing skill bridges, or how to pass the Incident War-Room assessment.',
-      timestamp: '12:58 PM'
+      timestamp: '1:06 PM'
     }
   ]);
-
-  // Phase 2: Live Resume Text Parser State
   const [showLiveResumeAuditModal, setShowLiveResumeAuditModal] = useState(false);
   const [liveResumeText, setLiveResumeText] = useState(
     `EXPERIENCE: Full Stack Developer with experience in React, TypeScript, Node.js, and PostgreSQL.\nPROJECTS: Built high-throughput distributed ledger with in-memory Redis caching, dropping P99 latency by 86%.\nSKILLS: JavaScript, Next.js, Docker, Microservices, Raft Consensus, SQL Indexing.`
   );
   const [liveExtractedSkills, setLiveExtractedSkills] = useState<string[]>(['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Raft Consensus']);
   const [liveExtractedScore, setLiveExtractedScore] = useState(94);
+
+  // ==========================================================================
+  // PHASE 3 NEW: GAMIFICATION TROPHIES & PHONE VIEW SIMULATOR STATE
+  // ==========================================================================
+  const [isPhoneViewSimulated, setIsPhoneViewSimulated] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false);
+  const [achievements] = useState<AchievementBadge[]>([
+    { id: 'b1', title: '⚡ Concurrency Titan', icon: '⚡', description: 'Bypassed disk bottlenecks via Redis Read-Through caching and Raft consensus.', unlocked: true, unlockedAt: 'Unlocked in Stage 5' },
+    { id: 'b2', title: '🚨 Outage War-Room Hero', icon: '🚨', description: 'Mitigated critical Redis OOM kill loop under 42s with zero panic.', unlocked: true, unlockedAt: 'EUSI: 98.4%' },
+    { id: 'b3', title: '📜 Cryptographic PoE Elite', icon: '📜', description: 'Minted zero-knowledge Proof-of-Execution hash in top 0.8% percentile.', unlocked: true, unlockedAt: '#0x8942-APEX' },
+    { id: 'b4', title: '🎓 Sovereign Day-1 Placed', icon: '🎓', description: 'Accepted ₹22.0 LPA CTC Super Dream appointment with full BGV clearance.', unlocked: true, unlockedAt: 'Confirmed 01 July 2027' },
+  ]);
 
   // College & Institutional State
   const [isRulebookModalOpen, setIsRulebookModalOpen] = useState(false);
@@ -947,8 +964,7 @@ export default function CampusNexPlatform() {
     }
   ]);
 
-  // Phase 2: Enhanced Job Drives with Actionable Recommended Courses
-  const [jobs, setJobs] = useState<Job[]>([
+  const [jobs] = useState<Job[]>([
     {
       id: '1',
       title: 'Full Stack Engineer (Elite Core)',
@@ -1031,18 +1047,18 @@ export default function CampusNexPlatform() {
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: 'n1',
-      title: '🤖 Neural AI Advisor Online',
-      message: 'Ask any career alignment, skill gap, or war-room prep questions live.',
+      title: '🏆 Achievement Unlocked: Sovereign Placed',
+      message: 'Badge minted on institutional consensus ledger.',
       timestamp: 'Just now',
-      type: 'info',
+      type: 'success',
       read: false
     },
     {
       id: 'n2',
-      title: '🎓 Day-1 Joining Confirmed!',
-      message: 'Onboarding confirmed at TechCorp India for 01 July 2027. Record minted.',
+      title: '🤖 Neural AI Advisor Online',
+      message: 'Ask any career alignment, skill gap, or war-room prep questions live.',
       timestamp: '5m ago',
-      type: 'success',
+      type: 'info',
       read: false
     },
     {
@@ -1088,12 +1104,11 @@ export default function CampusNexPlatform() {
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '🤖 [AI_ADVISOR]: Neural Career Assistant listening for stage prompt queries.',
-    '⚡ [SKILL_BRIDGE]: Actionable free course recommendations mapped to missing competencies.',
-    '✦ [ZERO_CRASH_SHIELD]: Local state persistent backup active.'
+    '🏆 [ACHIEVEMENT_VAULT]: 4 Apex badges unlocked and cryptographically stamped.',
+    '📱 [DEVICE_SIMULATOR]: Native mobile viewport toggle operational.',
+    '✦ [DATA_PROTECTION]: India DPDPA & Zero-Knowledge data masking validated.'
   ]);
 
-  // Phase 1 Demo Narrative Actions Pool
   const DEMO_NARRATIVE_STEPS = [
     { title: '1. Candidate Profile Audit', desc: 'Alice / Candidate verifies academic CGPA 8.85 and cryptographic PoE hash.', portal: 'student' as PortalRole, step: 2 },
     { title: '2. Job Discovery & AI Screening', desc: 'System parses TechCorp India drive, displaying 94% skills match & zero backlogs eligibility.', portal: 'student' as PortalRole, step: 4 },
@@ -1116,7 +1131,6 @@ export default function CampusNexPlatform() {
     ]);
   };
 
-  // Phase 2: Interactive AI Career Chatbot Query Processor (<2s Natural Response)
   const handleSendAiChatMessage = (queryText?: string) => {
     const textToSend = queryText || aiChatInput;
     if (!textToSend.trim()) return;
@@ -1158,7 +1172,6 @@ export default function CampusNexPlatform() {
     }, 700);
   };
 
-  // Phase 2: Live Resume Text Parser Demonstration
   const handleRunLiveResumeAudit = () => {
     cyberAudio.playWarp();
     setTimeout(() => {
@@ -1191,41 +1204,6 @@ export default function CampusNexPlatform() {
     }
     return () => clearInterval(timer);
   }, [isWarRoomOpen, warRoomSeconds, warRoomSolved]);
-
-  useEffect(() => {
-    setShowWelcomeModal(true);
-
-    const logPool = [
-      '🤖 [AI_ADVISOR]: Neural Career Assistant ready with natural language query support.',
-      '⚡ [SKILL_BRIDGE]: Actionable free course recommendations mapped to missing competencies.',
-      '🎓 [STAGE_11_JOINING]: Final placement status locked: Joined & Active.',
-      '📊 [STAGE_12_ANALYTICS]: Historic conversion funnel logged: 96% placement outcome.'
-    ];
-
-    const interval = setInterval(() => {
-      const nextLog = logPool[Math.floor(Math.random() * logPool.length)];
-      setTerminalLogs(prev => [nextLog, ...prev.slice(0, 5)]);
-    }, 4500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const [kanbanCandidates] = useState([
-    { 
-      id: 'c1', 
-      name: 'Verified Candidate (#APEX-01)', 
-      anonId: 'ANON-CANDIDATE-01 (TOP 0.8%)', 
-      role: 'Full Stack Engineer (Elite Core)', 
-      stage: 'offer', 
-      score: 98, 
-      branch: 'CSE', 
-      clearance: 'Tier-1 Apex (0.8%)', 
-      company: 'TechCorp India', 
-      salary: '₹22.0 LPA',
-      poeHash: '0x8942...e9f1',
-      eusiScore: '98.4%'
-    }
-  ]);
 
   const toggleSound = () => {
     const nextState = !soundEnabled;
@@ -1274,12 +1252,14 @@ export default function CampusNexPlatform() {
 
     if (cmd === '/clear') {
       setTerminalLogs([]);
+    } else if (cmd === '/badges') {
+      setShowAchievementsModal(true);
+    } else if (cmd === '/phone') {
+      setIsPhoneViewSimulated(!isPhoneViewSimulated);
     } else if (cmd === '/ai') {
       setShowAiAdvisorChat(true);
     } else if (cmd === '/demo') {
       handleStepDemoRunner();
-    } else if (cmd === '/joining') {
-      setActivePortal('student');
     } else if (cmd === '/offer') {
       setShowOfferModal(true);
     } else if (cmd === '/warroom') {
@@ -1293,48 +1273,8 @@ export default function CampusNexPlatform() {
     setCliInput('');
   };
 
-  const handleAddSkill = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newSkillInput.trim()) {
-      e.preventDefault();
-      if (!candidateProfile.skills.includes(newSkillInput.trim())) {
-        setCandidateProfile({
-          ...candidateProfile,
-          skills: [...candidateProfile.skills, newSkillInput.trim()]
-        });
-      }
-      setNewSkillInput('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setCandidateProfile({
-      ...candidateProfile,
-      skills: candidateProfile.skills.filter(s => s !== skillToRemove)
-    });
-  };
-
-  const handleAddCert = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newCertInput.trim()) {
-      e.preventDefault();
-      if (!candidateProfile.certifications.includes(newCertInput.trim())) {
-        setCandidateProfile({
-          ...candidateProfile,
-          certifications: [...candidateProfile.certifications, newCertInput.trim()]
-        });
-      }
-      setNewCertInput('');
-    }
-  };
-
-  const handleRemoveCert = (certToRemove: string) => {
-    setCandidateProfile({
-      ...candidateProfile,
-      certifications: candidateProfile.certifications.filter(c => c !== certToRemove)
-    });
-  };
-
   return (
-    <div className="min-h-screen text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden bg-transparent">
+    <div className={`min-h-screen text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden bg-transparent transition-all ${isPhoneViewSimulated ? 'max-w-[420px] mx-auto border-x border-cyan-500/50 shadow-2xl my-4 rounded-3xl bg-[#030712]/95 overflow-hidden' : ''}`}>
       {/* 1. TABLET-READY 3D HOLOVERSE CANVAS (ALWAYS VISIBLE) */}
       <MasterHoloverseCanvas />
 
@@ -1345,7 +1285,7 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              LIVE DEMO ENVIRONMENT • PHASE 2 AI CAREER ENGINE
+              LIVE DEMO ENVIRONMENT • PHASE 3 UI & POLISH
             </span>
             <span>PORTAL: {activePortal.toUpperCase()}</span>
             <span className="text-purple-300">STAGE {candidateProfile.currentStep}/9 ACTIVE</span>
@@ -1361,7 +1301,7 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400 font-bold">EXPLAINABLE AI MATCHER ACTIVE</span>
+            <span className="hidden sm:inline text-emerald-400 font-bold">🇮🇳 INDIA DPDPA COMPLIANT</span>
           </div>
         </div>
 
@@ -1377,56 +1317,60 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE 2 AI SUITE
+                  PHASE 3 POLISH
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Interactive Career Assistant • Real-Time Skill-Gap Bridge • 12-Stage Lifecycle</p>
+              <p className="text-[11px] text-slate-400">Gamification Trophies • Device Simulator • India DPDPA Privacy Shield</p>
             </div>
           </div>
 
-          {/* Phase 1 & 2 Live Controls */}
+          {/* Phase 1, 2 & 3 Stage Controls */}
           <div className="flex items-center gap-2 flex-wrap justify-center">
-            {/* Phase 2: Live AI Career Advisor Drawer Trigger */}
+            {/* Phase 3: Phone View Frame Simulator Toggle */}
+            <button
+              onClick={() => {
+                cyberAudio.playWarp();
+                setIsPhoneViewSimulated(!isPhoneViewSimulated);
+              }}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition flex items-center gap-1.5 ${
+                isPhoneViewSimulated
+                  ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-lg'
+                  : 'bg-[#0e162e] border-slate-700 text-slate-300 hover:text-white'
+              }`}
+              title="Toggle Native Mobile Phone View Simulator"
+            >
+              <span>📱</span> {isPhoneViewSimulated ? 'Desktop Frame' : 'Phone View'}
+            </button>
+
+            {/* Phase 3: Gamification Trophies Drawer Trigger */}
+            <button
+              onClick={() => {
+                cyberAudio.playLaser();
+                setShowAchievementsModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-mono font-bold text-xs shadow-lg shadow-amber-500/30 flex items-center gap-1.5 hover:scale-105 transition"
+            >
+              <span>🏆</span> Badges ({achievements.filter(a => a.unlocked).length})
+            </button>
+
+            {/* Phase 2: Live AI Career Advisor */}
             <button
               onClick={() => {
                 cyberAudio.playLaser();
                 setShowAiAdvisorChat(!showAiAdvisorChat);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-1.5 hover:scale-105 active:scale-95 transition"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1.5 hover:scale-105 transition"
             >
-              <span>🤖</span> AI Career Advisor
-            </button>
-
-            {/* Phase 2: Live Resume Text Parser Trigger */}
-            <button
-              onClick={() => {
-                cyberAudio.playWarp();
-                setShowLiveResumeAuditModal(true);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-[#09152e] border border-cyan-500/50 text-cyan-300 font-mono text-xs flex items-center gap-1.5 hover:bg-cyan-900/40 transition"
-            >
-              <span>📄</span> Live AI Parser
+              <span>🤖</span> AI Advisor
             </button>
 
             {/* 1-Click Live Stage Demo Runner */}
             <button
               onClick={handleStepDemoRunner}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white font-mono font-bold text-xs shadow-lg shadow-orange-500/30 flex items-center gap-1.5 hover:scale-105 active:scale-95 transition"
-              title="Click to automatically transition to next live demo scenario step"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-600 text-white font-mono font-bold text-xs shadow flex items-center gap-1.5 hover:scale-105 transition"
+              title="Click to advance stage demo scenario"
             >
-              <span>🎬</span>
-              <span>Step {demoStepIndex + 1}/5</span>
-            </button>
-
-            {/* Stage Runbook Drawer Trigger */}
-            <button
-              onClick={() => {
-                cyberAudio.playBlip();
-                setShowRunbookModal(true);
-              }}
-              className="px-2.5 py-1.5 rounded-xl bg-[#0f172a] border border-slate-700 text-slate-300 hover:text-white font-mono text-xs flex items-center gap-1 transition"
-            >
-              <span>📋</span> Runbook
+              <span>🎬</span> Step {demoStepIndex + 1}/5
             </button>
 
             <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1.5 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
@@ -1535,16 +1479,6 @@ export default function CampusNexPlatform() {
 
             <button
               onClick={() => {
-                cyberAudio.playWarp();
-                setIsSandboxOpen(true);
-              }}
-              className="p-2 rounded-xl bg-purple-950/70 border border-purple-500/50 text-purple-300 hover:bg-purple-900/80 text-xs font-semibold flex items-center gap-1.5 transition"
-            >
-              <span>🧪</span> Dojo Sandbox
-            </button>
-
-            <button
-              onClick={() => {
                 cyberAudio.playAlarm();
                 setIsWarRoomOpen(true);
                 setWarRoomSeconds(180);
@@ -1552,53 +1486,53 @@ export default function CampusNexPlatform() {
               }}
               className="p-2 rounded-xl bg-rose-950/80 border border-rose-600/60 text-rose-300 hover:bg-rose-900 text-xs font-semibold flex items-center gap-1.5 transition animate-pulse"
             >
-              <span>🚨</span> Incident War-Room
+              <span>🚨</span> War-Room
             </button>
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + DEMO STORY FOCUS */}
+        {/* HERO BANNER: 3D DYSON REACTOR + STAGE FOCUS */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-1 rounded-md border border-cyan-800/60 uppercase tracking-widest font-bold">
-                  Phase 2: Intelligent AI Career Assistant Live
+                <span className="text-[10px] font-mono text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded-md border border-amber-800/60 uppercase tracking-widest font-bold">
+                  Phase 3: UI Polish & Gamification Live
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
                   {activePortal.toUpperCase()} PORTAL
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                Natural Language Career AI, Real-Time Skill Bridging & Live Audit
+                {DEMO_NARRATIVE_STEPS[demoStepIndex].desc}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Interact with the AI Advisor on stage: Ask natural language questions, inspect actionable course recommendations for missing skills, and parse live resumes in under 2 seconds.
+                Clean typography, high-contrast accessibility, animated trophy achievements, native smartphone simulator, and strict India DPDPA compliance safeguards.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
                 <button
                   onClick={() => {
                     cyberAudio.playLaser();
-                    setShowAiAdvisorChat(true);
+                    setShowAchievementsModal(true);
                   }}
-                  className="px-3.5 py-1 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
+                  className="px-3.5 py-1 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1"
                 >
-                  <span>🤖</span> Launch AI Career Advisor
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playWarp();
-                    setShowLiveResumeAuditModal(true);
-                  }}
-                  className="px-3 py-1 bg-[#101e40] border border-cyan-500/60 text-cyan-200 font-bold rounded-lg hover:bg-cyan-900 transition flex items-center gap-1"
-                >
-                  <span>📄</span> Live Resume Analyzer
+                  <span>🏆</span> Inspect Achievement Trophies
                 </button>
                 <button
                   onClick={handleStepDemoRunner}
                   className="px-3 py-1 bg-gradient-to-r from-orange-500 to-rose-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
                 >
                   ▶ Advance Scenario ({demoStepIndex + 1}/5)
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playLaser();
+                    setShowOfferModal(true);
+                  }}
+                  className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+                >
+                  📜 Inspect Sovereign Appointment
                 </button>
               </div>
             </div>
@@ -1665,7 +1599,28 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* PHASE 2: INTERACTIVE SKILL-GAP COURSE BRIDGE ON JOB CARDS */}
+                {/* PHASE 3: GAMIFIED ACHIEVEMENT TROPHY BAR */}
+                <div className="p-4 bg-[#09152e]/85 border border-amber-500/40 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 font-mono text-xs">
+                  <div>
+                    <span className="text-amber-400 font-bold flex items-center gap-1.5 text-sm">
+                      <span>🏆</span> Candidate Placement Achievement Badges
+                    </span>
+                    <p className="text-[11px] text-slate-400 font-sans mt-0.5">
+                      Earned across multi-round technical assessments, raid triage, and verified offer acceptance.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      cyberAudio.playLaser();
+                      setShowAchievementsModal(true);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold text-xs shadow hover:scale-105 transition"
+                  >
+                    View All 4 Trophies
+                  </button>
+                </div>
+
+                {/* JOB CARDS */}
                 <div className="space-y-4">
                   {jobs.map(job => (
                     <div
@@ -1708,11 +1663,10 @@ export default function CampusNexPlatform() {
                           {job.aiExplanation}
                         </p>
 
-                        {/* Phase 2: Actionable Skill-Gap Training Course Recommendations */}
                         {job.missing.length > 0 && (
                           <div className="mt-2 pt-2 border-t border-slate-800/80 space-y-1">
                             <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">
-                              📚 AI Recommended Skill-Bridge Courses (To Reach 99% Match):
+                              📚 AI Recommended Skill-Bridge Courses:
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                               {job.recommendedCourses.map((course, idx) => (
@@ -1736,7 +1690,7 @@ export default function CampusNexPlatform() {
                             }}
                             className="px-3 py-1.5 rounded-xl border border-cyan-500/40 bg-cyan-950/60 text-cyan-300 hover:bg-cyan-900 text-xs font-bold transition flex items-center gap-1"
                           >
-                            <span>🤖</span> Ask AI About Fit
+                            <span>🤖</span> Ask AI
                           </button>
                           <button
                             onClick={() => {
@@ -1957,11 +1911,69 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ==================================================================== */}
-        {/* PHASE 2 MODAL 1: INTERACTIVE AI CAREER ADVISOR CHAT TERMINAL */}
+        {/* PHASE 3 NEW MODAL: GAMIFIED ACHIEVEMENT TROPHY VAULT */}
         {/* ==================================================================== */}
+        {showAchievementsModal && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+            <div className="bg-[#0b1021] border border-amber-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
+              <button
+                onClick={() => {
+                  cyberAudio.playBlip();
+                  setShowAchievementsModal(false);
+                }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">🏆</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">Apex Competence Trophies & Badges</h3>
+                  <p className="text-[11px] text-amber-300 font-mono">Proof-of-Execution Verified Hall of Fame</p>
+                </div>
+              </div>
+
+              <p className="text-slate-300 text-xs font-sans mb-4">
+                Badges are cryptographically unlocked when candidates demonstrate runtime capabilities and resolve production crises:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {achievements.map(badge => (
+                  <div
+                    key={badge.id}
+                    className="p-3.5 bg-[#08122c] border border-amber-500/40 rounded-2xl space-y-1 shadow-lg relative overflow-hidden"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{badge.icon}</span>
+                      <span className="font-bold text-white text-xs">{badge.title}</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 font-sans leading-relaxed">
+                      {badge.description}
+                    </p>
+                    <div className="pt-1 flex justify-between items-center text-[10px] font-mono">
+                      <span className="text-emerald-400 font-bold">✓ UNLOCKED</span>
+                      <span className="text-slate-400">{badge.unlockedAt}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setShowAchievementsModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
+                >
+                  Close Trophies
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Phase 2 AI Advisor Terminal */}
         {showAiAdvisorChat && (
           <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[92vw] bg-[#070e24]/95 border border-cyan-500/70 rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden font-mono text-xs animate-in slide-in-from-bottom-5 duration-200">
-            {/* Header */}
             <div className="p-3.5 bg-gradient-to-r from-cyan-950 via-[#0a1538] to-[#120e2e] border-b border-cyan-800/60 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
@@ -1975,7 +1987,6 @@ export default function CampusNexPlatform() {
               </button>
             </div>
 
-            {/* Quick Prompt Suggestions */}
             <div className="px-3 py-2 bg-[#050a1c] border-b border-slate-800/80 flex gap-1.5 overflow-x-auto text-[10px]">
               <button
                 onClick={() => handleSendAiChatMessage('Which jobs match my skills?')}
@@ -1989,15 +2000,8 @@ export default function CampusNexPlatform() {
               >
                 📊 Skill gap check?
               </button>
-              <button
-                onClick={() => handleSendAiChatMessage('How can I improve my 94% score?')}
-                className="whitespace-nowrap px-2 py-1 rounded bg-[#0f1d42] border border-cyan-800/60 text-cyan-300 hover:bg-cyan-900 transition"
-              >
-                🚀 Score 98%+?
-              </button>
             </div>
 
-            {/* Chat Body */}
             <div className="p-3.5 space-y-3 max-h-72 overflow-y-auto bg-black/40">
               {chatMessages.map(msg => (
                 <div
@@ -2018,7 +2022,6 @@ export default function CampusNexPlatform() {
               ))}
             </div>
 
-            {/* Input Bar */}
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -2040,79 +2043,6 @@ export default function CampusNexPlatform() {
                 Send
               </button>
             </form>
-          </div>
-        )}
-
-        {/* ==================================================================== */}
-        {/* PHASE 2 MODAL 2: LIVE RESUME TEXT PARSER & SKILL EXTRACTOR */}
-        {/* ==================================================================== */}
-        {showLiveResumeAuditModal && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowLiveResumeAuditModal(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">📄</span>
-                <div>
-                  <h3 className="text-base font-bold text-white">Live On-Stage Resume & Skill Parser</h3>
-                  <p className="text-[11px] text-cyan-300 font-mono">Real-Time Extraction & Explainable Alignment Demo</p>
-                </div>
-              </div>
-
-              <p className="text-slate-300 text-xs font-sans mb-3">
-                Type or paste resume text below. The AI extracts verified runtime skills and dynamically calculates ATS alignment in under 2 seconds:
-              </p>
-
-              <textarea
-                rows={5}
-                value={liveResumeText}
-                onChange={e => setLiveResumeText(e.target.value)}
-                placeholder="Paste candidate resume text here..."
-                className="w-full p-3 bg-[#070e24] border border-slate-700 rounded-2xl text-slate-200 font-mono text-[11px] focus:outline-none focus:border-cyan-500 resize-none mb-3"
-              />
-
-              <div className="flex justify-between items-center mb-3">
-                <button
-                  onClick={handleRunLiveResumeAudit}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5"
-                >
-                  <span>⚡</span> Extract Skills & Recalculate Score
-                </button>
-                <div className="text-right font-mono">
-                  <span className="text-[10px] text-slate-400 block">DYNAMIC MATCH SCORE:</span>
-                  <span className="text-lg font-black text-emerald-400">{liveExtractedScore}%</span>
-                </div>
-              </div>
-
-              {/* Extracted Skills Pills */}
-              <div className="p-3 bg-[#081024] rounded-2xl border border-slate-800 space-y-1.5">
-                <span className="text-[10px] text-slate-400 font-mono block">AI EXTRACTED SKILLS MATRIX:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {liveExtractedSkills.map((sk, i) => (
-                    <span key={i} className="px-2.5 py-1 rounded-lg bg-cyan-950 border border-cyan-600/60 text-cyan-300 font-mono text-[10px] flex items-center gap-1">
-                      <span>✓</span> {sk}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
-                <button
-                  onClick={() => setShowLiveResumeAuditModal(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
-                >
-                  Apply & Close
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
@@ -2336,74 +2266,7 @@ export default function CampusNexPlatform() {
             </div>
           </div>
         )}
-
-        {/* Welcome Momentum Modal */}
-        {showWelcomeModal && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-purple-700/60 rounded-3xl w-full max-w-lg p-6 sm:p-7 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setShowWelcomeModal(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">🔥</span>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 2 AI Career Suite Live
-                </span>
-              </div>
-
-              <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                AI Career Advisor & Real-Time Skill Bridging
-              </h3>
-
-              <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Featuring the interactive Neural Career Assistant, actionable course recommendations for missing competencies, and on-stage live resume parsing.
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 my-4">
-                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">Placement Status</span>
-                  <span className="text-base font-black text-emerald-400 mt-0.5 block">Joined & Active</span>
-                  <span className="text-[10px] text-slate-400">Class of 2026</span>
-                </div>
-                <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">AI Advisor Status</span>
-                  <span className="text-base font-black text-cyan-300 mt-0.5 block">Online & Listening</span>
-                  <span className="text-[10px] text-slate-400">&lt;2s Response Latency</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <button
-                  onClick={() => {
-                    setShowWelcomeModal(false);
-                    cyberAudio.playLaser();
-                    setShowAiAdvisorChat(true);
-                  }}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-cyan-600/30 hover:scale-[1.02] transition"
-                >
-                  🤖 Chat with AI Advisor
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setShowWelcomeModal(false);
-                  }}
-                  className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-xs font-bold transition"
-                >
-                  Explore Dashboard $\rightarrow$
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
-}
+    }
