@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // ============================================================================
-// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1, 2 & 3 COMPREHENSIVE ENGINE)
+// DATA MODELS & RBAC PORTAL DEFINITIONS (PHASE 1 - PHASE 4 ENGINE)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -198,7 +198,6 @@ function MasterHoloverseCanvas() {
       const cy = height / 2;
       const fov = 420;
 
-      // 1. Perspective Tron Floor
       const gridPitch = 180 + mouseY * 200;
       ctx.save();
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
@@ -218,7 +217,6 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // 2. Stars
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
         s.z -= 0.7;
@@ -244,7 +242,6 @@ function MasterHoloverseCanvas() {
         }
       }
 
-      // 3. Floating Crystals
       crystals.forEach(c => {
         c.rx += 0.008;
         c.ry += 0.012;
@@ -383,7 +380,7 @@ function CyberSingularityReactor() {
       ctx.save();
       ctx.translate(cx, cy);
 
-      // Ring 1 (Neon Pink)
+      // Ring 1
       const r1 = maxR * 0.95;
       ctx.save();
       ctx.rotate(t * 0.45);
@@ -396,7 +393,7 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 2 (Purple)
+      // Ring 2
       const r2 = maxR * 0.75;
       ctx.save();
       ctx.rotate(-t * 0.55 + 1.2);
@@ -409,7 +406,7 @@ function CyberSingularityReactor() {
       ctx.stroke();
       ctx.restore();
 
-      // Ring 3 (Cyan)
+      // Ring 3
       const r3 = maxR * 0.52;
       ctx.save();
       ctx.rotate(t * 0.75 - 0.7);
@@ -705,7 +702,7 @@ function HexagonSkillRadar() {
 }
 
 // ============================================================================
-// 4. MAIN ENTERPRISE PLATFORM (PHASE 3: PROFILE, EXPLAINABLE AI & APPS ENGINE)
+// 4. MAIN ENTERPRISE PLATFORM (PHASE 4: MULTI-DISCIPLINE ASSESSMENTS & WAR-ROOM)
 // ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
@@ -716,7 +713,7 @@ export default function CampusNexPlatform() {
   const [hologramActive, setHologramActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // College & Institutional State (Phase 2 preserved)
+  // College & Institutional State
   const [isRulebookModalOpen, setIsRulebookModalOpen] = useState(false);
   const [collegeDetails] = useState({
     name: 'Deccan College of Engineering & Technology',
@@ -749,7 +746,7 @@ export default function CampusNexPlatform() {
     { id: 'r3', name: 'Kunal Singhania', email: 'kunal.s@techcorp.in', role: 'Campus Coordinator', verifiedDomain: true, canIssueOffers: false },
   ]);
 
-  // Phase 3: Comprehensive Multi-Stream Profile State (Stage 4)
+  // Profile Drawer State
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [newSkillInput, setNewSkillInput] = useState('');
   const [newCertInput, setNewCertInput] = useState('');
@@ -773,10 +770,10 @@ export default function CampusNexPlatform() {
     eusiScore: '98.4%',
     dsaRank: '1840+ Hard Rank',
     verifiedCommits: '120+ Commits',
-    currentStep: 4 // Stage 4: Applied
+    currentStep: 5 // Stage 5: Assessment Phase
   });
 
-  // Phase 3: Job Drives with Stage 5 10-State Application Tracking & Stage 6 Explainable AI Matcher
+  // Job Drives with Stage 7 Assessment Integration
   const [jobs, setJobs] = useState<Job[]>([
     {
       id: '1',
@@ -799,8 +796,8 @@ export default function CampusNexPlatform() {
       applicationDeadline: '10 Nov 2026',
       interviewTimeline: '12-15 Nov 2026',
       targetColleges: ['DCET Hyderabad', 'JNTUH Campus', 'CBIT'],
-      status: 'Application Submitted',
-      aiExplanation: 'Strong 94% alignment. Proven execution in Raft consensus and high-concurrency Redis caching. Missing explicit evidence for Tailwind responsive design.'
+      status: 'Assessment Pending',
+      aiExplanation: 'Strong 94% alignment. Proven execution in Raft consensus and high-concurrency Redis caching.'
     },
     {
       id: '2',
@@ -824,7 +821,7 @@ export default function CampusNexPlatform() {
       interviewTimeline: '20-22 Nov 2026',
       targetColleges: ['DCET Hyderabad', 'Vasavi College', 'VNR VJIET'],
       status: 'Eligible',
-      aiExplanation: 'Academic metrics and relational DB query capability validated. Skill-gap identified in Python Pandas and Tableau business visualization.'
+      aiExplanation: 'Relational DB query capability validated. Skill-gap identified in Python Pandas.'
     },
     {
       id: '3',
@@ -848,7 +845,7 @@ export default function CampusNexPlatform() {
       interviewTimeline: '28-30 Nov 2026',
       targetColleges: ['DCET Hyderabad', 'IIT Hyderabad', 'NIT Warangal'],
       status: 'Eligible',
-      aiExplanation: 'Candidate CGPA 8.85 exceeds 8.5 threshold. PostgreSQL optimized. Requires verifiable Go microservices demonstration to reach 90th percentile shortlisting.'
+      aiExplanation: 'Requires verifiable Go microservices demonstration to reach 90th percentile shortlisting.'
     }
   ]);
 
@@ -857,24 +854,24 @@ export default function CampusNexPlatform() {
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: 'n1',
-      title: '🤖 Explainable AI Screening Ready',
-      message: 'TechCorp India: 94% Skills-to-Job alignment report minted.',
+      title: '🚨 Stage 7 Practical Assessment Unlocked',
+      message: 'Choose between Coding Arena, SQL Surgery, Clinical QA, or Business Modeling.',
       timestamp: 'Just now',
-      type: 'success',
+      type: 'alert',
       read: false
     },
     {
       id: 'n2',
-      title: '📑 Application Audit Log Updated',
-      message: 'Drive #1 status updated to Application Submitted.',
+      title: '⚡ Proof-of-Execution Consensus Active',
+      message: 'Consensus Proof #0x8942-APEX recorded on institutional ledger.',
       timestamp: '15m ago',
-      type: 'info',
+      type: 'success',
       read: false
     },
     {
       id: 'n3',
-      title: '⚡ Career Portfolio Verified',
-      message: 'GitHub repository and cloud certifications verified on ledger.',
+      title: '📑 Application Audit Log Updated',
+      message: 'Drive #1 status updated to Assessment Pending.',
       timestamp: '1h ago',
       type: 'info',
       read: true
@@ -890,7 +887,9 @@ export default function CampusNexPlatform() {
     company: string;
   } | null>(null);
 
-  // Practical Assessment States
+  // ==========================================================================
+  // PHASE 4 STATE: STAGE 7 MULTI-DISCIPLINE ASSESSMENTS & WAR-ROOM
+  // ==========================================================================
   const [isWarRoomOpen, setIsWarRoomOpen] = useState(false);
   const [warRoomSeconds, setWarRoomSeconds] = useState(180);
   const [warRoomLogs, setWarRoomLogs] = useState<string[]>([
@@ -901,18 +900,14 @@ export default function CampusNexPlatform() {
   const [warRoomInput, setWarRoomInput] = useState('');
   const [warRoomSolved, setWarRoomSolved] = useState(false);
 
-  const [zkBlindMode, setZkBlindMode] = useState(true);
-  const [cliInput, setCliInput] = useState('');
-  const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
+  // Phase 4: Assessment Type Selection in Sandbox/Arena
+  const [activeAssessmentDomain, setActiveAssessmentDomain] = useState<'engineering' | 'datasql' | 'pharmacy' | 'business' | 'aptitude'>('engineering');
+  const [pharmacyAnswer, setPharmacyAnswer] = useState('');
+  const [pharmacyPassed, setPharmacyPassed] = useState(false);
 
-  const [isArenaOpen, setIsArenaOpen] = useState(false);
-  const [arenaSubmitted, setArenaSubmitted] = useState(false);
+  const [businessAnswer, setBusinessAnswer] = useState('');
+  const [businessPassed, setBusinessPassed] = useState(false);
 
-  const [isScanning, setIsScanning] = useState(false);
-  const [resumeParsed, setResumeParsed] = useState(false);
-  const [parsedScore, setParsedScore] = useState(94);
-
-  // Dojo Sandbox State
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [activeSandboxTrack, setActiveSandboxTrack] = useState<'concurrency' | 'git' | 'database'>('concurrency');
   const [redisEnabled, setRedisEnabled] = useState(false);
@@ -925,12 +920,23 @@ export default function CampusNexPlatform() {
   const [batchingEnabled, setBatchingEnabled] = useState(false);
   const [databaseSolved, setDatabaseSolved] = useState(false);
 
+  const [isArenaOpen, setIsArenaOpen] = useState(false);
+  const [arenaSubmitted, setArenaSubmitted] = useState(false);
+
+  const [isScanning, setIsScanning] = useState(false);
+  const [resumeParsed, setResumeParsed] = useState(false);
+  const [parsedScore, setParsedScore] = useState(94);
+
+  const [zkBlindMode, setZkBlindMode] = useState(true);
+  const [cliInput, setCliInput] = useState('');
+  const [digitalTwinSyncing, setDigitalTwinSyncing] = useState(false);
+
   // Terminal Matrix State
   const [terminalOpen, setTerminalOpen] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_3_INTELLIGENCE]: Explainable AI Matcher & 10-State Application Engine Active.',
-    '✦ [SKILL_GAP_ANALYSIS]: Real-time evidence mapping active on 3 campus drives.',
-    '✓ [STUDENT_SOVEREIGNTY]: Multi-stream career credentials cryptographically protected.'
+    '⚡ [PHASE_4_ASSESSMENTS]: Multi-Discipline Assessment Engine active (Engineering, Pharmacy, MBA, SQL).',
+    '✦ [WAR_ROOM_TRIAGE]: Cluster outage scenario loaded: ap-south-1 Redis deadlock.',
+    '✓ [VERIFIABLE_PROOF]: Keystroke hesitation and stress indices monitored.'
   ]);
 
   useEffect(() => {
@@ -945,10 +951,10 @@ export default function CampusNexPlatform() {
     setShowWelcomeModal(true);
 
     const logPool = [
-      '🤖 [AI_SCREENING]: Explainable skill matching generated for candidate profile.',
-      '📑 [APPLICATION_TRACKER]: 10-State workflow audit history synchronized.',
-      '🎓 [CAREER_PORTFOLIO]: Multi-stream B.Tech/B.Pharm/MBA records locked.',
-      '✓ [VERIFICATION]: Proof-of-Execution Consensus Ledger online.'
+      '🧪 [MULTI_DISCIPLINE]: Practical assessments configured for B.Tech, B.Pharm & MBA.',
+      '🔥 [WAR_ROOM_SIM]: Live Incident simulation ready: 52,140 req/sec latency mitigation.',
+      '📜 [PROOF_OF_EXECUTION]: SHA-256 style consensus hash validated for active attempts.',
+      '✓ [EUSI_STRESS]: Candidate cognitive endurance vector synchronized at 98.4%.'
     ];
 
     const interval = setInterval(() => {
@@ -1025,38 +1031,16 @@ export default function CampusNexPlatform() {
     if (nextState) cyberAudio.playBlip();
   };
 
-  // Phase 3: Stage 5 Transparent Application Submission & Withdrawal Handler
   const handleApply = (id: string) => {
     cyberAudio.playLaser();
-    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Application Submitted', applicants: j.applicants + 1 } : j)));
-    setCandidateProfile(prev => ({ ...prev, currentStep: 4 }));
+    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Assessment Pending', applicants: j.applicants + 1 } : j)));
+    setCandidateProfile(prev => ({ ...prev, currentStep: 5 }));
     
     const targetJob = jobs.find(j => j.id === id);
     const newNotif: AppNotification = {
       id: Date.now().toString(),
-      title: '🎯 Application Dispatched',
-      message: `Application submitted for ${targetJob?.title}. Audit trail initialized.`,
-      timestamp: 'Just now',
-      type: 'info',
-      read: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
-
-    setTerminalLogs(prev => [
-      `✓ [STAGE_5_APPLICATION]: Candidate submitted application for ${targetJob?.title}. Audit Status: Active.`,
-      ...prev
-    ]);
-  };
-
-  const handleWithdraw = (id: string) => {
-    cyberAudio.playBlip();
-    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Withdrawn', applicants: Math.max(0, j.applicants - 1) } : j)));
-    
-    const targetJob = jobs.find(j => j.id === id);
-    const newNotif: AppNotification = {
-      id: Date.now().toString(),
-      title: '↩️ Application Withdrawn',
-      message: `Withdrawn application for ${targetJob?.title}. Recruiter notified.`,
+      title: '🧪 Assessment Unlocked',
+      message: `Applied to ${targetJob?.title}. Stage 5 Practical Assessment is now pending your submission.`,
       timestamp: 'Just now',
       type: 'alert',
       read: false
@@ -1064,9 +1048,14 @@ export default function CampusNexPlatform() {
     setNotifications(prev => [newNotif, ...prev]);
 
     setTerminalLogs(prev => [
-      `⚠️ [STAGE_5_WITHDRAW]: Candidate withdrew application from ${targetJob?.title}.`,
+      `✓ [STAGE_5_ASSESSMENT]: Assessment pending for ${targetJob?.title}. Practical testing unlocked.`,
       ...prev
     ]);
+  };
+
+  const handleWithdraw = (id: string) => {
+    cyberAudio.playBlip();
+    setJobs(jobs.map(j => (j.id === id ? { ...j, status: 'Withdrawn', applicants: Math.max(0, j.applicants - 1) } : j)));
   };
 
   const handleSimulateResumeScan = () => {
@@ -1096,18 +1085,19 @@ export default function CampusNexPlatform() {
     }, 1200);
   };
 
+  // Phase 4: Incident War-Room Command Handler
   const handleWarRoomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!warRoomInput.trim()) return;
     cyberAudio.playBlip();
     const cmd = warRoomInput.trim().toLowerCase();
 
-    if (cmd.includes('failover') || cmd.includes('restart') || cmd.includes('evict') || cmd.includes('sharding')) {
+    if (cmd.includes('failover') || cmd.includes('restart') || cmd.includes('evict') || cmd.includes('sharding') || cmd.includes('sentinel')) {
       cyberAudio.playLaser();
       setWarRoomLogs(prev => [
         'SUCCESS: Eviction policy switched to volatile-lru.',
         'RE-ELECTED: Replica #0x02 promoted to Master node.',
-        'LATENCY_RESTORED: P99 down to 4.2ms. Chaos neutralized.',
+        'LATENCY_RESTORED: P99 down to 4.2ms. Production outage resolved.',
         ...prev
       ]);
       setWarRoomSolved(true);
@@ -1116,7 +1106,7 @@ export default function CampusNexPlatform() {
       const newNotif: AppNotification = {
         id: Date.now().toString(),
         title: '🎉 War-Room Triage Passed',
-        message: 'Redis OOM solved in 42s. Execution Under Stress: 98.4%.',
+        message: 'Redis OOM solved in 42s. Execution Under Stress: 98.4%. Stage 7 Complete.',
         timestamp: 'Just now',
         type: 'success',
         read: false
@@ -1214,9 +1204,9 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-cyan-400">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 3 ENGINE
+              SOVEREIGN PORTAL: {activePortal.toUpperCase()} • PHASE 4 ASSESSMENTS
             </span>
-            <span>EXPLAINABLE AI MATCHER: ACTIVE</span>
+            <span>STAGE 7 PRACTICAL ASSESSMENT & WAR-ROOM: ACTIVE</span>
             <span className="text-purple-300">STAGE {candidateProfile.currentStep}/9 ACTIVE</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
@@ -1230,12 +1220,12 @@ export default function CampusNexPlatform() {
             >
               {soundEnabled ? '🔊 AUDIO SYNTH: ON' : '🔇 AUDIO: MUTED'}
             </button>
-            <span className="hidden sm:inline text-emerald-400">ZERO-TRUST VERIFIED</span>
+            <span className="hidden sm:inline text-emerald-400">PROVE COMPETENCE</span>
           </div>
         </div>
 
         {/* Main Glass Navigation Header */}
-        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/85 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
+        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/75 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-cyan-500/30 border border-cyan-300/30">
               ✦
@@ -1246,10 +1236,10 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  ENTERPRISE OS • PHASE 3
+                  PHASE 4 ASSESSMENTS
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">Multi-Stream Career Portfolio • 10-State Application Engine • Explainable AI</p>
+              <p className="text-[11px] text-slate-400">Multi-Discipline Assessment Engine • Incident War-Room • Verifiable PoE</p>
             </div>
           </div>
 
@@ -1366,7 +1356,7 @@ export default function CampusNexPlatform() {
               }}
               className="p-2 rounded-xl bg-purple-950/70 border border-purple-500/50 text-purple-300 hover:bg-purple-900/80 text-xs font-semibold flex items-center gap-1.5 transition"
             >
-              <span>🧪</span> Dojo Sandbox
+              <span>🧪</span> Assessment Dojo
             </button>
 
             <button
@@ -1383,39 +1373,33 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 3 ENGINE SUMMARY */}
+        {/* HERO BANNER: 3D DYSON REACTOR + PHASE 4 ASSESSMENT ENGINE */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono text-purple-400 bg-purple-950/80 px-2.5 py-1 rounded-md border border-purple-800/60 uppercase tracking-widest">
-                  Phase 3: Multi-Stream Profile & Explainable AI
+                  Stage 7: Multi-Discipline Assessments
                 </span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-1 rounded-md border border-emerald-800/60">
-                  {activePortal.toUpperCase()} COMMAND PORTAL
+                  {activePortal.toUpperCase()} PORTAL
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                {activePortal === 'student' && 'Transparent 10-State Application Engine & Explainable AI Matcher'}
-                {activePortal === 'recruiter' && 'AI Screening Explanations, Candidate Skill-Gap Feedback & Pipeline'}
-                {activePortal === 'tpo' && 'Batch Eligibility Verification & Institutional Placement Conversion'}
-                {activePortal === 'admin' && 'Enterprise System Security, Identity Vault & Audit Oversight'}
+                Practical Skill Testing, Incident War-Rooms & Verifiable Proof
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                {activePortal === 'student' && 'Discover transparent application statuses (Eligible, Under Review, Shortlisted, Withdrawn) backed by explainable skill-gap intelligence.'}
-                {activePortal === 'recruiter' && 'Review AI match justifications, missing evidence flags, and candidate rankings without personal demographic bias.'}
-                {activePortal === 'tpo' && 'Enforce institutional cutoffs across departments (B.Tech, B.Pharm, MBA) and inspect audited student applications.'}
-                {activePortal === 'admin' && 'Audit employer email verifications, monitor consensus ledger health, and govern zero-knowledge identity safeguards.'}
+                Objective assessment beyond theoretical MCQ exams: Real-world engineering concurrency triage, SQL query surgery, regulatory pharmacy case studies, and business analytics.
               </p>
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono">
                 <button
                   onClick={() => {
                     cyberAudio.playWarp();
-                    setIsEditProfileOpen(true);
+                    setIsSandboxOpen(true);
                   }}
-                  className="px-3 py-1 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+                  className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
                 >
-                  ✏️ Edit Career Profile & Links
+                  🧪 Open Multi-Discipline Assessment Dojo
                 </button>
                 <button
                   onClick={() => {
@@ -1426,7 +1410,7 @@ export default function CampusNexPlatform() {
                   }}
                   className="bg-rose-950/80 hover:bg-rose-900 px-2.5 py-1 rounded border border-rose-500/60 text-rose-200 transition font-bold"
                 >
-                  🚨 Trigger War-Room Simulation
+                  🚨 Launch Incident War-Room
                 </button>
               </div>
             </div>
@@ -1439,7 +1423,7 @@ export default function CampusNexPlatform() {
 
         {/* Main Dynamic Portal Container */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* Phase 3 KPI Telemetry */}
+          {/* Phase 4 KPI Telemetry */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-xs">
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-purple-900/50 shadow-xl relative overflow-hidden group hover:border-purple-500/40 transition">
               <span className="text-purple-400 uppercase tracking-wider font-semibold text-[10px] font-mono">Proof-of-Execution Hash</span>
@@ -1447,26 +1431,24 @@ export default function CampusNexPlatform() {
               <span className="text-purple-300 font-bold flex items-center gap-1 mt-1">O(1) Memory Footprint Validated</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-slate-800/80 shadow-xl relative overflow-hidden group hover:border-indigo-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Active Applications</span>
-              <div className="text-2xl font-black text-emerald-400 mt-1">
-                {jobs.filter(j => j.status === 'Application Submitted').length} Drives
-              </div>
-              <span className="text-cyan-400 font-bold mt-1 block">Full Audit Trail Active</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Stress Resilience (EUSI)</span>
+              <div className="text-2xl font-black text-emerald-400 mt-1">{candidateProfile.eusiScore}</div>
+              <span className="text-cyan-400 font-bold mt-1 block">Zero Cognitive Panics in Outage</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Explainable AI Match</span>
-              <div className="text-2xl font-black text-white mt-1">94% Max Alignment</div>
-              <span className="text-amber-400 font-bold mt-1 block">Skill-Gap Evidence Parsed</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Assessment Domains</span>
+              <div className="text-2xl font-black text-white mt-1">5 Tracks Active</div>
+              <span className="text-amber-400 font-bold mt-1 block">Engineering, Clinical, MBA, SQL</span>
             </div>
             <div className="bg-[#0b1021]/70 backdrop-blur-xl p-4 rounded-2xl border border-pink-500/40 shadow-xl relative overflow-hidden group hover:border-pink-500/40 transition">
-              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Academic Standing</span>
-              <div className="text-2xl font-black text-white mt-1">CGPA {candidateProfile.cgpa}</div>
-              <span className="text-emerald-400 font-bold mt-1 block">{candidateProfile.backlogs} Standing Backlogs</span>
+              <span className="text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Candidate Stage</span>
+              <div className="text-2xl font-black text-white mt-1">Stage {candidateProfile.currentStep}/9</div>
+              <span className="text-emerald-400 font-bold mt-1 block">{LIFECYCLE_STAGES[candidateProfile.currentStep - 1]}</span>
             </div>
           </div>
 
           {/* ================================================================ */}
-          {/* PORTAL 1: 🎓 STUDENT SOVEREIGN PORTAL (STAGE 4, 5 & 6 INTEGRATED) */}
+          {/* PORTAL 1: 🎓 STUDENT SOVEREIGN PORTAL */}
           {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1511,6 +1493,32 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
+                {/* Proof-of-Execution Ledger Banner */}
+                <div className="bg-[#0e122b]/75 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-xl">
+                      📜
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white">Cryptographic Proof-of-Execution:</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                          VERIFIED {candidateProfile.poeHash}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Mathematical verification: Distributed raft consensus + 2,840 CPU cycles benchmarked.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={triggerDigitalTwinSync}
+                    className="px-3 py-1.5 bg-[#171f3d] border border-cyan-500/40 text-cyan-300 rounded-xl font-bold font-mono hover:bg-cyan-900/30 transition text-[11px] flex items-center gap-1.5"
+                  >
+                    <span>⚡</span> {digitalTwinSyncing ? 'Syncing...' : 'Re-verify Proof'}
+                  </button>
+                </div>
+
                 {/* Job Search & Filter Bar */}
                 <div className="relative">
                   <input
@@ -1523,7 +1531,7 @@ export default function CampusNexPlatform() {
                   <span className="absolute left-3.5 top-3.5 text-slate-500 text-sm">🔍</span>
                 </div>
 
-                {/* Stage 5 & 6: Job Discovery, 10-State Application Flow & Explainable AI Matcher */}
+                {/* Job Cards */}
                 <div className="space-y-4">
                   {filteredJobs.map(job => (
                     <div
@@ -1553,23 +1561,22 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        {/* Stage 5: 10-State Application Status Badge */}
                         <div className="flex items-center gap-2">
                           <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
-                            job.status === 'Application Submitted'
-                              ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50'
+                            job.status === 'Assessment Pending'
+                              ? 'bg-amber-950/80 text-amber-300 border-amber-500/50 animate-pulse'
                               : job.status === 'Shortlisted'
                               ? 'bg-purple-950/80 text-purple-300 border-purple-500/50'
                               : job.status === 'Withdrawn'
                               ? 'bg-rose-950/80 text-rose-300 border-rose-500/50'
                               : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
                           }`}>
-                            {job.status === 'Application Submitted' ? '✓ Application Submitted' : job.status}
+                            {job.status}
                           </span>
                         </div>
                       </div>
 
-                      {/* Stage 6: Explainable AI Matching & Skill-Gap Analysis Box */}
+                      {/* Explainable AI Box */}
                       <div className="mt-3.5 p-3.5 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-2 text-xs font-mono">
                         <div className="flex justify-between items-center text-[11px]">
                           <span className="text-cyan-300 font-bold flex items-center gap-1.5">
@@ -1594,7 +1601,6 @@ export default function CampusNexPlatform() {
                         </div>
                       </div>
 
-                      {/* Criteria Roster */}
                       <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-mono">
                         <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-300">
                           ✓ Min CGPA: {job.minCgpa} (Candidate: {candidateProfile.cgpa})
@@ -1615,6 +1621,15 @@ export default function CampusNexPlatform() {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
+                              cyberAudio.playWarp();
+                              setIsSandboxOpen(true);
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl border border-cyan-500/50 bg-cyan-950/60 text-cyan-300 hover:bg-cyan-900 font-bold transition flex items-center gap-1"
+                          >
+                            <span>🧪</span> Enter Assessment
+                          </button>
+                          <button
+                            onClick={() => {
                               cyberAudio.playAlarm();
                               setIsWarRoomOpen(true);
                               setWarRoomSeconds(180);
@@ -1625,26 +1640,19 @@ export default function CampusNexPlatform() {
                             <span>🚨</span> War-Room Triage
                           </button>
 
-                          {job.status === 'Application Submitted' ? (
+                          {job.status === 'Assessment Pending' ? (
                             <button
                               onClick={() => handleWithdraw(job.id)}
                               className="px-3.5 py-1.5 rounded-xl font-bold bg-rose-950/80 text-rose-300 border border-rose-600/60 hover:bg-rose-900 transition"
                             >
-                              Withdraw Application
-                            </button>
-                          ) : job.status === 'Withdrawn' ? (
-                            <button
-                              onClick={() => handleApply(job.id)}
-                              className="px-3.5 py-1.5 rounded-xl font-bold bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 transition"
-                            >
-                              Re-Apply to Drive
+                              Withdraw
                             </button>
                           ) : (
                             <button
                               onClick={() => handleApply(job.id)}
                               className="px-4 py-1.5 rounded-xl font-bold transition shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white shadow-indigo-600/30"
                             >
-                              Submit Application
+                              Apply & Enter Assessment
                             </button>
                           )}
                         </div>
@@ -1654,7 +1662,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: STAGE 4 DEEP CAREER PORTFOLIO */}
+              {/* RIGHT COLUMN: CAREER PORTFOLIO */}
               <div className="space-y-5">
                 <div className="bg-[#0b1021]/70 backdrop-blur-xl border border-cyan-900/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
                   <div className="flex items-center justify-between mb-2">
@@ -1672,7 +1680,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Stage 4: Comprehensive Career Portfolio Details */}
                   <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5 mt-3">
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">COLLEGE / INSTITUTION:</span>
@@ -1691,32 +1698,12 @@ export default function CampusNexPlatform() {
                       <span className="text-emerald-300 font-semibold truncate max-w-[160px] text-right">{candidateProfile.preferredRole}</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">LOCATION PREFERENCE:</span>
-                      <span className="text-purple-300 font-semibold">{candidateProfile.locationPreference}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
                       <span className="text-slate-500">PORTFOLIO CV:</span>
                       <span className="text-cyan-400 underline truncate max-w-[160px]">{candidateProfile.resumeFileName}</span>
                     </div>
-                    <div className="flex justify-between border-b border-slate-800/80 pb-1">
-                      <span className="text-slate-500">GITHUB / CODE REPO:</span>
-                      <span className="text-cyan-300 truncate max-w-[160px]">{candidateProfile.githubUrl}</span>
-                    </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">LIVE PORTFOLIO:</span>
-                      <span className="text-indigo-300 truncate max-w-[160px]">{candidateProfile.portfolioUrl}</span>
-                    </div>
-                  </div>
-
-                  {/* Stage 4: Verified Certifications */}
-                  <div className="mt-3 p-2.5 bg-[#060c1e] border border-cyan-900/40 rounded-xl space-y-1 font-mono text-[10px]">
-                    <span className="text-slate-400 font-bold block">VERIFIED CERTIFICATIONS & CREDENTIALS:</span>
-                    <div className="flex flex-wrap gap-1">
-                      {candidateProfile.certifications.map((c, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-cyan-950 border border-cyan-700/60 text-cyan-300">
-                          ✓ {c}
-                        </span>
-                      ))}
+                      <span className="text-slate-500">ASSESSMENT RESULT:</span>
+                      <span className="text-amber-400 font-bold">PoE Verified #0x8942</span>
                     </div>
                   </div>
 
@@ -1728,7 +1715,7 @@ export default function CampusNexPlatform() {
                       }}
                       className="py-1.5 bg-gradient-to-r from-cyan-900/50 to-indigo-900/50 hover:from-cyan-800/60 hover:to-indigo-800/60 border border-cyan-500/50 text-cyan-200 text-[11px] font-mono rounded-xl transition flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40"
                     >
-                      <span>✏️</span> Edit Career Profile
+                      <span>✏️</span> Edit Profile
                     </button>
 
                     <button
@@ -1817,7 +1804,7 @@ export default function CampusNexPlatform() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Stage 6 AI Match Intelligence: Review skills-to-job matching, missing evidence justifications, and candidate rankings without personal demographic bias.
+                    Stage 7 Assessment Monitoring: Review multi-discipline assessment logs, war-room incident triage speeds, and practical evidence.
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1836,33 +1823,6 @@ export default function CampusNexPlatform() {
                   >
                     + Post Multi-Campus Drive
                   </button>
-                </div>
-              </div>
-
-              {/* Recruiter Authorized Team */}
-              <div className="p-4 bg-[#070b18] border border-cyan-900/40 rounded-2xl space-y-2 font-mono text-xs">
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white flex items-center gap-2">
-                    <span>🏢</span> TechCorp India: Authorized Recruiting Team & Permissions
-                  </span>
-                  <span className="text-emerald-400 text-[10px]">DOMAIN VERIFIED: @techcorp.in</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-                  {recruiterTeam.map(rec => (
-                    <div key={rec.id} className="p-2.5 bg-[#0e162e] border border-slate-800 rounded-xl">
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-white">{rec.name}</span>
-                        <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">✓ Verified</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400">{rec.email}</div>
-                      <div className="mt-1 flex justify-between items-center text-[9px]">
-                        <span className="text-cyan-300">{rec.role}</span>
-                        <span className={rec.canIssueOffers ? 'text-emerald-400' : 'text-slate-500'}>
-                          {rec.canIssueOffers ? 'Offer Authority: Yes' : 'Reviewer Only'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -2009,37 +1969,6 @@ export default function CampusNexPlatform() {
                     Affiliation: {collegeDetails.universityAffiliation} • {collegeDetails.accreditationGrade}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      cyberAudio.playWarp();
-                      setIsRulebookModalOpen(true);
-                    }}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg transition"
-                  >
-                    ⚙️ Edit Placement Rulebook
-                  </button>
-                </div>
-              </div>
-
-              {/* Placement Rulebook Snapshot */}
-              <div className="p-3.5 bg-[#070d1e] border border-cyan-800/40 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                <div>
-                  <span className="text-[10px] text-slate-500 block">MIN CGPA CUTOFF</span>
-                  <span className="text-emerald-400 font-bold">{institutionalRules.minCgpaCutoff} CGPA</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">STANDING BACKLOGS</span>
-                  <span className="text-purple-300 font-bold">{institutionalRules.maxStandingBacklogs} Backlogs Max</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">MIN ATTENDANCE</span>
-                  <span className="text-cyan-300 font-bold">{institutionalRules.minAttendancePercent}% Required</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-slate-500 block">SUPER DREAM CUTOFF</span>
-                  <span className="text-amber-400 font-bold">₹{institutionalRules.tier1DtcThresholdLpa} LPA+</span>
-                </div>
               </div>
 
               {/* Academic Departments */}
@@ -2089,479 +2018,27 @@ export default function CampusNexPlatform() {
                   <span className="text-[10px] text-rose-400 block font-bold">COMPANY DOMAIN VERIFICATION</span>
                   <div className="text-lg font-bold text-white">42 Verified Employers</div>
                   <div className="text-emerald-400 font-bold">✓ Zero Domain Spoofing</div>
-                  <p className="text-[10px] text-slate-400 font-sans mt-2">
-                    Authorized company email verification and recruiter identity checks enforced.
-                  </p>
                 </div>
 
                 <div className="p-4 bg-[#081024]/75 rounded-2xl border border-cyan-900/50 space-y-2 backdrop-blur-md">
                   <span className="text-[10px] text-cyan-400 block font-bold">CONSENSUS LEDGER MINT STATUS</span>
                   <div className="text-lg font-bold text-white">12,840 Block Hashes</div>
                   <div className="text-cyan-300 font-bold">Latency: 2.1ms</div>
-                  <p className="text-[10px] text-slate-400 font-sans mt-2">
-                    Cryptographic Proof-of-Execution blocks timestamped on raft consensus ledger.
-                  </p>
                 </div>
 
                 <div className="p-4 bg-[#081024]/75 rounded-2xl border border-purple-900/50 space-y-2 backdrop-blur-md">
                   <span className="text-[10px] text-purple-400 block font-bold">ZERO-KNOWLEDGE PRIVACY SHIELD</span>
                   <div className="text-lg font-bold text-white">100% Protected Identifiers</div>
                   <div className="text-emerald-400 font-bold">Strict Bias Filter Active</div>
-                  <p className="text-[10px] text-slate-400 font-sans mt-2">
-                    Sensitive personal demographics masked during pre-interview selection rounds.
-                  </p>
                 </div>
               </div>
             </div>
           )}
         </main>
 
-        {/* PHASE 3: COMPREHENSIVE CAREER PORTFOLIO CONFIGURATION MODAL */}
-        {isEditProfileOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsEditProfileOpen(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>✏️</span> Candidate Career Profile & Credentials Configuration
-              </h3>
-              <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Stage 4: Self-manage your academic metrics, multi-stream courses (B.Tech, B.Pharm, MBA), live repository links, and verified certifications.
-              </p>
-
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  cyberAudio.playLaser();
-                  setIsEditProfileOpen(false);
-                  setCandidateProfile(prev => ({ ...prev, currentStep: 2 }));
-                  setTerminalLogs(prev => [
-                    `✓ [CAREER_PORTFOLIO_UPDATED]: Comprehensive profile synced for ${candidateProfile.name}.`,
-                    ...prev
-                  ]);
-                }}
-                className="space-y-3.5 font-mono"
-              >
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">1. Full Name / Verified Identifier *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.name}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, name: e.target.value })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">2. College / Institution *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.institution}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, institution: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">3. Multi-Stream Degree Program *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.course}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, course: e.target.value })}
-                      placeholder="e.g. B.Tech CSE / B.Pharm / MBA Finance"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">4. Graduation Year *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.batch}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, batch: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">5. Academic CGPA *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.cgpa}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, cgpa: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">6. Active Backlogs *</label>
-                    <input
-                      type="number"
-                      required
-                      value={candidateProfile.backlogs}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, backlogs: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">7. Preferred Career Track *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.preferredRole}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, preferredRole: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">8. Location Preference *</label>
-                    <input
-                      type="text"
-                      required
-                      value={candidateProfile.locationPreference}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, locationPreference: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">9. GitHub / Project Repository</label>
-                    <input
-                      type="text"
-                      value={candidateProfile.githubUrl}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, githubUrl: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-semibold">10. Live Portfolio / Demo Link</label>
-                    <input
-                      type="text"
-                      value={candidateProfile.portfolioUrl}
-                      onChange={e => setCandidateProfile({ ...candidateProfile, portfolioUrl: e.target.value })}
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">11. Portfolio Resume File Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={candidateProfile.resumeFileName}
-                    onChange={e => setCandidateProfile({ ...candidateProfile, resumeFileName: e.target.value })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                {/* Skills Tag Management */}
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">12. Technical Skills (Press Enter to add)</label>
-                  <input
-                    type="text"
-                    value={newSkillInput}
-                    onChange={e => setNewSkillInput(e.target.value)}
-                    onKeyDown={handleAddSkill}
-                    placeholder="Type skill & press Enter (e.g. Next.js, Kubernetes, SQL)..."
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
-                  />
-                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
-                    {candidateProfile.skills.map((s, idx) => (
-                      <span key={idx} className="bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
-                        {s}
-                        <button type="button" onClick={() => handleRemoveSkill(s)} className="text-rose-400 hover:text-white">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Certifications Tag Management */}
-                <div>
-                  <label className="text-slate-300 block mb-1 font-semibold">13. Verified Certifications (Press Enter to add)</label>
-                  <input
-                    type="text"
-                    value={newCertInput}
-                    onChange={e => setNewCertInput(e.target.value)}
-                    onKeyDown={handleAddCert}
-                    placeholder="Type certification & press Enter (e.g. AWS Certified, Clinical Trial QA)..."
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-500 mb-2"
-                  />
-                  <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
-                    {candidateProfile.certifications.map((c, idx) => (
-                      <span key={idx} className="bg-purple-950/80 border border-purple-700 text-purple-300 text-[10px] px-2 py-0.5 rounded-lg flex items-center gap-1.5">
-                        ✓ {c}
-                        <button type="button" onClick={() => handleRemoveCert(c)} className="text-rose-400 hover:text-white">✕</button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-3 flex gap-2 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setIsEditProfileOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold shadow-lg shadow-cyan-600/30 transition hover:scale-[1.02]"
-                  >
-                    Save & Lock Verification
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Phase 2: Institutional Rulebook Modal */}
-        {isRulebookModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
-            <div className="bg-[#0b1021] border border-cyan-500/70 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsRulebookModalOpen(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>⚙️</span> Institutional Placement Rulebook Configuration
-              </h3>
-              <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Stage 1: Define automated eligibility policies enforced across all upcoming campus drives.
-              </p>
-
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  cyberAudio.playLaser();
-                  setIsRulebookModalOpen(false);
-                  const notif: AppNotification = {
-                    id: Date.now().toString(),
-                    title: '⚙️ Rulebook Updated',
-                    message: `Placement rules updated: Min ${institutionalRules.minCgpaCutoff} CGPA, Max ${institutionalRules.maxStandingBacklogs} Backlogs.`,
-                    timestamp: 'Just now',
-                    type: 'success',
-                    read: false
-                  };
-                  setNotifications(prev => [notif, ...prev]);
-                }}
-                className="space-y-3 font-mono"
-              >
-                <div>
-                  <label className="text-slate-300 block mb-1">Minimum Qualifying CGPA Threshold</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={institutionalRules.minCgpaCutoff}
-                    onChange={e => setInstitutionalRules({ ...institutionalRules, minCgpaCutoff: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Maximum Allowed Standing Backlogs</label>
-                  <input
-                    type="number"
-                    value={institutionalRules.maxStandingBacklogs}
-                    onChange={e => setInstitutionalRules({ ...institutionalRules, maxStandingBacklogs: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Minimum Academic Attendance (%)</label>
-                  <input
-                    type="number"
-                    value={institutionalRules.minAttendancePercent}
-                    onChange={e => setInstitutionalRules({ ...institutionalRules, minAttendancePercent: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div>
-                  <label className="text-slate-300 block mb-1">Super Dream Tier CTC Threshold (₹ LPA)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    value={institutionalRules.tier1DtcThresholdLpa}
-                    onChange={e => setInstitutionalRules({ ...institutionalRules, tier1DtcThresholdLpa: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsRulebookModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold"
-                  >
-                    Save & Enforce Policies
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Phase 2: Stage 3 Multi-Campus Drive Modal */}
-        {isPostModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative shadow-2xl animate-in zoom-in-95 duration-200 my-8">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsPostModalOpen(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-              <h3 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-                <span>🚀</span> Stage 3: Multi-Campus Drive & Job Architect
-              </h3>
-              <p className="text-[11px] text-slate-400 mb-4 font-sans">
-                Broadcast recruitment drive across multiple affiliated colleges simultaneously.
-              </p>
-
-              <form onSubmit={e => { e.preventDefault(); setIsPostModalOpen(false); }} className="space-y-3 font-mono">
-                <div>
-                  <label className="text-slate-300 block mb-1">Job Role Title *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Distributed Core Systems Architect"
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-slate-300 block mb-1">Company Entity *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Google India"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-slate-300 block mb-1">Package Offered (CTC) *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. ₹20 - ₹28 LPA"
-                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 flex gap-2 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setIsPostModalOpen(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
-                  >
-                    Broadcast Drive Across Campuses
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Interactive CLI Developer Console */}
-        <div className="fixed bottom-4 left-4 z-40 w-80 sm:w-96">
-          <div className="bg-[#070b16]/90 border border-cyan-800/80 rounded-2xl shadow-2xl backdrop-blur-2xl overflow-hidden font-mono text-[11px]">
-            <div className="flex justify-between items-center px-3 py-2 bg-[#0c1429]/90 border-b border-cyan-900/60">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold text-cyan-300 tracking-wider">APEX_OS_PHASE3_CLI</span>
-              </div>
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setTerminalOpen(!terminalOpen);
-                }}
-                className="text-slate-400 hover:text-white px-1.5 py-0.5 rounded text-[10px] bg-slate-800"
-              >
-                {terminalOpen ? 'MINIMIZE ▾' : 'EXPAND ▴'}
-              </button>
-            </div>
-
-            {terminalOpen && (
-              <div className="p-3 bg-black/60 backdrop-blur-xl">
-                <div className="space-y-1 max-h-28 overflow-y-auto text-slate-300 mb-2">
-                  {terminalLogs.map((log, index) => (
-                    <div
-                      key={index}
-                      className={`leading-relaxed text-[10px] ${
-                        index === 0 ? 'text-purple-300 font-bold' : 'text-slate-400'
-                      }`}
-                    >
-                      {log}
-                    </div>
-                  ))}
-                </div>
-                <form onSubmit={handleExecuteCli} className="flex gap-1 border-t border-slate-800 pt-2">
-                  <span className="text-cyan-400 font-bold">&gt;</span>
-                  <input
-                    type="text"
-                    placeholder="Type /sandbox, /warroom, /scan, /apex, /clear..."
-                    value={cliInput}
-                    onChange={e => setCliInput(e.target.value)}
-                    className="w-full bg-transparent text-white text-[10px] focus:outline-none placeholder:text-slate-600"
-                  />
-                </form>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Floating Action Button */}
-        <button
-          onClick={() => {
-            cyberAudio.playWarp();
-            setIsPostModalOpen(true);
-          }}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 text-white flex items-center justify-center text-3xl font-black shadow-2xl hover:scale-110 active:scale-95 transition-all border border-purple-300/40 shadow-indigo-500/50"
-        >
-          +
-        </button>
-
-        {/* PRACTICAL ASSESSMENT: APEX ENGINEERING TRAINING DOJO (SANDBOX) */}
+        {/* ==================================================================== */}
+        {/* PHASE 4 MODAL: MULTI-DISCIPLINE STAGE 7 ASSESSMENT DOJO */}
+        {/* ==================================================================== */}
         {isSandboxOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5">
             <div className="bg-[#090e24] border border-cyan-500/70 rounded-3xl w-full max-w-3xl p-5 sm:p-7 text-xs relative shadow-2xl font-mono animate-in zoom-in-95 duration-200 overflow-hidden">
@@ -2581,67 +2058,80 @@ export default function CampusNexPlatform() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    Skill Assessment Dojo Sandbox
+                    Stage 7 Multi-Discipline Practical Assessment
                     <span className="text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-0.5 rounded-full font-bold">
-                      HANDS-ON SIMULATION
+                      VERIFIABLE PROOF ENGINE
                     </span>
                   </h3>
                   <p className="text-[11px] text-slate-400 font-sans">
-                    Demonstrate architectural readiness through interactive runtime stress mitigation.
+                    Demonstrate applied skills across Engineering, Data SQL, Healthcare Pharmacy, and Business Modeling.
                   </p>
                 </div>
               </div>
 
-              {/* Sandbox 3-Track Navigation Bar */}
-              <div className="grid grid-cols-3 gap-2 p-1.5 bg-[#05091a] border border-slate-800 rounded-2xl mb-5 text-[11px] font-bold">
+              {/* Phase 4 Multi-Discipline Domain Selector */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-[#05091a] border border-slate-800 rounded-2xl mb-5 text-[11px] font-bold">
                 <button
                   onClick={() => {
                     cyberAudio.playBlip();
-                    setActiveSandboxTrack('concurrency');
+                    setActiveAssessmentDomain('engineering');
                   }}
                   className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeSandboxTrack === 'concurrency'
+                    activeAssessmentDomain === 'engineering'
                       ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  ⚡ Concurrency & Caching
+                  ⚡ Concurrency / K8s
                 </button>
                 <button
                   onClick={() => {
                     cyberAudio.playBlip();
-                    setActiveSandboxTrack('git');
+                    setActiveAssessmentDomain('datasql');
                   }}
                   className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeSandboxTrack === 'git'
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  🐙 Git & Production CI/CD
-                </button>
-                <button
-                  onClick={() => {
-                    cyberAudio.playBlip();
-                    setActiveSandboxTrack('database');
-                  }}
-                  className={`py-2 px-1 rounded-xl transition text-center ${
-                    activeSandboxTrack === 'database'
+                    activeAssessmentDomain === 'datasql'
                       ? 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white shadow-lg'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  🗄️ Query Optimization
+                  🗄️ SQL Optimization
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveAssessmentDomain('pharmacy');
+                  }}
+                  className={`py-2 px-1 rounded-xl transition text-center ${
+                    activeAssessmentDomain === 'pharmacy'
+                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  💊 Clinical & Pharma QA
+                </button>
+                <button
+                  onClick={() => {
+                    cyberAudio.playBlip();
+                    setActiveAssessmentDomain('business');
+                  }}
+                  className={`py-2 px-1 rounded-xl transition text-center ${
+                    activeAssessmentDomain === 'business'
+                      ? 'bg-gradient-to-r from-amber-600 to-indigo-600 text-white shadow-lg'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📊 MBA Valuation Model
                 </button>
               </div>
 
-              {/* TRACK 1: HIGH CONCURRENCY & CACHING */}
-              {activeSandboxTrack === 'concurrency' && (
+              {/* DOMAIN 1: ENGINEERING (CONCURRENCY) */}
+              {activeAssessmentDomain === 'engineering' && (
                 <div className="space-y-4">
                   <div className="p-4 bg-[#05091a] border border-cyan-900/60 rounded-2xl space-y-2">
                     <div className="flex justify-between items-center text-[10px]">
                       <span className="text-rose-400 font-bold uppercase tracking-wider">
-                        Scenario: Flash Sale Spike (10,000 req/sec)
+                        Scenario: Distributed Flash-Sale Spike (10,000 req/sec)
                       </span>
                       <span className={`px-2 py-0.5 rounded-full font-bold ${concurrencySolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300 animate-pulse'}`}>
                         {concurrencySolved ? 'SYSTEM STABLE' : 'CRITICAL BOTTLENECK'}
@@ -2662,10 +2152,6 @@ export default function CampusNexPlatform() {
                         </span>
                       </div>
                     </div>
-
-                    <p className="text-[11px] text-slate-300 font-sans">
-                      Task: Wire in-memory Redis Read-Through caching and Token-Bucket rate limiting to prevent disk saturation and server collapse.
-                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2681,8 +2167,8 @@ export default function CampusNexPlatform() {
                       }}
                       className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
                         redisEnabled
-                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg shadow-cyan-900/30'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
                       }`}
                     >
                       <div>
@@ -2704,8 +2190,8 @@ export default function CampusNexPlatform() {
                       }}
                       className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
                         rateLimiterEnabled
-                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg shadow-purple-900/30'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
                       }`}
                     >
                       <div>
@@ -2721,7 +2207,7 @@ export default function CampusNexPlatform() {
                       <div>
                         <div className="font-bold text-emerald-300">✓ Concurrency Lab Passed!</div>
                         <div className="text-[10px] text-slate-300 font-sans">
-                          Redis cache absorbed the read surge and rate limiting halted DDoS bots. Badge unlocked.
+                          Redis cache absorbed the read surge. Proof of Execution minted.
                         </div>
                       </div>
                       <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
@@ -2732,103 +2218,16 @@ export default function CampusNexPlatform() {
                 </div>
               )}
 
-              {/* TRACK 2: REAL-WORLD GIT & CI/CD */}
-              {activeSandboxTrack === 'git' && (
-                <div className="space-y-4">
-                  <div className="p-4 bg-[#05091a] border border-purple-900/60 rounded-2xl space-y-2">
-                    <div className="flex justify-between items-center text-[10px]">
-                      <span className="text-purple-300 font-bold uppercase tracking-wider">
-                        Scenario: Production Deployment Conflict & Secret Security
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full font-bold ${gitSolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
-                        {gitSolved ? 'PIPELINE GREEN' : 'PIPELINE BLOCKED'}
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-[#0d1430] rounded-xl font-mono text-[10px] text-slate-300 space-y-1">
-                      <div className="text-rose-400 font-bold">&gt;&gt;&gt;&gt;&gt;&gt;&gt; CONFLICT (content): Merge conflict in src/config/payment.ts</div>
-                      <div className="text-slate-400">WARNING: Plaintext STRIPE_SECRET_KEY found committed in repository root.</div>
-                    </div>
-
-                    <p className="text-[11px] text-slate-300 font-sans">
-                      Task: Resolve branch conflict with main and safely inject credentials through `.env` secret vaults before merging.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !conflictResolved;
-                        setConflictResolved(next);
-                        if (next && envSecretSecured) {
-                          setGitSolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        conflictResolved
-                          ? 'bg-purple-950/70 border-purple-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">1. Fast-Forward Rebase & Resolve</div>
-                        <div className="text-[10px] text-slate-400 font-sans">Accept upstream changes cleanly</div>
-                      </div>
-                      <span className="text-base">{conflictResolved ? '✅' : '⚪'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        cyberAudio.playBlip();
-                        const next = !envSecretSecured;
-                        setEnvSecretSecured(next);
-                        if (next && conflictResolved) {
-                          setGitSolved(true);
-                          cyberAudio.playLaser();
-                        }
-                      }}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
-                        envSecretSecured
-                          ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-white text-[11px]">2. Secret Rotation & .env Vault</div>
-                        <div className="text-[10px] text-slate-400 font-sans">Purge raw API keys from git history</div>
-                      </div>
-                      <span className="text-base">{envSecretSecured ? '✅' : '⚪'}</span>
-                    </button>
-                  </div>
-
-                  {gitSolved && (
-                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
-                      <div>
-                        <div className="font-bold text-emerald-300">✓ CI/CD Build Passed!</div>
-                        <div className="text-[10px] text-slate-300 font-sans">
-                          GitHub Action deployed zero-downtime container to production edge safely.
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
-                        DEVOPS VERIFIED
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* TRACK 3: DATABASE INDEXING & QUERY SURGERY */}
-              {activeSandboxTrack === 'database' && (
+              {/* DOMAIN 2: DATA SCIENCE & SQL QUERY SURGERY */}
+              {activeAssessmentDomain === 'datasql' && (
                 <div className="space-y-4">
                   <div className="p-4 bg-[#05091a] border border-emerald-900/60 rounded-2xl space-y-2">
                     <div className="flex justify-between items-center text-[10px]">
                       <span className="text-emerald-400 font-bold uppercase tracking-wider">
-                        Scenario: 5,000,000 Record Table Scan
+                        Scenario: 5,000,000 Record Table Scan Bottleneck
                       </span>
                       <span className={`px-2 py-0.5 rounded-full font-bold ${databaseSolved ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                        {databaseSolved ? 'OPTIMIZED (4ms)' : 'SLOW QUERY (850ms)'}
+                        {databaseSolved ? 'OPTIMIZED (4.1ms)' : 'SLOW QUERY (850ms)'}
                       </span>
                     </div>
 
@@ -2836,10 +2235,6 @@ export default function CampusNexPlatform() {
                       <div className="text-amber-300">EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 942 AND status = 'COMPLETE';</div>
                       <div className="text-slate-400">{databaseSolved ? 'Index Scan using idx_orders_user_status (Cost: 0.28..4.02)' : 'Seq Scan on orders (cost=0.00..89240.00 rows=5000000)'}</div>
                     </div>
-
-                    <p className="text-[11px] text-slate-300 font-sans">
-                      Task: Replace full sequential table scan with composite B-Tree indexing and solve the N+1 query loop.
-                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2856,7 +2251,7 @@ export default function CampusNexPlatform() {
                       className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
                         bTreeIndexEnabled
                           ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
                       }`}
                     >
                       <div>
@@ -2879,7 +2274,7 @@ export default function CampusNexPlatform() {
                       className={`p-3 rounded-2xl border text-left transition flex items-center justify-between ${
                         batchingEnabled
                           ? 'bg-cyan-950/70 border-cyan-500 text-white shadow-lg'
-                          : 'bg-[#0b1228] border-slate-800 text-slate-400 hover:border-slate-700'
+                          : 'bg-[#0b1228] border-slate-800 text-slate-400'
                       }`}
                     >
                       <div>
@@ -2906,8 +2301,134 @@ export default function CampusNexPlatform() {
                 </div>
               )}
 
+              {/* DOMAIN 3: PHARMACY & CLINICAL REGULATORY CASE STUDY (B.PHARM) */}
+              {activeAssessmentDomain === 'pharmacy' && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#05091a] border border-pink-900/60 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-pink-400 font-bold uppercase tracking-wider">
+                        Scenario: Accelerated Drug Stability & ICH Q1A Regulatory Audit
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${pharmacyPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-pink-500/20 text-pink-300'}`}>
+                        {pharmacyPassed ? 'REGULATORY PASS' : 'AUDIT PENDING'}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      Case: Accelerated testing of a newly formulated oral solid dosage form reveals 2.8% degradation at 40°C/75% RH at 3 months. Identify the corrective stabilization parameter.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    {[
+                      'Incorporate moisture-barrier packaging (Alu-Alu blister) and adjust antioxidant buffer to maintain pH stability.',
+                      'Increase formulation drying temperature to 60°C to dehydrate active pharmaceutical ingredient.',
+                      'Switch clinical batch directly to Room Temperature without logging accelerated degradation kinetics.'
+                    ].map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          cyberAudio.playBlip();
+                          if (i === 0) {
+                            setPharmacyPassed(true);
+                            cyberAudio.playLaser();
+                          } else {
+                            setPharmacyPassed(false);
+                            cyberAudio.playAlarm();
+                          }
+                        }}
+                        className={`w-full p-2.5 rounded-xl border text-left text-[11px] font-sans transition ${
+                          pharmacyPassed && i === 0
+                            ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
+                            : 'bg-[#0d1430] border-slate-800 text-slate-300 hover:border-slate-700'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {pharmacyPassed && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
+                      <div>
+                        <div className="font-bold text-emerald-300">✓ Clinical Regulatory QA Cleared!</div>
+                        <div className="text-[10px] text-slate-300 font-sans">
+                          Candidate accurately solved ICH Q1A stability criteria. Pharma credential minted.
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
+                        PHARMA QA VERIFIED
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* DOMAIN 4: MANAGEMENT & BUSINESS MODELING (MBA) */}
+              {activeAssessmentDomain === 'business' && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-[#05091a] border border-amber-900/60 rounded-2xl space-y-2">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="text-amber-400 font-bold uppercase tracking-wider">
+                        Scenario: Customer Acquisition Cost (CAC) & LTV Unit Economics
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full font-bold ${businessPassed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                        {businessPassed ? 'STRATEGY VERIFIED' : 'ANALYSIS PENDING'}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-slate-300 font-sans">
+                      Problem: A B2B SaaS platform spends ₹18,000 on blended CAC with an Average Revenue Per User (ARPU) of ₹1,500/mo and a monthly churn rate of 5%. What is the LTV:CAC ratio and health verdict?
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    {[
+                      'LTV is ₹30,000 (1,500 / 0.05). LTV:CAC = 1.67x (Unhealthy: Payback period exceeds 12 months, requiring immediate churn reduction).',
+                      'LTV is ₹18,000. LTV:CAC = 1.0x (Optimal, break-even achieved immediately).',
+                      'LTV is ₹90,000. LTV:CAC = 5.0x (Excessive margin, capital is under-invested).'
+                    ].map((opt, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          cyberAudio.playBlip();
+                          if (i === 0) {
+                            setBusinessPassed(true);
+                            cyberAudio.playLaser();
+                          } else {
+                            setBusinessPassed(false);
+                            cyberAudio.playAlarm();
+                          }
+                        }}
+                        className={`w-full p-2.5 rounded-xl border text-left text-[11px] font-sans transition ${
+                          businessPassed && i === 0
+                            ? 'bg-emerald-950/70 border-emerald-500 text-emerald-300'
+                            : 'bg-[#0d1430] border-slate-800 text-slate-300 hover:border-slate-700'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+
+                  {businessPassed && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/50 rounded-2xl flex items-center justify-between animate-in fade-in">
+                      <div>
+                        <div className="font-bold text-emerald-300">✓ Quantitative Business Rigor Cleared!</div>
+                        <div className="text-[10px] text-slate-300 font-sans">
+                          SaaS unit economics and churn impact correctly calculated. MBA credential minted.
+                        </div>
+                      </div>
+                      <span className="px-3 py-1 bg-emerald-500 text-black font-black rounded-lg text-[10px]">
+                        MBA STRATEGY VERIFIED
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="mt-5 pt-3 border-t border-slate-800 flex justify-between items-center text-[10px] text-slate-400 font-sans">
-                <span>Practiced skills automatically reflect as Proof-of-Competence hashes on recruiter profiles.</span>
+                <span>Completed assessments mint cryptographic Proof-of-Execution tokens on your sovereign profile.</span>
                 <button
                   onClick={() => {
                     cyberAudio.playBlip();
@@ -3156,91 +2677,6 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* PRACTICAL ASSESSMENT: CODE BATTLEFIELD ARENA MODAL */}
-        {isArenaOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b0e24] border border-purple-800/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono">
-              <button
-                onClick={() => {
-                  cyberAudio.playBlip();
-                  setIsArenaOpen(false);
-                  setArenaSubmitted(false);
-                }}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800/60 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">⚔️</span>
-                <div>
-                  <h3 className="text-base font-bold text-white">The Apex 1% Proctored Code Battlefield</h3>
-                  <p className="text-[11px] text-purple-300">
-                    Anti-Cheat Active • Keystroke Dynamics Monitored • Time-Limit: 15:00
-                  </p>
-                </div>
-              </div>
-
-              {!arenaSubmitted ? (
-                <div className="space-y-4">
-                  <div className="p-3.5 bg-black/60 border border-slate-800 rounded-xl text-slate-300 font-sans text-xs">
-                    <div className="font-bold text-white mb-1 font-mono text-[13px]">
-                      Problem #942: Distributed Cache Invalidation with Raft Concurrency
-                    </div>
-                    Design a zero-downtime distributed consensus state machine with exponential backoff and lock-free thread coordination.
-                  </div>
-
-                  <div className="bg-[#070a18] p-3 rounded-xl border border-slate-800">
-                    <div className="text-[10px] text-slate-400 mb-1 flex justify-between">
-                      <span>LIVE_ARENA.ts</span>
-                      <span className="text-cyan-400">Proctored Keystroke Sensor: Active</span>
-                    </div>
-                    <textarea
-                      rows={6}
-                      defaultValue={`// Implement Thread-Safe Concurrency
-async function resolveConsensus(nodes: string[]): Promise<boolean> {
-  const quorum = Math.floor(nodes.length / 2) + 1;
-  // Enter lock-free atomic CAS logic here...
-}`}
-                      className="w-full bg-transparent text-emerald-400 text-xs font-mono focus:outline-none resize-none"
-                    />
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      cyberAudio.playLaser();
-                      setArenaSubmitted(true);
-                    }}
-                    className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg"
-                  >
-                    Submit Code for Deep Static & Memory Rigor Analysis $\rightarrow$
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3 py-4 text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-2xl font-black">
-                    ✓
-                  </div>
-                  <h4 className="text-base font-bold text-white">Algorithmic Purity Index: 99.4th Percentile</h4>
-                  <p className="text-slate-300 text-xs font-sans max-w-md mx-auto">
-                    Memory efficiency O(1), zero thread race conditions, authentic keystroke timing validated. Tier-1 Apex Clearance renewed.
-                  </p>
-                  <button
-                    onClick={() => {
-                      cyberAudio.playBlip();
-                      setIsArenaOpen(false);
-                      setArenaSubmitted(false);
-                    }}
-                    className="mt-3 px-6 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition"
-                  >
-                    Return to Dashboard
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Welcome Momentum Modal */}
         {showWelcomeModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -3261,22 +2697,22 @@ async function resolveConsensus(nodes: string[]): Promise<boolean> {
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">🔥</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 uppercase tracking-wider font-mono">
-                  Phase 3 AI & Portfolio Engine Live
+                  Phase 4 Practical Assessments Live
                 </span>
               </div>
 
               <h3 className="text-xl font-black text-white tracking-tight mt-1">
-                Multi-Stream Career Portfolio & Explainable AI Screening
+                Multi-Discipline Assessments & Incident War-Room
               </h3>
 
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                Full Stage 4, 5 & 6 enterprise deployment: Multi-stream degree records (B.Tech, B.Pharm, MBA), transparent 10-state application engine with withdrawal safeguards, and explainable AI skill-gap evidence parsing.
+                Objective evaluation across B.Tech, B.Pharm & MBA domains: Distributed caching architecture, SQL query surgery, regulatory clinical case studies, and live production outage triage.
               </p>
 
               <div className="grid grid-cols-2 gap-3 my-4">
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 text-[10px] block">AI Screening Layer</span>
-                  <span className="text-base font-black text-purple-400 mt-0.5 block">Explainable Evidence</span>
+                  <span className="text-slate-400 text-[10px] block">Assessment Engines</span>
+                  <span className="text-base font-black text-purple-400 mt-0.5 block">5 Multi-Tracks</span>
                   <span className="text-[10px] text-slate-400">Class of 2026</span>
                 </div>
                 <div className="p-3 bg-[#11192e] rounded-2xl border border-slate-800 text-xs">
