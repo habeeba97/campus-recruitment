@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Safe Supabase Client Initializer
@@ -33,12 +33,6 @@ if (isSupabaseConfigured) {
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
 type Currency = 'INR' | 'USD' | 'JPY';
 
-interface ChatMessage {
-  sender: 'ai' | 'user';
-  text: string;
-  timestamp: string;
-}
-
 interface Job {
   id: string;
   title: string;
@@ -55,16 +49,31 @@ interface Job {
   dataSource: 'LIVE' | 'DEMO';
 }
 
-const DEFAULT_JOBS: Job[] = [
+interface DemoApplicant {
+  id: string;
+  candidateName: string;
+  blindAlias: string;
+  jobTitle: string;
+  company: string;
+  appliedAt: string;
+  status: string;
+  aiFitmentScore: number;
+  technicalDepthScore: number;
+  systemDesignScore: number;
+  mockScore: number;
+  offerDispatched: boolean;
+}
+
+const DEFAULT_DEMO_JOBS: Job[] = [
   {
-    id: '1',
+    id: 'job-01',
     title: 'Full Stack Engineer (Elite Core)',
     company: 'TechCorp India',
     location: 'Hyderabad / Tokyo Hybrid',
     salaryInr: 22.0,
     skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis'],
     matchScore: 94,
-    applicants: 12,
+    applicants: 14,
     type: 'Apex 1% Exclusive',
     minCgpa: 8.0,
     vacancies: 20,
@@ -72,14 +81,14 @@ const DEFAULT_JOBS: Job[] = [
     dataSource: 'LIVE'
   },
   {
-    id: '2',
+    id: 'job-02',
     title: 'Data Analyst & ML Associate',
     company: 'DataMetrics AI',
     location: 'Bengaluru / San Francisco Remote',
     salaryInr: 14.5,
     skills: ['Python', 'SQL', 'Tableau', 'FastAPI'],
     matchScore: 82,
-    applicants: 35,
+    applicants: 36,
     type: 'Dream Drive',
     minCgpa: 7.5,
     vacancies: 35,
@@ -87,14 +96,14 @@ const DEFAULT_JOBS: Job[] = [
     dataSource: 'LIVE'
   },
   {
-    id: '3',
+    id: 'job-03',
     title: 'Backend Systems Core Architect',
     company: 'CloudScale Global',
     location: 'Pune / Remote Worldwide',
     salaryInr: 26.0,
     skills: ['Go', 'Kubernetes', 'PostgreSQL', 'gRPC'],
     matchScore: 71,
-    applicants: 8,
+    applicants: 9,
     type: 'Apex 1% Super Dream',
     minCgpa: 8.5,
     vacancies: 10,
@@ -103,57 +112,68 @@ const DEFAULT_JOBS: Job[] = [
   }
 ];
 
+const DEFAULT_DEMO_APPLICANTS: DemoApplicant[] = [
+  {
+    id: 'demo-app-01',
+    candidateName: 'Verified Candidate (#APEX-01)',
+    blindAlias: '#0xDEI-TALENT-94',
+    jobTitle: 'Full Stack Engineer (Elite Core)',
+    company: 'TechCorp India',
+    appliedAt: '08:50 AM',
+    status: 'Offer Released',
+    aiFitmentScore: 96.4,
+    technicalDepthScore: 96,
+    systemDesignScore: 94,
+    mockScore: 95,
+    offerDispatched: true
+  },
+  {
+    id: 'demo-app-02',
+    candidateName: 'Syed Farhan Ahmed',
+    blindAlias: '#0xDEI-TALENT-88',
+    jobTitle: 'Data Analyst & ML Associate',
+    company: 'DataMetrics AI',
+    appliedAt: '09:15 AM',
+    status: 'Interview Shortlisted',
+    aiFitmentScore: 89.2,
+    technicalDepthScore: 88,
+    systemDesignScore: 90,
+    mockScore: 88,
+    offerDispatched: false
+  },
+  {
+    id: 'demo-app-03',
+    candidateName: 'Ayesha Mirza',
+    blindAlias: '#0xDEI-TALENT-91',
+    jobTitle: 'Backend Systems Core Architect',
+    company: 'CloudScale Global',
+    appliedAt: '09:40 AM',
+    status: 'Application Submitted',
+    aiFitmentScore: 92.5,
+    technicalDepthScore: 93,
+    systemDesignScore: 91,
+    mockScore: 92,
+    offerDispatched: false
+  }
+];
+
 export default function CampusNexPlatform() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [activeCurrency, setActiveCurrency] = useState<Currency>('INR');
-  const [jobs] = useState<Job[]>(DEFAULT_JOBS);
 
-  // Phase 7 Part 2: AI War-Room 2.0 States
-  const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
-  const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
-  const [candidateAnswer, setCandidateAnswer] = useState('');
-  const [interviewScore, setInterviewScore] = useState<number | null>(null);
-  const [aiCritique, setAiCritique] = useState('');
-  const [isAnalyzingAnswer, setIsAnalyzingAnswer] = useState(false);
-  const [isMicRecording, setIsMicRecording] = useState(false);
-  const [questionCountdown, setQuestionCountdown] = useState(60);
-
-  // Phase 7 Part 2: AI Copilot Drawer States
-  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      sender: 'ai',
-      text: 'CampusNex Copilot 2.0 Active. I have live access to the DCET Hyderabad placement registry and Supabase PostgreSQL tables. How can I assist you?',
-      timestamp: 'Just now'
-    }
-  ]);
+  // Phase 8 Part 1: Deterministic Live Demonstration State
+  const [jobs, setJobs] = useState<Job[]>(DEFAULT_DEMO_JOBS);
+  const [applicants, setApplicants] = useState<DemoApplicant[]>(DEFAULT_DEMO_APPLICANTS);
+  const [demoStepActive, setDemoStepActive] = useState<number>(1);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_7_PART_2]: AI War-Room 2.0 Speech & Copilot 2.0 Engine loaded.',
-    '🎙️ [SPEECH_KERNEL]: Web Speech API dictation & Neural Voice Synthesizer active.',
-    '🤖 [COPILOT_CORE]: Contextual query dispatcher initialized for multi-tenant registry.'
+    '⚡ [PHASE_8_PART_1]: Deterministic Live Demonstration Kit online.',
+    '🎬 [DEMO_CONTROLLER]: 4 Role Deterministic Switcher mounted with state sync.',
+    '🔄 [RESET_SWITCH]: 1-Click State Restoration Engine initialized.'
   ]);
-
-  const mockQuestions = [
-    {
-      q: 'How would you architect a distributed Redis cache layer to prevent cache avalanche during campus placement rushes?',
-      keywords: ['ttl', 'jitter', 'mutex', 'stampede', 'lock', 'invalidation', 'cache'],
-      idealAngle: 'Randomized TTL jitter and distributed mutex locks on hot key misses.'
-    },
-    {
-      q: 'Explain how PostgreSQL MVCC handles write concurrency and prevents phantom reads under high-throughput transactions.',
-      keywords: ['mvcc', 'isolation', 'snapshot', 'lock', 'serializable', 'wal', 'vacuum', 'transaction'],
-      idealAngle: 'Snapshot Isolation and multi-version concurrency control with row-level locks.'
-    },
-    {
-      q: 'Describe your strategy to optimize Next.js server components and hydration latency for low-bandwidth tier-2 college networks.',
-      keywords: ['ssr', 'suspense', 'streaming', 'bundle', 'turbopack', 'prefetch', 'component', 'hydration'],
-      idealAngle: 'Splitting heavy islands via React Suspense and streaming SSR with partial pre-rendering.'
-    }
-  ];
 
   const handleLaunchRoleDashboard = (role: PortalRole) => {
     setActivePortal(role);
@@ -167,175 +187,84 @@ export default function CampusNexPlatform() {
     return `₹${salaryInrLpa.toFixed(1)} LPA`;
   };
 
-  // AI Voice Synthesis (Text-to-Speech)
-  const speakQuestion = (text: string) => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.05;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  const handleLaunchWarRoom = (job: Job) => {
-    setActiveInterviewJob(job);
-    setInterviewQuestionIndex(0);
-    setCandidateAnswer('');
-    setInterviewScore(null);
-    setAiCritique('');
-    setQuestionCountdown(60);
-    speakQuestion(mockQuestions[0].q);
-
-    const logEntry = `[${new Date().toLocaleTimeString()}] [WAR_ROOM_ENTER]: Candidate entered AI War-Room 2.0 for ${job.title}.`;
-    setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
-  };
-
-  // Speech-to-Text Mic Dictation Toggle
-  const toggleSpeechRecognition = () => {
-    if (typeof window === 'undefined') return;
-
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      alert('Speech Recognition is not supported on this browser version. You can type directly.');
-      return;
-    }
-
-    if (isMicRecording) {
-      setIsMicRecording(false);
-      return;
-    }
+  // Phase 8 Part 1: Instant 1-Click Reset Controller
+  const handleResetDemoData = () => {
+    setJobs(DEFAULT_DEMO_JOBS);
+    setApplicants(DEFAULT_DEMO_APPLICANTS);
+    setDemoStepActive(1);
+    setIsResetConfirmOpen(false);
 
     try {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      localStorage.removeItem('campusnex_jobs_roster');
+      localStorage.removeItem('campusnex_cloud_apps');
+      localStorage.removeItem('campusnex_candidate_profile');
+    } catch {}
 
-      recognition.onstart = () => setIsMicRecording(true);
-      recognition.onresult = (event: any) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
-        }
-        setCandidateAnswer(prev => prev + ' ' + transcript);
-      };
-      recognition.onerror = () => setIsMicRecording(false);
-      recognition.onend = () => setIsMicRecording(false);
-      recognition.start();
-    } catch {
-      setIsMicRecording(false);
-    }
+    const logEntry = `[${new Date().toLocaleTimeString()}] [DEMO_RESET_TRIGGERED]: All 4 portal databases and application pipelines restored to default deterministic state.`;
+    setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
+    alert('✅ State Restored: All demo records, candidate queues, and recruitment pipelines reset to factory baseline.');
   };
 
-  // 60-Second Pressure Countdown Timer
-  useEffect(() => {
-    let timer: any;
-    if (activeInterviewJob && interviewScore === null && questionCountdown > 0) {
-      timer = setInterval(() => {
-        setQuestionCountdown(prev => prev - 1);
-      }, 1000);
-    } else if (questionCountdown === 0 && activeInterviewJob && interviewScore === null) {
-      handleSubmitWarRoomAnswer();
-    }
-    return () => clearInterval(timer);
-  }, [activeInterviewJob, questionCountdown, interviewScore]);
+  // Synchronized Workflow Execution (Candidate Applies -> Recruiter Receives)
+  const handleStudentApplyDemo = (jobId: string) => {
+    const targetJob = jobs.find(j => j.id === jobId);
+    if (!targetJob) return;
 
-  // Submit Answer & Keyword Evaluator
-  const handleSubmitWarRoomAnswer = () => {
-    if (!candidateAnswer.trim() && questionCountdown > 0) return;
-    setIsAnalyzingAnswer(true);
+    setJobs(prev =>
+      prev.map(j => (j.id === jobId ? { ...j, status: 'Applied', applicants: j.applicants + 1 } : j))
+    );
 
-    const currentQ = mockQuestions[interviewQuestionIndex];
-    const lowerAns = candidateAnswer.toLowerCase();
-    const matchedCount = currentQ.keywords.filter(k => lowerAns.includes(k)).length;
+    const newApp: DemoApplicant = {
+      id: `app-live-${Date.now()}`,
+      candidateName: 'Verified Candidate (#APEX-01)',
+      blindAlias: '#0xDEI-TALENT-99',
+      jobTitle: targetJob.title,
+      company: targetJob.company,
+      appliedAt: 'Just now',
+      status: 'Application Submitted',
+      aiFitmentScore: targetJob.matchScore,
+      technicalDepthScore: 94,
+      systemDesignScore: 92,
+      mockScore: 95,
+      offerDispatched: false
+    };
 
-    setTimeout(() => {
-      setIsAnalyzingAnswer(false);
-      if (interviewQuestionIndex < mockQuestions.length - 1) {
-        const nextIdx = interviewQuestionIndex + 1;
-        setInterviewQuestionIndex(nextIdx);
-        setCandidateAnswer('');
-        setQuestionCountdown(60);
-        speakQuestion(mockQuestions[nextIdx].q);
-      } else {
-        const calculatedScore = Math.min(98, Math.max(91, 88 + matchedCount * 2));
-        setInterviewScore(calculatedScore);
-        setAiCritique(
-          matchedCount >= 3
-            ? 'Exceptional architecture responses! Demonstrates profound mastery of high-throughput distributed state machines.'
-            : 'Strong theoretical overview. Recommended focusing on practical cache stampede avoidance under multi-region replication.'
-        );
-        const logEntry = `[${new Date().toLocaleTimeString()}] [WAR_ROOM_EVALUATED]: Candidate scored ${calculatedScore}% in technical War-Room.`;
-        setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
-      }
-    }, 1000);
+    setApplicants(prev => [newApp, ...prev]);
+    setDemoStepActive(4);
+
+    const logEntry = `[${new Date().toLocaleTimeString()}] [STUDENT_LIVE_APPLY]: Candidate APEX-01 submitted application for ${targetJob.title} (${targetJob.company}).`;
+    setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
   };
-
-  // Copilot Chat Handler
-  const handleSendCopilotChat = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-
-    const userText = chatInput.trim();
-    const userMsg: ChatMessage = { sender: 'user', text: userText, timestamp: 'Now' };
-    setChatMessages(prev => [...prev, userMsg]);
-    setChatInput('');
-
-    setTimeout(() => {
-      let reply = 'CampusNex Copilot monitoring cluster telemetry. All systems green.';
-      const lower = userText.toLowerCase();
-
-      if (lower.includes('package') || lower.includes('salary') || lower.includes('ctc') || lower.includes('highest')) {
-        reply = 'The highest package recorded is ₹26.0 LPA offered by CloudScale Global for Backend Systems Core Architect. Average CTC is ₹18.6 LPA.';
-      } else if (lower.includes('placement') || lower.includes('rate') || lower.includes('tpo') || lower.includes('cse')) {
-        reply = 'DCET Hyderabad Batch of 2026 holds an overall 94.2% placement clearance in CSE with full NAAC Criterion 5.2.1 compliance.';
-      } else if (lower.includes('war-room') || lower.includes('interview') || lower.includes('ai')) {
-        reply = 'The AI War-Room 2.0 features Web Speech API dictation, neural speech synthesis questions, and semantic keyword matching on distributed systems.';
-      } else if (lower.includes('database') || lower.includes('schema') || lower.includes('table')) {
-        reply = 'PostgreSQL schema has 8 normalized relational tables (institutions, profiles, students, job_drives, applications, offers, audit_logs) guarded by Row-Level Security.';
-      }
-
-      setChatMessages(prev => [...prev, { sender: 'ai', text: reply, timestamp: 'Now' }]);
-    }, 500);
-  };
-
-  const currentKeywords = mockQuestions[interviewQuestionIndex]?.keywords || [];
-  const matchedKeywordsList = currentKeywords.filter(k =>
-    candidateAnswer.toLowerCase().includes(k)
-  );
 
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-24 selection:bg-cyan-500 selection:text-black bg-[#040714] relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[130px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[130px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[130px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[130px]" />
       </div>
 
       <div className="relative z-10">
-        {/* TOP STATUS BAR */}
+        {/* TOP STATUS BAR WITH DETERMINISTIC DEMO BADGES */}
         <div className="bg-[#050916]/95 backdrop-blur-md border-b border-cyan-950/80 px-4 md:px-8 py-1.5 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400 gap-2">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-              AI CORE: 🟢 NEURAL WAR-ROOM 2.0 & COPILOT ONLINE
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              BACKEND: {isSupabaseConfigured ? '🟢 SUPABASE CLOUD' : '🟡 LOCAL BUFFER'}
             </span>
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-purple-300 font-semibold">DCET HYDERABAD CAMPUS HUB</span>
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-cyan-400 font-bold">
-              {currentView === 'landing' ? 'PUBLIC PORTAL' : `WORKSPACE: ${activePortal.toUpperCase()}`}
+              {currentView === 'landing' ? 'PUBLIC PORTAL' : `ACTIVE: ${activePortal.toUpperCase()}`}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsAiChatOpen(true)}
-              className="bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 border border-purple-500/80 text-purple-200 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition shadow"
+              onClick={() => setIsResetConfirmOpen(true)}
+              className="bg-rose-950/80 hover:bg-rose-900 border border-rose-600 text-rose-300 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
-              <span>🤖</span> AI COPILOT
+              <span>🔄</span> RESET DEMO DATA
             </button>
             <div className="flex items-center gap-1 bg-[#09122c] border border-cyan-900/60 px-2 py-0.5 rounded-lg text-[9px]">
               <span className="text-slate-500">CURRENCY:</span>
@@ -358,20 +287,20 @@ export default function CampusNexPlatform() {
         {/* NAVBAR */}
         <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/90 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="flex items-center space-x-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-2xl shadow-lg border border-purple-300/40">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-2xl shadow-lg border border-cyan-300/40">
               ✦
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black bg-gradient-to-r from-purple-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
+                <span className="text-2xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                   CampusNex AI
                 </span>
-                <span className="text-[10px] bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
                   ENTERPRISE OS
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 7 Part 2: AI War-Room 2.0 & Copilot'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 8 Part 1: Deterministic Live Demonstration Kit'}
               </p>
             </div>
           </div>
@@ -379,7 +308,7 @@ export default function CampusNexPlatform() {
           {currentView === 'landing' ? (
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 text-white font-mono font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 text-white font-mono font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5"
             >
               <span>🚀</span> Launch Authenticated Workspace
             </button>
@@ -427,22 +356,22 @@ export default function CampusNexPlatform() {
         {/* ================================================================ */}
         {currentView === 'landing' ? (
           <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/80 border border-purple-600/70 text-purple-300 text-xs font-mono font-bold">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-              PHASE 7 PART 2: NEURAL SPEECH WAR-ROOM & CONVERSATIONAL COPILOT
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-600/70 text-cyan-300 text-xs font-mono font-bold">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              PHASE 8 PART 1: DETERMINISTIC LIVE DEMONSTRATION ENGINE
             </div>
             <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl mx-auto">
-              Voice-Proctored AI War-Room 2.0 & <span className="bg-gradient-to-r from-purple-400 via-pink-300 to-cyan-400 bg-clip-text text-transparent">Interactive Copilot Intelligence</span>
+              Fault-Tolerant Live Stage Demo & <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 bg-clip-text text-transparent">Instant State Reset Controller</span>
             </h1>
             <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              Experience browser-native speech synthesis, real-time microphone dictation, semantic keyword density scoring, and persistent conversational copilot assistance across all campus placement portals.
+              Equipped with preloaded deterministic personas, live cross-portal synchronized applicant queues, and a 1-click state reset button to demonstrate smooth end-to-end placement execution.
             </p>
             <div className="pt-4 flex justify-center gap-3">
               <button
                 onClick={() => handleLaunchRoleDashboard('student')}
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold text-sm shadow-[0_0_30px_rgba(168,85,247,0.35)] hover:scale-105 transition"
+                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_30px_rgba(6,182,212,0.35)] hover:scale-105 transition"
               >
-                Launch AI Intelligence Workspace →
+                Launch Deterministic Live Demo →
               </button>
             </div>
           </section>
@@ -450,316 +379,155 @@ export default function CampusNexPlatform() {
           /* ================================================================ */
           /* AUTHENTICATED WORKSPACE */
           /* ================================================================ */
-          <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-            <div className="space-y-6">
-              {/* WAR-ROOM BANNER */}
-              <div className="bg-[#0b1026]/90 border border-purple-500/60 p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🎙️</span>
-                    <h2 className="text-xl font-bold text-white font-sans">
-                      AI War-Room 2.0 • Neural Speech & Real-Time Dictation Simulator
-                    </h2>
-                    <span className="px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-600 text-[10px] font-mono font-bold">
-                      AUDIO PROCTORED
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400">
-                    Real-time speech synthesis questions, 60-second pressure countdown, and semantic keyword matching.
-                  </p>
-                </div>
-
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => handleLaunchWarRoom(jobs[0])}
-                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5"
-                  >
-                    <span>🎙️</span> Start AI War-Room
-                  </button>
-                  <button
-                    onClick={() => setIsAiChatOpen(true)}
-                    className="px-4 py-2.5 rounded-xl bg-[#0f1738] border border-cyan-700 text-cyan-300 font-bold text-xs hover:bg-[#162252] transition flex items-center gap-1.5"
-                  >
-                    <span>🤖</span> Open Copilot
-                  </button>
-                </div>
+          <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6 space-y-6">
+            {/* STAGE DEMONSTRATION PROGRESS STEPPER */}
+            <div className="p-4 bg-[#0a112c]/90 border border-cyan-700/60 rounded-3xl shadow-xl font-mono text-xs space-y-2">
+              <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
+                <span className="font-bold text-white flex items-center gap-2 text-sm font-sans">
+                  <span>🎬</span> Live Presentation Sequencer (12-Step Synchronized Workflow)
+                </span>
+                <span className="text-cyan-300 text-[10px]">
+                  Step {demoStepActive} of 12 Active
+                </span>
               </div>
 
-              {/* ACTIVE DRIVES WITH WAR-ROOM BUTTONS */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center font-mono">
-                  <h3 className="font-bold text-white text-base">Hiring Drives Ready for AI Technical Evaluation ({jobs.length})</h3>
-                  <span className="text-xs text-slate-400">Verifiable `#WARROOM-CERT-2026` Credentials</span>
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-[10px] text-center pt-1">
+                <div className={`p-2 rounded-xl border ${activePortal === 'student' ? 'bg-cyan-950 border-cyan-400 text-cyan-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  1. Student Review
                 </div>
+                <div className={`p-2 rounded-xl border ${demoStepActive >= 4 ? 'bg-cyan-950 border-cyan-400 text-cyan-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  2. Apply for Drive
+                </div>
+                <div className={`p-2 rounded-xl border ${activePortal === 'recruiter' ? 'bg-purple-950 border-purple-400 text-purple-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  3. Recruiter Ingestion
+                </div>
+                <div className={`p-2 rounded-xl border ${activePortal === 'recruiter' ? 'bg-purple-950 border-purple-400 text-purple-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  4. Blind DEI Shortlist
+                </div>
+                <div className={`p-2 rounded-xl border ${activePortal === 'tpo' ? 'bg-indigo-950 border-indigo-400 text-indigo-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  5. TPO Accreditation
+                </div>
+                <div className={`p-2 rounded-xl border ${activePortal === 'admin' ? 'bg-rose-950 border-rose-400 text-rose-200 font-bold' : 'bg-[#060a1a] border-slate-800 text-slate-500'}`}>
+                  6. SuperAdmin Audit
+                </div>
+              </div>
+            </div>
 
+            {/* PORTAL SPECIFIC WORKSPACES */}
+            {activePortal === 'student' && (
+              <div className="space-y-4">
+                <h3 className="text-base font-bold text-white font-mono">Live Drives Available for Instant Application</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {jobs.map(job => (
-                    <div
-                      key={job.id}
-                      className="p-5 bg-[#081024] border border-slate-800 hover:border-purple-500/60 rounded-3xl space-y-3 transition shadow-xl"
-                    >
+                  {jobs.map(j => (
+                    <div key={j.id} className="p-5 bg-[#081024] border border-slate-800 rounded-3xl space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[9px] px-2 py-0.5 rounded-full font-mono font-bold bg-purple-950 text-purple-300 border border-purple-700">
-                            {job.type}
+                          <span className="text-[9px] px-2 py-0.5 rounded-full font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-700">
+                            {j.type}
                           </span>
-                          <h4 className="font-bold text-white text-base mt-1.5">{job.title}</h4>
-                          <div className="text-xs text-slate-400">{job.company} • {job.location}</div>
+                          <h4 className="font-bold text-white text-base mt-1.5">{j.title}</h4>
+                          <div className="text-xs text-slate-400">{j.company} • {j.location}</div>
                         </div>
-                        <span className="text-emerald-400 font-bold font-mono text-sm">
-                          {formatSalary(job.salaryInr)}
-                        </span>
+                        <span className="text-emerald-400 font-bold font-mono text-sm">{formatSalary(j.salaryInr)}</span>
                       </div>
-
                       <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
-                        <span className="text-slate-400 text-xs font-mono">Min CGPA: {job.minCgpa}</span>
+                        <span className="text-slate-400 text-xs font-mono">Applicants: {j.applicants}</span>
                         <button
-                          onClick={() => handleLaunchWarRoom(job)}
-                          className="px-3 py-1.5 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold text-xs rounded-xl shadow hover:scale-105 transition flex items-center gap-1.5"
+                          onClick={() => handleStudentApplyDemo(j.id)}
+                          disabled={j.status === 'Applied' || j.status === 'Offer Dispatched'}
+                          className={`px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs transition ${
+                            j.status === 'Applied'
+                              ? 'bg-cyan-950 text-cyan-300 border border-cyan-700'
+                              : j.status === 'Offer Dispatched'
+                              ? 'bg-purple-950 text-purple-300 border border-purple-700'
+                              : 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white hover:scale-105'
+                          }`}
                         >
-                          <span>🎙️</span> AI War-Room
+                          {j.status === 'Applied' ? '✓ Applied' : j.status === 'Offer Dispatched' ? 'Offer Received' : 'Apply Live'}
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+            )}
+
+            {activePortal === 'recruiter' && (
+              <div className="p-5 bg-[#08122c] border border-purple-800/60 rounded-3xl space-y-4 font-mono text-xs">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <span className="font-bold text-white text-sm">Recruiter Live Ingestion Stream ({applicants.length} Applicants)</span>
+                  <span className="text-emerald-400 font-bold">CROSS-PORTAL SYNC ACTIVE</span>
+                </div>
+                <div className="space-y-2">
+                  {applicants.map(app => (
+                    <div key={app.id} className="p-3.5 bg-[#0d1838] border border-slate-800 rounded-2xl flex justify-between items-center">
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2">
+                          <span>{app.candidateName}</span>
+                          <span className="text-[10px] text-cyan-300">({app.blindAlias})</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{app.jobTitle} • {app.company} • Applied: {app.appliedAt}</div>
+                      </div>
+                      <span className="px-2 py-1 rounded bg-purple-950 text-purple-300 border border-purple-700 font-bold text-[10px]">
+                        {app.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activePortal === 'tpo' && (
+              <div className="p-6 bg-[#08122c] border border-indigo-800/60 rounded-3xl space-y-3 font-mono text-xs">
+                <h3 className="font-bold text-white text-sm">TPO Verified Placement Clearance</h3>
+                <p className="text-slate-400">Total 620 Students in Batch 2026 • 94.2% Placement Rate in CSE</p>
+                <div className="p-3 bg-[#0c1433] rounded-2xl text-emerald-400 font-bold">
+                  ✓ NAAC Criterion 5.2.1 Audit Certified • Ready for PDF/CSV Export
+                </div>
+              </div>
+            )}
+
+            {activePortal === 'admin' && (
+              <div className="p-6 bg-[#070b18] border border-rose-900/60 rounded-3xl space-y-3 font-mono text-xs">
+                <h3 className="font-bold text-white text-sm">SuperAdmin Infrastructure Ledger</h3>
+                <div className="p-3 bg-[#030612] rounded-2xl space-y-1 max-h-36 overflow-y-auto text-slate-400 text-[10px]">
+                  {terminalLogs.map((log, idx) => (
+                    <div key={idx} className="border-b border-slate-900 pb-0.5">{log}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </main>
         )}
 
         {/* ================================================================ */}
-        {/* MODAL: AI WAR-ROOM 2.0 NEURAL SPEECH SIMULATOR */}
+        {/* MODAL: RESET DEMO DATA CONFIRMATION */}
         {/* ================================================================ */}
-        {activeInterviewJob && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
-            <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative font-mono space-y-4 shadow-[0_0_50px_rgba(168,85,247,0.3)]">
-              <div className="flex justify-between items-center border-b border-purple-900/60 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping" />
-                  <h3 className="text-base font-bold text-white font-sans">
-                    🎙️ AI War-Room 2.0 • {activeInterviewJob.title}
-                  </h3>
-                </div>
+        {isResetConfirmOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-rose-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative font-mono space-y-4 shadow-[0_0_40px_rgba(244,63,94,0.3)]">
+              <div className="border-b border-slate-800 pb-2">
+                <h3 className="text-base font-bold text-white font-sans">Reset Live Demo State</h3>
+                <p className="text-[10px] text-slate-400">Restore factory baseline across all 4 portals</p>
+              </div>
+              <p className="text-slate-300 font-sans text-xs leading-relaxed">
+                Yeh action custom applications, created hiring drives aur modified applicant statuses ko clean default demo baseline par restore kar dega.
+              </p>
+              <div className="flex gap-2 pt-2">
                 <button
-                  onClick={() => {
-                    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                      window.speechSynthesis.cancel();
-                    }
-                    setActiveInterviewJob(null);
-                  }}
-                  className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
+                  onClick={() => setIsResetConfirmOpen(false)}
+                  className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300 font-bold"
                 >
-                  ✕
+                  Cancel
+                </button>
+                <button
+                  onClick={handleResetDemoData}
+                  className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold"
+                >
+                  Confirm Reset
                 </button>
               </div>
-
-              {interviewScore === null ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-800 pb-2">
-                    <span className="flex items-center gap-1.5">
-                      <span>QUESTION {interviewQuestionIndex + 1} OF {mockQuestions.length}</span>
-                      <button
-                        onClick={() => speakQuestion(mockQuestions[interviewQuestionIndex].q)}
-                        className="px-2 py-0.5 bg-[#0e193d] border border-cyan-800 text-cyan-300 rounded font-bold hover:bg-cyan-900"
-                      >
-                        🔊 Re-play Voice
-                      </button>
-                    </span>
-
-                    <span className="flex items-center gap-2">
-                      <span className="text-slate-400">PRESSURE COUNTDOWN:</span>
-                      <span className={`px-2 py-0.5 rounded font-black font-mono text-sm ${
-                        questionCountdown <= 15 ? 'bg-rose-950 text-rose-300 border border-rose-600 animate-pulse' : 'bg-cyan-950 text-cyan-300 border border-cyan-700'
-                      }`}>
-                        00:{questionCountdown < 10 ? `0${questionCountdown}` : questionCountdown}s
-                      </span>
-                    </span>
-                  </div>
-
-                  <div className="p-4 bg-[#0e1633] border border-purple-800/60 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between text-cyan-300 font-bold">
-                      <span className="flex items-center gap-2 text-sm font-sans">
-                        <span>🤖</span> AI Technical Interviewer (Voice Active):
-                      </span>
-                      <span className="text-[10px] text-emerald-400 font-mono">
-                        Target: {activeInterviewJob.company} ({formatSalary(activeInterviewJob.salaryInr)})
-                      </span>
-                    </div>
-                    <p className="text-sm font-sans text-white leading-relaxed">
-                      "{mockQuestions[interviewQuestionIndex].q}"
-                    </p>
-                    <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-mono">
-                      💡 Focus: {mockQuestions[interviewQuestionIndex].idealAngle}
-                    </div>
-                  </div>
-
-                  {/* KEYWORD SEMANTIC RADAR */}
-                  <div className="p-2.5 bg-[#050917] border border-slate-800 rounded-xl space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-400">SEMANTIC RADAR KEYWORDS:</span>
-                      <span className="text-emerald-400 font-bold">
-                        {matchedKeywordsList.length} of {currentKeywords.length} Detected
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {currentKeywords.map((kw, kidx) => {
-                        const isFound = candidateAnswer.toLowerCase().includes(kw);
-                        return (
-                          <span
-                            key={kidx}
-                            className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition ${
-                              isFound
-                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500 shadow'
-                                : 'bg-[#0d142d] text-slate-600 border border-slate-800'
-                            }`}
-                          >
-                            {isFound ? '✓ ' : '○ '}{kw}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* TEXTAREA & SPEECH TO TEXT */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <label className="text-slate-300 font-bold text-[11px]">
-                        Your Technical Solution:
-                      </label>
-                      <button
-                        onClick={toggleSpeechRecognition}
-                        className={`px-3 py-1 rounded-xl text-[10px] font-bold font-mono transition flex items-center gap-1.5 ${
-                          isMicRecording
-                            ? 'bg-rose-600 text-white animate-pulse shadow-lg'
-                            : 'bg-[#121c3d] border border-cyan-800 text-cyan-300 hover:bg-[#1a2857]'
-                        }`}
-                      >
-                        <span>{isMicRecording ? '🔴 Listening Speech...' : '🎙️ Mic Speech-to-Text'}</span>
-                      </button>
-                    </div>
-
-                    <textarea
-                      rows={4}
-                      value={candidateAnswer}
-                      onChange={e => setCandidateAnswer(e.target.value)}
-                      placeholder="Type your architecture answer or use 'Mic Speech-to-Text' to dictate live..."
-                      className="w-full bg-[#0b1021] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 font-mono text-xs"
-                    />
-                  </div>
-
-                  <div className="flex justify-between items-center pt-2">
-                    <button
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-                          window.speechSynthesis.cancel();
-                        }
-                        setActiveInterviewJob(null);
-                      }}
-                      className="px-4 py-2 border border-slate-700 text-slate-300 rounded-xl hover:bg-slate-800"
-                    >
-                      Exit War-Room
-                    </button>
-                    <button
-                      onClick={handleSubmitWarRoomAnswer}
-                      disabled={isAnalyzingAnswer || !candidateAnswer.trim()}
-                      className="px-5 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition disabled:opacity-50"
-                    >
-                      {isAnalyzingAnswer
-                        ? '🧠 Evaluating...'
-                        : interviewQuestionIndex === mockQuestions.length - 1
-                        ? 'Submit & Generate Credential'
-                        : 'Submit Answer → Next'}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4 text-center py-4">
-                  <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-500 to-emerald-400 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20">
-                    {interviewScore}%
-                  </div>
-                  <h4 className="text-lg font-bold text-white font-sans">
-                    AI War-Room 2.0 Credential Verified (#WARROOM-CERT-2026)
-                  </h4>
-                  <p className="text-xs text-slate-300 max-w-md mx-auto font-sans leading-relaxed">
-                    {aiCritique}
-                  </p>
-
-                  <div className="p-3 bg-[#0d1738] border border-emerald-600/60 rounded-xl text-emerald-300 text-xs font-bold font-mono">
-                    ✓ Score synced with Supabase Database and Recruiter Live Screening Queue.
-                  </div>
-
-                  <button
-                    onClick={() => setActiveInterviewJob(null)}
-                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition"
-                  >
-                    Complete & Return to Workspace
-                  </button>
-                </div>
-              )}
             </div>
-          </div>
-        )}
-
-        {/* ================================================================ */}
-        {/* PERSISTENT AI COPILOT 2.0 DRAWER */}
-        {/* ================================================================ */}
-        {isAiChatOpen && (
-          <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-[#060a1a]/95 backdrop-blur-2xl border-l border-purple-500/60 shadow-2xl flex flex-col font-mono text-xs">
-            {/* Header */}
-            <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-[#090f26]">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🤖</span>
-                <div>
-                  <h3 className="font-bold text-white text-sm font-sans">CampusNex Copilot 2.0</h3>
-                  <span className="text-[10px] text-emerald-400">PostgreSQL Registry Bound</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsAiChatOpen(false)}
-                className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Chat Messages Log */}
-            <div className="flex-1 p-4 space-y-3 overflow-y-auto">
-              {chatMessages.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
-                >
-                  <div
-                    className={`p-3 rounded-2xl max-w-[85%] leading-relaxed ${
-                      msg.sender === 'user'
-                        ? 'bg-purple-600 text-white rounded-br-none'
-                        : 'bg-[#0d1633] text-slate-200 border border-cyan-800/60 rounded-bl-none font-sans text-xs'
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                  <span className="text-[9px] text-slate-500 mt-1">{msg.timestamp}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Chat Input Form */}
-            <form onSubmit={handleSendCopilotChat} className="p-3 border-t border-slate-800 bg-[#070c1e] flex gap-2">
-              <input
-                type="text"
-                placeholder="Ask about placement rates, highest CTC, database schema..."
-                value={chatInput}
-                onChange={e => setChatInput(e.target.value)}
-                className="flex-1 bg-[#0d1633] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-purple-500"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow"
-              >
-                Send
-              </button>
-            </form>
           </div>
         )}
 
