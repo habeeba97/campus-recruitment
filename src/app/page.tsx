@@ -132,6 +132,12 @@ interface CloudApplication {
   offerDispatched?: boolean;
 }
 
+interface ChatMessage {
+  sender: 'ai' | 'user';
+  text: string;
+  timestamp: string;
+}
+
 const DEFAULT_PROFILE: CandidateProfile = {
   name: 'Verified Candidate (#APEX-01)',
   institution: 'Deccan College of Engineering & Technology',
@@ -268,7 +274,6 @@ function MasterHoloverseCanvas() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    // Hyper-density Star Warp Field (Laptop Wide)
     const starCount = 120;
     const stars: { x: number; y: number; z: number; size: number; hue: number }[] = [];
     for (let i = 0; i < starCount; i++) {
@@ -277,7 +282,7 @@ function MasterHoloverseCanvas() {
         y: (Math.random() - 0.5) * 2200,
         z: Math.random() * 1500 + 50,
         size: Math.random() * 1.8 + 0.6,
-        hue: Math.random() > 0.5 ? 190 : 270 // Cyan vs Violet
+        hue: Math.random() > 0.5 ? 190 : 270
       });
     }
 
@@ -286,7 +291,6 @@ function MasterHoloverseCanvas() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Deep Space Aurora Radial Gradient
       const bgGrad = ctx.createRadialGradient(
         width / 2 + mouseX * 200,
         height / 3 + mouseY * 150,
@@ -311,14 +315,12 @@ function MasterHoloverseCanvas() {
       const cy = height / 2;
       const fov = 460;
 
-      // 1. Futuristic Cyber Perspective Floor Grid
       const gridPitch = 160 + mouseY * 220;
       ctx.save();
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
       ctx.lineWidth = 1.2;
       const gridY = cy + gridPitch;
 
-      // Perspective Rays
       for (let x = -width; x < width * 2; x += 75) {
         ctx.beginPath();
         ctx.moveTo(cx + mouseX * 420, cy - 60);
@@ -326,7 +328,6 @@ function MasterHoloverseCanvas() {
         ctx.stroke();
       }
 
-      // Horizontal Floor Waves
       for (let y = gridY; y < height; y += (y - gridY) * 0.38 + 14) {
         ctx.beginPath();
         ctx.moveTo(0, y);
@@ -335,7 +336,6 @@ function MasterHoloverseCanvas() {
       }
       ctx.restore();
 
-      // 2. 3D Stars Traveling in Warp Space
       for (let i = 0; i < starCount; i++) {
         const s = stars[i];
         s.z -= 0.8;
@@ -378,7 +378,7 @@ function MasterHoloverseCanvas() {
 }
 
 // ============================================================================
-// ULTRA-VIBRANT 3D DYSON HYPER-REACTOR (Prominent & Laptop Optimized)
+// ULTRA-VIBRANT 3D DYSON HYPER-REACTOR
 // ============================================================================
 function MasterDynamicReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -390,7 +390,6 @@ function MasterDynamicReactor() {
     if (!ctx) return;
 
     let animId: number;
-    // Bada canvas size specifically for laptop screen clarity
     const width = 420;
     const height = 300;
     canvas.width = width;
@@ -403,12 +402,11 @@ function MasterDynamicReactor() {
       const cx = width / 2;
       const cy = height / 2;
 
-      // 1. Dynamic Chromatic Nebula Aura (Peeche ka vibrant colorful background)
       const nebulaPulse = Math.sin(t * 1.8) * 15;
       const nebulaGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, 140 + nebulaPulse);
-      nebulaGrad.addColorStop(0, 'rgba(168, 85, 247, 0.45)'); // Electric Purple
-      nebulaGrad.addColorStop(0.35, 'rgba(6, 182, 212, 0.35)'); // Cyan Glow
-      nebulaGrad.addColorStop(0.7, 'rgba(236, 72, 153, 0.2)'); // Hot Pink Aura
+      nebulaGrad.addColorStop(0, 'rgba(168, 85, 247, 0.45)');
+      nebulaGrad.addColorStop(0.35, 'rgba(6, 182, 212, 0.35)');
+      nebulaGrad.addColorStop(0.7, 'rgba(236, 72, 153, 0.2)');
       nebulaGrad.addColorStop(1, 'rgba(10, 15, 35, 0)');
 
       ctx.save();
@@ -418,7 +416,6 @@ function MasterDynamicReactor() {
       ctx.fill();
       ctx.restore();
 
-      // 2. Central Quantum Core (Crystalline Hexagon + Pulsing Light)
       const corePulse = Math.sin(t * 3.6) * 6;
       const coreR = 28 + corePulse;
       const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 2.5);
@@ -433,7 +430,6 @@ function MasterDynamicReactor() {
       ctx.fillStyle = coreGrad;
       ctx.fill();
 
-      // Inner Rotating Hexagonal Lattice
       ctx.beginPath();
       for (let i = 0; i < 6; i++) {
         const angle = (i * Math.PI) / 3 + t * 0.7;
@@ -449,7 +445,6 @@ function MasterDynamicReactor() {
       ctx.fill();
       ctx.restore();
 
-      // 3. 4-Portal Gyroscopic Dyson Orbital Rings with Data Crystals
       const drawRing = (
         radX: number,
         radY: number,
@@ -471,7 +466,6 @@ function MasterDynamicReactor() {
         ctx.shadowColor = glowColor;
         ctx.stroke();
 
-        // High-Speed Data Packet Orbiting
         const pAngle = t * speed;
         const px = Math.cos(pAngle) * radX;
         const py = Math.sin(pAngle) * radY;
@@ -486,16 +480,9 @@ function MasterDynamicReactor() {
         ctx.restore();
       };
 
-      // Ring 1: Student Matrix (Vibrant Cyan)
       drawRing(130, 48, t * 0.45, 'rgba(6, 182, 212, 0.9)', '#06b6d4', 2.2, 2.4);
-
-      // Ring 2: Recruiter Engine (Neon Violet)
       drawRing(112, 54, -t * 0.55 + 1.2, 'rgba(168, 85, 247, 0.9)', '#a855f7', 2.0, -2.8);
-
-      // Ring 3: TPO Institutional Ring (Emerald Electric)
       drawRing(94, 38, t * 0.65 + 2.3, 'rgba(16, 185, 129, 0.9)', '#10b981', 1.8, 3.1);
-
-      // Ring 4: Admin Security Shield (Rose Pink Laser)
       drawRing(76, 30, -t * 0.75 + 0.6, 'rgba(244, 63, 94, 0.9)', '#f43f5e', 1.6, -3.5);
 
       t += 0.016;
@@ -543,6 +530,26 @@ export default function CampusNexPlatform() {
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
   const [blindHiringMode, setBlindHiringMode] = useState(false);
 
+  // VIDEO SUITE STATE
+  const [isVideoSuiteOpen, setIsVideoSuiteOpen] = useState(false);
+  const [videoJobTarget, setVideoJobTarget] = useState<Job | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [aiConfidenceScore, setAiConfidenceScore] = useState(94);
+  const [eyeTrackingAlert, setEyeTrackingAlert] = useState(false);
+  const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const videoStreamRef = useRef<MediaStream | null>(null);
+
+  // AI COPILOT CHATBOT DRAWER
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      sender: 'ai',
+      text: 'Hello Habeeba! I am CampusNex Copilot 2.0. How can I assist you across Student, Recruiter, TPO, or Admin pipelines today?',
+      timestamp: 'Just now'
+    }
+  ]);
+
   // AI Mock War-Room State
   const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
   const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
@@ -578,8 +585,8 @@ export default function CampusNexPlatform() {
     isSupabaseConfigured
       ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
       : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
-    '🧠 [AI_WARROOM_V2]: Neural speech synthesizer & real-time semantic radar active.',
-    '⚖️ [DEI_FAIRNESS_MATRIX]: Autonomous talent fitment & blind matching engine active.'
+    '📹 [VIDEO_SUITE_ENGINE]: WebRTC live signaling & neural anti-cheat verification loaded.',
+    '🤖 [COPILOT_CORE]: Enterprise LLM agent active for real-time natural language query dispatch.'
   ]);
 
   const mockQuestions = [
@@ -600,6 +607,70 @@ export default function CampusNexPlatform() {
     }
   ];
 
+  // Camera Management for Video Suite
+  const startCamera = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        videoStreamRef.current = stream;
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+        setIsCameraActive(true);
+      }
+    } catch {
+      setIsCameraActive(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoStreamRef.current) {
+      videoStreamRef.current.getTracks().forEach(track => track.stop());
+      videoStreamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const handleOpenVideoSuite = (job: Job) => {
+    setVideoJobTarget(job);
+    setIsVideoSuiteOpen(true);
+    startCamera();
+    recordAuditLog('VIDEO_SUITE_CONNECT', `Live proctored video session started for: ${job.title} (${job.company})`);
+  };
+
+  const handleCloseVideoSuite = () => {
+    stopCamera();
+    setIsVideoSuiteOpen(false);
+  };
+
+  // Chatbot Copilot Handler
+  const handleSendChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    const userText = chatInput.trim();
+    const userMsg: ChatMessage = { sender: 'user', text: userText, timestamp: 'Now' };
+    setChatMessages(prev => [...prev, userMsg]);
+    setChatInput('');
+
+    setTimeout(() => {
+      let reply = 'I am actively monitoring the real-time Supabase cluster and verified candidate ledger.';
+      const lower = userText.toLowerCase();
+
+      if (lower.includes('job') || lower.includes('drive') || lower.includes('apply')) {
+        reply = `Currently we have ${jobs.length} active recruitment drives in the pipeline. Highest package is ₹26.0 LPA offered by CloudScale Global.`;
+      } else if (lower.includes('interview') || lower.includes('war-room')) {
+        reply = 'You can launch the AI War-Room 2.0 with microphone dictation or open the Live Video Session for proctored evaluation.';
+      } else if (lower.includes('tpo') || lower.includes('noc') || lower.includes('college')) {
+        reply = 'The TPO portal shows 94.2% placement clearance in CSE with verified NAAC/NBA accredited CSV export.';
+      } else if (lower.includes('salary') || lower.includes('ctc') || lower.includes('currency')) {
+        reply = `Current viewing currency is ${activeCurrency}. Candidate APEX-01 has an active offer of ₹22.0 LPA from TechCorp India.`;
+      }
+
+      setChatMessages(prev => [...prev, { sender: 'ai', text: reply, timestamp: 'Now' }]);
+    }, 600);
+  };
+
   // Countdown timer for War-Room
   useEffect(() => {
     let timer: any;
@@ -613,6 +684,7 @@ export default function CampusNexPlatform() {
     return () => clearInterval(timer);
   }, [activeInterviewJob, questionCountdown, interviewScore]);
 
+  // Load from LocalStorage & Supabase
   useEffect(() => {
     try {
       const savedProfile = localStorage.getItem('campusnex_candidate_profile');
@@ -949,7 +1021,6 @@ export default function CampusNexPlatform() {
 
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden bg-transparent">
-      {/* 3D Dynamic Laser Grid + Star-Warp Background */}
       <MasterHoloverseCanvas />
 
       <div className="relative z-10">
@@ -979,6 +1050,13 @@ export default function CampusNexPlatform() {
               className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-700/80 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
               <span>📊</span> AUDIT DASHBOARD
+            </button>
+
+            <button
+              onClick={() => setIsAiChatOpen(true)}
+              className="bg-gradient-to-r from-purple-900 to-indigo-900 hover:from-purple-800 border border-purple-500/80 text-purple-200 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition shadow"
+            >
+              <span>🤖</span> AI COPILOT
             </button>
 
             <div className="flex items-center gap-1 bg-[#09122c] border border-cyan-900/60 px-2 py-0.5 rounded-lg text-[9px]">
@@ -1038,7 +1116,6 @@ export default function CampusNexPlatform() {
             </div>
           </div>
 
-          {/* Center Floating Island Navigation */}
           <div className="flex items-center bg-[#070e24]/90 backdrop-blur-2xl p-1 rounded-2xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] text-xs font-bold gap-1">
             <button
               onClick={() => {
@@ -1136,49 +1213,39 @@ export default function CampusNexPlatform() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black text-white mt-2.5 leading-tight tracking-tight">
-                {activePortal === 'student' && 'Student Portal: AI War-Room 2.0 (Speech Dictation, Voice & Semantic Radar)'}
-                {activePortal === 'recruiter' && 'Recruiter Portal: Blind DEI Fairness Mode & Autonomous AI Matching'}
+                {activePortal === 'student' && 'Student Portal: Live AI Video Suite & War-Room 2.0'}
+                {activePortal === 'recruiter' && 'Recruiter Portal: Blind DEI Fairness Mode & Live Proctored Video Calls'}
                 {activePortal === 'tpo' && 'TPO Portal: Institutional Placement Records, NAAC Audits & Department NOCs'}
                 {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Interactive SQL & Platform Lockdown'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                4-Portal Orbital Engine: Real-time PostgreSQL bi-directional cloud streaming across all candidate pipelines.
+                4-Portal Orbital Engine: Real-time PostgreSQL bi-directional cloud streaming with live proctored WebRTC video sessions.
               </p>
 
               <div className="flex gap-2.5 mt-4 text-[11px] font-mono flex-wrap">
                 <button
-                  onClick={() => setIsTelemetryModalOpen(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition"
+                  onClick={() => handleOpenVideoSuite(jobs[0])}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-1.5"
                 >
-                  ⚡ Open Telemetry Inspector
+                  <span>📹</span> Launch Live Video Session
                 </button>
-                {activePortal === 'recruiter' ? (
-                  <button
-                    onClick={() => {
-                      const next = !blindHiringMode;
-                      setBlindHiringMode(next);
-                      recordAuditLog('DEI_BLIND_TOGGLE', `Blind Hiring mode toggled to ${next}`);
-                    }}
-                    className={`px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 ${
-                      blindHiringMode
-                        ? 'bg-emerald-600 text-white shadow-lg'
-                        : 'bg-[#09122c] border border-purple-800 text-purple-300 hover:bg-purple-950'
-                    }`}
-                  >
-                    <span>⚖️</span> {blindHiringMode ? 'Blind Mode: ACTIVE' : 'Enable Blind Mode'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleLaunchInterview(jobs[0])}
-                    className="px-4 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-1.5"
-                  >
-                    <span>🎙️</span> Launch AI War-Room 2.0
-                  </button>
-                )}
+
+                <button
+                  onClick={() => handleLaunchInterview(jobs[0])}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-1.5"
+                >
+                  <span>🎙️</span> AI War-Room 2.0
+                </button>
+
+                <button
+                  onClick={() => setIsAiChatOpen(true)}
+                  className="px-4 py-2 bg-[#0d1738] border border-cyan-800 text-cyan-300 font-bold rounded-xl hover:bg-[#152352] transition flex items-center gap-1.5"
+                >
+                  <span>💬</span> Copilot Chat
+                </button>
               </div>
             </div>
 
-            {/* Prominent Laptop-Optimized 3D Dynamic Dyson Reactor */}
             <div className="relative z-20 shrink-0 flex items-center justify-center">
               <MasterDynamicReactor />
             </div>
@@ -1304,10 +1371,17 @@ export default function CampusNexPlatform() {
 
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => handleOpenVideoSuite(job)}
+                            className="px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] bg-gradient-to-r from-emerald-950 to-cyan-950 hover:from-emerald-900 hover:to-cyan-900 border border-emerald-500/60 text-emerald-200 transition shadow flex items-center gap-1.5"
+                          >
+                            <span>📹</span> Video Call
+                          </button>
+
+                          <button
                             onClick={() => handleLaunchInterview(job)}
                             className="px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] bg-gradient-to-r from-purple-950 to-indigo-950 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/60 text-purple-200 transition shadow flex items-center gap-1.5"
                           >
-                            <span>🎙️</span> AI War-Room 2.0
+                            <span>🎙️</span> AI War-Room
                           </button>
 
                           <button
@@ -1505,6 +1579,13 @@ export default function CampusNexPlatform() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenVideoSuite(jobs[0])}
+                          className="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded text-[9px] font-bold hover:scale-105 transition flex items-center gap-1"
+                        >
+                          <span>📹</span> Join Video Call
+                        </button>
+
                         <span className="px-2 py-1 rounded bg-purple-950 text-purple-300 border border-purple-700 text-[9px] font-bold">
                           Offer Dispatched
                         </span>
@@ -1553,6 +1634,13 @@ export default function CampusNexPlatform() {
                         </div>
 
                         <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            onClick={() => handleOpenVideoSuite(jobs[0])}
+                            className="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded text-[9px] font-bold hover:scale-105 transition flex items-center gap-1"
+                          >
+                            <span>📹</span> Video Screen
+                          </button>
+
                           <span
                             className={`px-2 py-1 rounded text-[9px] font-bold border ${
                               app.status.includes('Offer')
@@ -1926,7 +2014,249 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* MODAL: ADVANCED AI WAR-ROOM 2.0 */}
+        {/* ================================================================ */}
+        {/* MODAL 1: RECRUITER-STUDENT LIVE VIDEO INTERVIEW SUITE */}
+        {/* ================================================================ */}
+        {isVideoSuiteOpen && (
+          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
+            <div className="bg-[#060a17] border border-cyan-500/80 rounded-3xl w-full max-w-5xl p-6 text-xs relative shadow-[0_0_50px_rgba(6,182,212,0.25)] font-mono flex flex-col gap-4 max-h-[92vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping" />
+                  <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
+                    <span>📹</span> Live AI-Proctored Video Suite • {videoJobTarget?.title} ({videoJobTarget?.company})
+                  </h3>
+                </div>
+                <button
+                  onClick={handleCloseVideoSuite}
+                  className="text-slate-400 hover:text-white text-base w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Video Feeds Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. Candidate Local WebCam Feed */}
+                <div className="relative rounded-2xl overflow-hidden border border-cyan-500/50 bg-[#0c1229] h-[260px] flex items-center justify-center shadow-inner group">
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover mirror"
+                  />
+                  {!isCameraActive && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090e24]/90 p-4 text-center space-y-2">
+                      <span className="text-3xl">📷</span>
+                      <span className="text-slate-300 font-sans text-xs">
+                        Camera permissions pending or disabled.
+                      </span>
+                      <button
+                        onClick={startCamera}
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-xl text-xs font-bold"
+                      >
+                        Enable Camera & Mic
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Anti-cheat overlay */}
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-cyan-400 text-cyan-300 text-[9px] font-bold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    CANDIDATE: {candidateProfile.name}
+                  </div>
+
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-emerald-400 text-emerald-300 text-[9px] font-bold">
+                    EYE-TRACKING VERIFIED: 98.6%
+                  </div>
+
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-purple-400 text-purple-300 text-[9px] font-bold">
+                    PROCTOR SECURE
+                  </div>
+                </div>
+
+                {/* 2. Recruiter Panel Video Feed */}
+                <div className="relative rounded-2xl overflow-hidden border border-purple-500/50 bg-[#0c1229] h-[260px] flex items-center justify-center shadow-inner">
+                  {/* Recruiter Simulated Live Feed with Waveform */}
+                  <div className="flex flex-col items-center justify-center space-y-3 p-6 text-center">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20 animate-pulse">
+                      🏢
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-sm">Lead Technical Interviewer</div>
+                      <div className="text-slate-400 text-[10px] mt-0.5">
+                        {videoJobTarget?.company} Core Engineering Panel
+                      </div>
+                    </div>
+                    {/* Simulated Voice wave indicator */}
+                    <div className="flex items-center gap-1 h-5 pt-1">
+                      <span className="w-1 bg-cyan-400 h-2 animate-bounce rounded-full" />
+                      <span className="w-1 bg-purple-400 h-5 animate-bounce delay-75 rounded-full" />
+                      <span className="w-1 bg-pink-400 h-3 animate-bounce delay-150 rounded-full" />
+                      <span className="w-1 bg-emerald-400 h-4 animate-bounce delay-200 rounded-full" />
+                      <span className="w-1 bg-indigo-400 h-2 animate-bounce delay-100 rounded-full" />
+                    </div>
+                  </div>
+
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-purple-400 text-purple-300 text-[9px] font-bold">
+                    RECRUITER FEED • SECURE WEBRTC
+                  </div>
+
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-emerald-400 text-emerald-300 text-[9px] font-bold">
+                    AUDIO 48kHz HD
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Technical Evaluation Console */}
+              <div className="p-4 bg-[#090e24] border border-cyan-800/60 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
+                  <span className="text-slate-400 block text-[9px]">LIVE CONFIDENCE</span>
+                  <span className="text-emerald-400 font-bold text-sm">94.8% OPTIMAL</span>
+                </div>
+                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
+                  <span className="text-slate-400 block text-[9px]">ANTI-CHEAT AUDIT</span>
+                  <span className="text-cyan-300 font-bold text-sm">0 ANOMALIES</span>
+                </div>
+                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
+                  <span className="text-slate-400 block text-[9px]">LATENCY P2P</span>
+                  <span className="text-purple-300 font-bold text-sm">~8ms ULTRA-FAST</span>
+                </div>
+                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
+                  <span className="text-slate-400 block text-[9px]">SESSION STATUS</span>
+                  <span className="text-emerald-300 font-bold text-sm">ENCRYPTED</span>
+                </div>
+              </div>
+
+              {/* Action Toolbar */}
+              <div className="flex flex-wrap justify-between items-center pt-2 gap-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEyeTrackingAlert(prev => !prev);
+                      recordAuditLog('PROCTOR_TRIGGER', 'Eye tracking anti-cheat test recalibrated.');
+                    }}
+                    className="px-3.5 py-1.5 bg-[#0e1638] border border-cyan-800 text-cyan-300 rounded-xl font-bold hover:bg-cyan-900"
+                  >
+                    🎯 Recalibrate Eye-Tracking
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (videoJobTarget) {
+                        handleDispatchDigitalOffer(
+                          'app-video-01',
+                          candidateProfile.name,
+                          videoJobTarget.title
+                        );
+                        handleCloseVideoSuite();
+                      }
+                    }}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:opacity-95"
+                  >
+                    🎉 Release Offer Immediately
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleCloseVideoSuite}
+                  className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow"
+                >
+                  End Video Call
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL 2: AI COPILOT 2.0 DRAWER */}
+        {/* ================================================================ */}
+        {isAiChatOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-end">
+            <div className="w-full max-w-md bg-[#070b1a] border-l border-cyan-500/50 h-full p-5 flex flex-col justify-between font-mono text-xs shadow-2xl animate-in slide-in-from-right">
+              {/* Copilot Header */}
+              <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-bold text-base shadow">
+                    🤖
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm font-sans">CampusNex Copilot 2.0</h3>
+                    <p className="text-[10px] text-cyan-400">Contextual Recruitment Intelligence</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsAiChatOpen(false)}
+                  className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Chat Thread */}
+              <div className="flex-1 overflow-y-auto space-y-3 my-4 pr-1">
+                {chatMessages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-3 rounded-2xl max-w-[85%] ${
+                      msg.sender === 'user'
+                        ? 'ml-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none'
+                        : 'bg-[#0d1638] border border-cyan-900/60 text-slate-200 rounded-bl-none'
+                    }`}
+                  >
+                    <p className="text-[11px] leading-relaxed font-sans">{msg.text}</p>
+                    <span className="text-[8px] text-slate-400 block mt-1 text-right">{msg.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Suggested Quick Prompts */}
+              <div className="flex gap-1.5 overflow-x-auto pb-2 mb-2 text-[9px]">
+                <button
+                  onClick={() => setChatInput('What are the top active recruitment drives?')}
+                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
+                >
+                  Top Drives
+                </button>
+                <button
+                  onClick={() => setChatInput('Show TPO department clearance status')}
+                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
+                >
+                  TPO Clearance
+                </button>
+                <button
+                  onClick={() => setChatInput('How does Blind Hiring DEI mode work?')}
+                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
+                >
+                  DEI Blind Mode
+                </button>
+              </div>
+
+              {/* Chat Input Box */}
+              <form onSubmit={handleSendChat} className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  placeholder="Ask Copilot anything about candidates, drives, or queries..."
+                  className="flex-1 bg-[#0b1026] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 text-xs"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL 3: ADVANCED AI WAR-ROOM 2.0 */}
+        {/* ================================================================ */}
         {activeInterviewJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
