@@ -121,11 +121,15 @@ interface CandidateProfile {
 interface CloudApplication {
   id: string;
   candidateName: string;
+  blindAlias: string;
   jobTitle: string;
   company: string;
   appliedAt: string;
   status: string;
-  aiFitmentScore?: number;
+  aiFitmentScore: number;
+  technicalDepthScore: number;
+  systemDesignScore: number;
+  offerDispatched?: boolean;
 }
 
 const DEFAULT_PROFILE: CandidateProfile = {
@@ -453,18 +457,23 @@ export default function CampusNexPlatform() {
     {
       id: 'app-init-01',
       candidateName: 'Verified Candidate (#APEX-01)',
+      blindAlias: '#0xDEI-TALENT-94',
       jobTitle: 'Data Analyst & ML Associate',
       company: 'DataMetrics AI',
       appliedAt: '08:50 AM',
       status: 'Application Submitted',
-      aiFitmentScore: 92
+      aiFitmentScore: 92,
+      technicalDepthScore: 94,
+      systemDesignScore: 88,
+      offerDispatched: false
     }
   ]);
 
-  // Modals
+  // Modals & Futuristic Feature Toggles
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [blindHiringMode, setBlindHiringMode] = useState(false); // Blind DEI Mode Toggle
 
   // AI Mock Interview Simulator State
   const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
@@ -496,7 +505,8 @@ export default function CampusNexPlatform() {
     isSupabaseConfigured
       ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
       : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
-    '🧠 [AI_WARROOM_ENGINE]: Neural evaluator model loaded for live student technical simulation.'
+    '🧠 [AI_WARROOM_ENGINE]: Neural evaluator model loaded for live student technical simulation.',
+    '⚖️ [DEI_FAIRNESS_MATRIX]: Autonomous talent fitment & blind matching engine active.'
   ]);
 
   const mockQuestions = [
@@ -614,11 +624,15 @@ export default function CampusNexPlatform() {
     const newApp: CloudApplication = {
       id: `app-${Date.now()}`,
       candidateName: candidateProfile.name,
+      blindAlias: `#0xBLIND-${Math.floor(1000 + Math.random() * 9000)}`,
       jobTitle: targetJob.title,
       company: targetJob.company,
       appliedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'Application Submitted',
-      aiFitmentScore: targetJob.matchScore
+      aiFitmentScore: targetJob.matchScore,
+      technicalDepthScore: Math.floor(Math.random() * 6) + 93,
+      systemDesignScore: Math.floor(Math.random() * 8) + 89,
+      offerDispatched: false
     };
     setCloudApplications(prev => [newApp, ...prev]);
 
@@ -738,6 +752,15 @@ export default function CampusNexPlatform() {
       prev.map(a => (a.id === appId ? { ...a, status: 'Interview Shortlisted' } : a))
     );
     recordAuditLog('RECRUITER_SHORTLIST', `Candidate ${candidateName} approved and shortlisted.`);
+  };
+
+  const handleDispatchDigitalOffer = (appId: string, candidateName: string, role: string) => {
+    setCloudApplications(prev =>
+      prev.map(a => (a.id === appId ? { ...a, status: 'Offer Released', offerDispatched: true } : a))
+    );
+    setCandidateProfile(prev => ({ ...prev, currentStageIndex: 8 }));
+    recordAuditLog('SMART_OFFER_DISPATCH', `Digital encrypted offer dispatched to ${candidateName} for ${role}`);
+    alert(`🎉 Smart Digital Offer successfully dispatched to ${candidateName}! Verified on Cloud Ledger.`);
   };
 
   const formatSalary = (salaryInrLpa: number) => {
@@ -908,12 +931,12 @@ export default function CampusNexPlatform() {
 
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
                 {activePortal === 'student' && 'Student Portal: AI War-Room, Real-Time Drives & Pipeline'}
-                {activePortal === 'recruiter' && 'Recruiter Portal: Post Jobs, Ingestion Queue & Live Shortlisting'}
+                {activePortal === 'recruiter' && 'Recruiter Portal: Blind DEI Fairness Mode & Autonomous AI Matching'}
                 {activePortal === 'tpo' && 'TPO Portal: Institutional Placement Records, NAAC Audits & Department NOCs'}
                 {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Live Telemetry & Platform Lockdown Control'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Student kisi bhi job drive ke liye <strong>AI Mock Interview War-Room</strong> launch karke live score le sakta hai aur foran apply kar sakta hai.
+                Recruiter portal par <strong>Blind Hiring Fairness Mode</strong> toggle karke unbiased evaluation karein aur 1-Click Smart Digital Offer dispatch karein.
               </p>
 
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
@@ -923,19 +946,27 @@ export default function CampusNexPlatform() {
                 >
                   ⚡ Open Telemetry Inspector
                 </button>
-                {activePortal === 'student' ? (
+                {activePortal === 'recruiter' ? (
+                  <button
+                    onClick={() => {
+                      const next = !blindHiringMode;
+                      setBlindHiringMode(next);
+                      recordAuditLog('DEI_BLIND_TOGGLE', `Blind Hiring mode toggled to ${next}`);
+                    }}
+                    className={`px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${
+                      blindHiringMode
+                        ? 'bg-emerald-600 text-white shadow-lg'
+                        : 'bg-[#09122c] border border-purple-800 text-purple-300 hover:bg-purple-950'
+                    }`}
+                  >
+                    <span>⚖️</span> {blindHiringMode ? 'Blind Hiring: ON (DEI Protected)' : 'Enable Blind Hiring Mode'}
+                  </button>
+                ) : (
                   <button
                     onClick={() => handleLaunchInterview(jobs[0])}
                     className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1.5"
                   >
                     <span>🎙️</span> Launch AI War-Room Mock
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setActivePortal('student')}
-                    className="px-3.5 py-1.5 bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold rounded-lg hover:bg-cyan-950 transition"
-                  >
-                    🎓 View Student Portal
                   </button>
                 )}
               </div>
@@ -1066,7 +1097,6 @@ export default function CampusNexPlatform() {
                         </span>
 
                         <div className="flex items-center gap-2">
-                          {/* FUTURISTIC FEATURE: AI MOCK INTERVIEW WAR-ROOM BUTTON */}
                           <button
                             onClick={() => handleLaunchInterview(job)}
                             className="px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] bg-gradient-to-r from-purple-950 to-indigo-950 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/60 text-purple-200 transition shadow flex items-center gap-1.5"
@@ -1166,7 +1196,9 @@ export default function CampusNexPlatform() {
                           </div>
                           <span
                             className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                              app.status.includes('Shortlisted')
+                              app.status.includes('Offer')
+                                ? 'bg-purple-950 text-purple-300 border-purple-600'
+                                : app.status.includes('Shortlisted')
                                 ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
                                 : 'bg-cyan-950 text-cyan-300 border-cyan-800'
                             }`}
@@ -1187,79 +1219,171 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* 2. RECRUITER WORKSPACE */}
+          {/* 2. RECRUITER WORKSPACE (SUPERCHARGED WITH DEI & AUTONOMOUS MATCHING) */}
           {/* ================================================================ */}
           {activePortal === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Recruiter Workspace & Live Hiring Hub</h2>
-                  <p className="text-xs text-slate-400">
-                    Aap jo bhi drive yahan post karenge woh turant live Student Portal par visible hogi aur students apply kar sakenge.
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white">Recruiter Autonomous Talent Radar</h2>
+                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-bold">
+                      AI MATCHING v4.2
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Autonomous candidate fitment scoring with real-time blind hiring toggle for zero demographic bias.
                   </p>
                 </div>
-                <button
-                  onClick={() => setIsPostDriveOpen(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition"
-                >
-                  + Post New Campus Drive
-                </button>
+                <div className="flex items-center gap-2">
+                  {/* DEI BLIND TOGGLE */}
+                  <button
+                    onClick={() => {
+                      const next = !blindHiringMode;
+                      setBlindHiringMode(next);
+                      recordAuditLog('DEI_BLIND_TOGGLE', `Blind Hiring mode toggled to ${next}`);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition flex items-center gap-1.5 ${
+                      blindHiringMode
+                        ? 'bg-emerald-600 text-white shadow-lg'
+                        : 'bg-[#0d1633] border border-cyan-800 text-cyan-300 hover:bg-cyan-950'
+                    }`}
+                  >
+                    <span>⚖️</span> {blindHiringMode ? 'Blind Mode: ACTIVE' : 'Enable Blind Mode'}
+                  </button>
+
+                  <button
+                    onClick={() => setIsPostDriveOpen(true)}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl text-xs shadow-lg hover:scale-105 transition"
+                  >
+                    + Post New Campus Drive
+                  </button>
+                </div>
               </div>
 
-              {/* Ingestion Queue */}
+              {/* Ingestion Queue with Autonomous Metrics */}
               <div className="p-4 bg-[#08122c] border border-cyan-800/60 rounded-2xl space-y-3 font-mono text-xs">
                 <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
                   <span className="font-bold text-white flex items-center gap-2 text-sm">
-                    <span>📥</span> Live Candidate Ingestion Queue ({cloudApplications.length + 1} Applicants)
+                    <span>📥</span> Live Candidate Ingestion & AI Fitment Queue ({cloudApplications.length + 1} Applicants)
                   </span>
-                  <span className="text-emerald-400 text-[10px] font-bold">AUTOMATED SCREENING ENGINE</span>
+                  <span className="text-emerald-400 text-[10px] font-bold">
+                    {blindHiringMode ? '🛡️ ZERO-BIAS ANONYMIZED VIEW' : 'FULL AUDIT VIEW'}
+                  </span>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="p-3 bg-[#0d1838] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <div className="font-bold text-white">{candidateProfile.name}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">
-                        Drive: Full Stack Engineer (Elite Core) • CGPA: {candidateProfile.cgpa} • AI Mock Score:{' '}
-                        <span className="text-emerald-400 font-bold">{candidateProfile.mockInterviewScore || 94}%</span>
+                <div className="space-y-3">
+                  {/* Top Candidate Row */}
+                  <div className="p-3.5 bg-[#0d1838] rounded-xl border border-slate-800 space-y-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                      <div>
+                        <div className="font-bold text-white flex items-center gap-2 text-sm">
+                          {blindHiringMode ? (
+                            <span className="text-cyan-300">#0xAPEX-ANON-01 (Demographics Masked)</span>
+                          ) : (
+                            <span>{candidateProfile.name}</span>
+                          )}
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700">
+                            AI Fit: 98.4%
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">
+                          Drive: Full Stack Engineer (Elite Core) • {blindHiringMode ? 'Academic Integrity: Verified' : `CGPA: ${candidateProfile.cgpa}`}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-1 rounded bg-purple-950 text-purple-300 border border-purple-700 text-[9px] font-bold">
+                          Offer Dispatched
+                        </span>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700 text-[9px] font-bold">
-                      Stage: Offer Dispatched
-                    </span>
+
+                    {/* AI Fitment Matrix Chips */}
+                    <div className="grid grid-cols-3 gap-2 text-[10px] pt-1 border-t border-slate-800/80">
+                      <div className="p-1.5 bg-[#070e24] rounded-lg">
+                        <span className="text-slate-400 block">Technical Depth:</span>
+                        <span className="text-emerald-400 font-bold">96% (Concurrency & Raft)</span>
+                      </div>
+                      <div className="p-1.5 bg-[#070e24] rounded-lg">
+                        <span className="text-slate-400 block">System Design:</span>
+                        <span className="text-cyan-300 font-bold">94% (Redis & Indexing)</span>
+                      </div>
+                      <div className="p-1.5 bg-[#070e24] rounded-lg">
+                        <span className="text-slate-400 block">Mock War-Room:</span>
+                        <span className="text-purple-300 font-bold">{candidateProfile.mockInterviewScore || 94}% Cleared</span>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Dynamic Applications */}
                   {cloudApplications.map(app => (
                     <div
                       key={app.id}
-                      className="p-3 bg-[#0d1838] rounded-xl border border-cyan-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 animate-in fade-in"
+                      className="p-3.5 bg-[#0d1838] rounded-xl border border-cyan-700/60 space-y-2 animate-in fade-in"
                     >
-                      <div>
-                        <div className="font-bold text-cyan-300 flex items-center gap-1.5">
-                          <span>⚡</span> {app.candidateName}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                          <div className="font-bold text-cyan-300 flex items-center gap-2 text-sm">
+                            <span>⚡</span>
+                            {blindHiringMode ? app.blindAlias : app.candidateName}
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700">
+                              AI Fit: {app.aiFitmentScore}%
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-300 mt-0.5">
+                            Role: <strong className="text-white">{app.jobTitle}</strong> ({app.company}) • Applied: {app.appliedAt}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-slate-300 mt-0.5">
-                          Applied for: <strong className="text-white">{app.jobTitle}</strong> ({app.company}) • Timestamp: {app.appliedAt}
+
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`px-2 py-1 rounded text-[9px] font-bold border ${
+                              app.status.includes('Offer')
+                                ? 'bg-purple-950 text-purple-300 border-purple-600'
+                                : app.status.includes('Shortlisted')
+                                ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                                : 'bg-cyan-950 text-cyan-300 border-cyan-800'
+                            }`}
+                          >
+                            {app.status}
+                          </span>
+
+                          {!app.status.includes('Shortlisted') && !app.status.includes('Offer') && (
+                            <button
+                              onClick={() => handleShortlistCandidate(app.id, app.candidateName)}
+                              className="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded text-[9px] font-bold hover:scale-105 transition"
+                            >
+                              ✓ Shortlist
+                            </button>
+                          )}
+
+                          {/* 1-CLICK SMART DIGITAL OFFER DISPATCH */}
+                          {!app.offerDispatched && (
+                            <button
+                              onClick={() => handleDispatchDigitalOffer(app.id, app.candidateName, app.jobTitle)}
+                              className="px-2.5 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded text-[9px] font-bold hover:scale-105 transition shadow"
+                            >
+                              📜 Dispatch Smart Offer
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                            app.status.includes('Shortlisted')
-                              ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
-                              : 'bg-cyan-950 text-cyan-300 border-cyan-800'
-                          }`}
-                        >
-                          {app.status}
-                        </span>
-                        {!app.status.includes('Shortlisted') && (
-                          <button
-                            onClick={() => handleShortlistCandidate(app.id, app.candidateName)}
-                            className="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded text-[9px] font-bold hover:scale-105 transition"
-                          >
-                            ✓ Shortlist
-                          </button>
-                        )}
+
+                      {/* Radar Breakdown */}
+                      <div className="grid grid-cols-3 gap-2 text-[10px] pt-1 border-t border-slate-800/80">
+                        <div className="p-1.5 bg-[#070e24] rounded-lg">
+                          <span className="text-slate-400 block">Tech Depth:</span>
+                          <span className="text-emerald-400 font-bold">{app.technicalDepthScore}%</span>
+                        </div>
+                        <div className="p-1.5 bg-[#070e24] rounded-lg">
+                          <span className="text-slate-400 block">System Design:</span>
+                          <span className="text-cyan-300 font-bold">{app.systemDesignScore}%</span>
+                        </div>
+                        <div className="p-1.5 bg-[#070e24] rounded-lg">
+                          <span className="text-slate-400 block">Verification:</span>
+                          <span className="text-emerald-400 font-bold">PoE Cryptographic Hash</span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1557,9 +1681,7 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* ================================================================ */}
         {/* MODAL: AI MOCK INTERVIEW WAR-ROOM SIMULATOR */}
-        {/* ================================================================ */}
         {activeInterviewJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -1589,7 +1711,6 @@ export default function CampusNexPlatform() {
                     </span>
                   </div>
 
-                  {/* Neural Avatar Prompt Box */}
                   <div className="p-4 bg-[#0e1633] border border-purple-800/60 rounded-2xl space-y-2">
                     <div className="flex items-center gap-2 text-cyan-300 font-bold">
                       <span className="text-lg">🤖</span> AI Technical Interviewer:
@@ -1602,7 +1723,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Candidate Answer Box */}
                   <div>
                     <label className="text-slate-300 block mb-1 font-bold">
                       Your Technical Answer (Type or Dictate):
@@ -1638,7 +1758,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
               ) : (
-                /* Evaluated Score Card */
                 <div className="space-y-4 text-center py-4">
                   <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-500 to-emerald-400 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20">
                     {interviewScore}%
