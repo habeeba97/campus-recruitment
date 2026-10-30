@@ -91,6 +91,7 @@ interface Job {
   dataSource: 'LIVE' | 'DEMO' | 'VERIFIED' | 'SIMULATED';
   aiMatchExplanation: string;
   fairnessConfidence: number;
+  roadmapMilestones: { title: string; duration: string; focus: string }[];
 }
 
 interface ResumeProfile {
@@ -124,7 +125,8 @@ interface CandidateProfile {
   dsaRank: string;
   verifiedCommits: string;
   currentStageIndex: number;
-  mockInterviewScore?: number;
+  mockInterviewScore: number;
+  placementProbability: number;
 }
 
 interface CloudApplication {
@@ -183,7 +185,8 @@ const DEFAULT_PROFILE: CandidateProfile = {
   dsaRank: '1840+ Hard Rank',
   verifiedCommits: '120+ Commits',
   currentStageIndex: 8,
-  mockInterviewScore: 95
+  mockInterviewScore: 95,
+  placementProbability: 96.4
 };
 
 const DEFAULT_JOBS: Job[] = [
@@ -211,7 +214,11 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Offer Dispatched',
     dataSource: 'LIVE',
     aiMatchExplanation: 'Candidate verified in Raft CAS concurrency, Redis memory cache, and relational query plans. Zero demographic bias factored.',
-    fairnessConfidence: 99.4
+    fairnessConfidence: 99.4,
+    roadmapMilestones: [
+      { title: 'Tailwind CSS JIT & Design Tokens', duration: '4 Hours', focus: 'Responsive layouts & utility caching' },
+      { title: 'Concurrency Benchmark Rig', duration: '6 Hours', focus: 'k6 load test for 10k QPS Next.js endpoints' }
+    ]
   },
   {
     id: '2',
@@ -237,7 +244,11 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Applied',
     dataSource: 'LIVE',
     aiMatchExplanation: 'Relational query execution validated. Missing explicit Python pandas and Tableau visualization artifacts.',
-    fairnessConfidence: 98.8
+    fairnessConfidence: 98.8,
+    roadmapMilestones: [
+      { title: 'Python Pandas Data Manipulation', duration: '8 Hours', focus: 'Vectorized series processing & parquet formats' },
+      { title: 'FastAPI Microservice Deployment', duration: '6 Hours', focus: 'Asynchronous Python endpoints on Docker' }
+    ]
   },
   {
     id: '3',
@@ -263,7 +274,11 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Open',
     dataSource: 'LIVE',
     aiMatchExplanation: 'CGPA 8.85 exceeds threshold. Missing practical Go microservice runtime evidence.',
-    fairnessConfidence: 99.1
+    fairnessConfidence: 99.1,
+    roadmapMilestones: [
+      { title: 'Golang Concurrency & Goroutines', duration: '12 Hours', focus: 'Channels, Mutex, and Memory Allocation' },
+      { title: 'gRPC & Protobuf Inter-service Mesh', duration: '8 Hours', focus: 'Low-latency RPC protocol buffers' }
+    ]
   }
 ];
 
@@ -272,13 +287,16 @@ export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Phase 3 Part 1 Specific States
+  // Phase 3 Part 1 & Part 2 States
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>(DEFAULT_PROFILE);
   const [jobs, setJobs] = useState<Job[]>(DEFAULT_JOBS);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCurrency, setActiveCurrency] = useState<Currency>('INR');
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const [selectedJobRadar, setSelectedJobRadar] = useState<Job | null>(null);
+  const [isRoadmapDrawerOpen, setIsRoadmapDrawerOpen] = useState(false);
+  const [activeRoadmapJob, setActiveRoadmapJob] = useState<Job>(DEFAULT_JOBS[0]);
+  const [isProbabilityModalOpen, setIsProbabilityModalOpen] = useState(false);
 
   const [cloudApplications, setCloudApplications] = useState<CloudApplication[]>([
     {
@@ -294,12 +312,6 @@ export default function CampusNexPlatform() {
       systemDesignScore: 88,
       offerDispatched: false
     }
-  ]);
-
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_3_PART_1]: ATS Resume Intelligence & Skill-Gap Radar mounted.',
-    '📄 [ATS_ENGINE]: Semantic keyword density parsed for distributed systems.',
-    '🔒 [RLS_POLICIES]: Institutional Tenant Isolation enabled for DCET Hyderabad.'
   ]);
 
   const activeResume = useMemo(() => {
@@ -334,6 +346,16 @@ export default function CampusNexPlatform() {
     );
   }, [jobs, searchQuery]);
 
+  // Transparent Probability Calculation Breakdown
+  const cgpaComponent = ((parseFloat(candidateProfile.cgpa) / 10) * 30).toFixed(1);
+  const mockComponent = ((candidateProfile.mockInterviewScore / 100) * 40).toFixed(1);
+  const poeComponent = (28.4).toFixed(1); // 120+ verified commits & Hash clearance out of 30%
+  const totalCalculatedProbability = (
+    parseFloat(cgpaComponent) +
+    parseFloat(mockComponent) +
+    parseFloat(poeComponent)
+  ).toFixed(1);
+
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-24 selection:bg-cyan-500 selection:text-black bg-[#040714] relative overflow-x-hidden">
       {/* Background ambient lighting */}
@@ -359,6 +381,12 @@ export default function CampusNexPlatform() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsProbabilityModalOpen(true)}
+              className="bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-600 text-emerald-300 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+            >
+              <span>📈</span> PROBABILITY: {totalCalculatedProbability}%
+            </button>
             <div className="flex items-center gap-1 bg-[#09122c] border border-cyan-900/60 px-2 py-0.5 rounded-lg text-[9px]">
               <span className="text-slate-500">CURRENCY:</span>
               <button
@@ -393,7 +421,7 @@ export default function CampusNexPlatform() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 3: Student Intelligence Hub'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 3 Part 2: Career Roadmap & Predictive Placement'}
               </p>
             </div>
           </div>
@@ -451,33 +479,55 @@ export default function CampusNexPlatform() {
           <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-600/70 text-cyan-300 text-xs font-mono font-bold">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              PHASE 3 PART 1: STUDENT RESUME INTELLIGENCE ENGINE
+              PHASE 3 PART 2: PLACEMENT PROBABILITY & SKILL BRIDGING ROADMAP
             </div>
             <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl mx-auto">
-              Autonomous ATS Resume Verification & <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 bg-clip-text text-transparent">AI Skill-Gap Radar</span>
+              Transparent Placement Probability & <span className="bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-400 bg-clip-text text-transparent">Actionable Career Roadmaps</span>
             </h1>
             <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              Equipping university students with explainable ATS semantic scores, target role resume variants, and direct skill-match overlays before applying to Tier-1 recruitment drives.
+              Eliminating vague algorithmic predictions. Students receive transparent mathematical formula breakdowns (CGPA, War-Room, PoE Commits) and immediate milestone roadmaps to bridge every identified skill gap.
             </p>
             <div className="pt-4">
               <button
                 onClick={() => handleLaunchRoleDashboard('student')}
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_30px_rgba(6,182,212,0.35)] hover:scale-105 transition"
+                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-600 to-indigo-600 text-white font-bold text-sm shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:scale-105 transition"
               >
-                Enter Student Intelligence Workspace →
+                Launch Student Career Workspace →
               </button>
             </div>
           </section>
         ) : (
           /* ================================================================ */
-          /* AUTHENTICATED WORKSPACE: STUDENT PORTAL FOCUS (PHASE 3 PART 1) */
+          /* AUTHENTICATED WORKSPACE: STUDENT PORTAL (PHASE 3 PART 2) */
           /* ================================================================ */
           <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
             {activePortal === 'student' ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left 2 Cols: ATS Radar & Live Drives */}
+                {/* Left 2 Cols */}
                 <div className="lg:col-span-2 space-y-5">
-                  {/* ATS RESUME INTELLIGENCE CARD */}
+                  {/* PREDICTIVE PROBABILITY BANNER */}
+                  <div className="bg-gradient-to-r from-[#071926]/90 via-[#07132a]/90 to-[#0c0f2b]/90 border border-emerald-500/50 p-5 rounded-3xl shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                        <h3 className="font-bold text-white text-base font-sans">
+                          Explainable Placement Clearance: <strong className="text-emerald-400">{totalCalculatedProbability}%</strong>
+                        </h3>
+                      </div>
+                      <p className="text-xs text-slate-300 font-sans">
+                        Calculated transparently via weighted indices: <strong>CGPA ({cgpaComponent}%)</strong> + <strong>War-Room ({mockComponent}%)</strong> + <strong>PoE Commits ({poeComponent}%)</strong>.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setIsProbabilityModalOpen(true)}
+                      className="px-3.5 py-2 bg-emerald-950 hover:bg-emerald-900 border border-emerald-500 text-emerald-300 rounded-xl text-xs font-mono font-bold transition shrink-0"
+                    >
+                      📊 View Audit Breakdown
+                    </button>
+                  </div>
+
+                  {/* ATS RESUME CARD */}
                   <div className="bg-[#0b1226]/85 backdrop-blur-xl border border-cyan-700/60 p-5 rounded-3xl shadow-xl relative overflow-hidden">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
                       <div>
@@ -501,7 +551,6 @@ export default function CampusNexPlatform() {
                       </button>
                     </div>
 
-                    {/* ATS Metrics Bar */}
                     <div className="grid grid-cols-3 gap-3 mt-4 text-center font-mono">
                       <div className="p-3 bg-[#080e22] rounded-2xl border border-slate-800">
                         <span className="text-slate-400 text-[10px] block">ATS SCORE</span>
@@ -511,12 +560,12 @@ export default function CampusNexPlatform() {
                       <div className="p-3 bg-[#080e22] rounded-2xl border border-slate-800">
                         <span className="text-slate-400 text-[10px] block">KEYWORD DENSITY</span>
                         <span className="text-cyan-300 font-bold text-xl">{activeResume.keywordMatch}%</span>
-                        <span className="text-slate-500 text-[9px] block">Concurrency & SQL Validated</span>
+                        <span className="text-slate-500 text-[9px] block">Concurrency Validated</span>
                       </div>
                       <div className="p-3 bg-[#080e22] rounded-2xl border border-slate-800">
                         <span className="text-slate-400 text-[10px] block">FORMAT COMPLIANCE</span>
                         <span className="text-purple-300 font-bold text-xl">{activeResume.formattingScore}%</span>
-                        <span className="text-slate-500 text-[9px] block">Machine Parsable PDF</span>
+                        <span className="text-slate-500 text-[9px] block">Machine Parsable</span>
                       </div>
                     </div>
                   </div>
@@ -557,11 +606,11 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Drives with AI Skill-Gap Radar trigger */}
+                  {/* Drives with Roadmap & Skill-Gap Triggers */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h4 className="font-bold text-white text-sm">Active Hiring Drives ({filteredJobs.length})</h4>
-                      <span className="text-[10px] text-slate-400 font-mono">Real-Time Skill Gap Matching</span>
+                      <span className="text-[10px] text-slate-400 font-mono">Skill-Gap Bridging & Actionable Tracks</span>
                     </div>
 
                     {filteredJobs.map(job => (
@@ -597,7 +646,7 @@ export default function CampusNexPlatform() {
                           </span>
                         </div>
 
-                        {/* Skill-Gap Match Pill */}
+                        {/* Skill-Gap Match Pill & Actionable Roadmap Trigger */}
                         <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-mono">
                           <div>
                             <span className="text-cyan-300 font-bold">Match Index: {job.matchScore}%</span>
@@ -609,12 +658,23 @@ export default function CampusNexPlatform() {
                             </div>
                           </div>
 
-                          <button
-                            onClick={() => setSelectedJobRadar(job)}
-                            className="px-3 py-1.5 bg-[#0d1633] border border-cyan-600/70 text-cyan-300 rounded-xl font-bold hover:bg-cyan-950 transition shrink-0"
-                          >
-                            🔍 Explain Skill Gap
-                          </button>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              onClick={() => setSelectedJobRadar(job)}
+                              className="px-3 py-1.5 bg-[#0d1633] border border-cyan-600/70 text-cyan-300 rounded-xl font-bold hover:bg-cyan-950 transition"
+                            >
+                              🔍 Skill Gap
+                            </button>
+                            <button
+                              onClick={() => {
+                                setActiveRoadmapJob(job);
+                                setIsRoadmapDrawerOpen(true);
+                              }}
+                              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-xl font-bold shadow hover:scale-105 transition"
+                            >
+                              🗺️ Career Roadmap
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -647,6 +707,10 @@ export default function CampusNexPlatform() {
                         <span className="text-slate-500">VERIFIED COMMITS:</span>
                         <span className="text-purple-300 font-bold">{candidateProfile.verifiedCommits}</span>
                       </div>
+                      <div className="flex justify-between border-b border-slate-800 pb-1">
+                        <span className="text-slate-500">AI PROBABILITY:</span>
+                        <span className="text-emerald-400 font-bold">{totalCalculatedProbability}%</span>
+                      </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">ACTIVE RESUME:</span>
                         <span className="text-white font-bold truncate max-w-[150px]">{activeResume.title}</span>
@@ -677,11 +741,10 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
             ) : (
-              /* Other roles simple placeholder for Phase 3 Part 1 */
               <div className="p-12 text-center bg-[#070b1a] border border-slate-800 rounded-3xl space-y-3 font-mono">
                 <h3 className="text-xl font-bold text-white font-sans">{activePortal.toUpperCase()} Workspace Active</h3>
                 <p className="text-xs text-slate-400">
-                  Switch back to <strong>Student Portal</strong> to evaluate the newly implemented Phase 3 Part 1 ATS Intelligence & Skill-Gap Radar.
+                  Switch back to <strong>Student Portal</strong> to evaluate Phase 3 Part 2 features (Career Roadmap & Placement Probability).
                 </p>
                 <button
                   onClick={() => setActivePortal('student')}
@@ -695,77 +758,68 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ================================================================ */}
-        {/* MODAL 1: MULTIPLE RESUME MANAGER & ATS BREAKDOWN */}
+        {/* MODAL: TRANSPARENT PLACEMENT PROBABILITY AUDIT BREAKDOWN */}
         {/* ================================================================ */}
-        {isResumeModalOpen && (
+        {isProbabilityModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative font-mono space-y-4">
+            <div className="bg-[#070b1a] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-[0_0_40px_rgba(16,185,129,0.25)]">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div>
-                  <h3 className="text-base font-bold text-white font-sans">Multi-Resume Portfolio Manager</h3>
-                  <p className="text-[10px] text-slate-400">Select active resume variant for algorithmic matching</p>
+                  <h3 className="text-base font-bold text-white font-sans">
+                    Algorithmic Placement Probability Methodology
+                  </h3>
+                  <p className="text-[10px] text-slate-400">Zero Black-Box Transparency Formula</p>
                 </div>
                 <button
-                  onClick={() => setIsResumeModalOpen(false)}
+                  onClick={() => setIsProbabilityModalOpen(false)}
                   className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-2.5">
-                {candidateProfile.resumes.map(res => {
-                  const isActive = res.id === candidateProfile.activeResumeId;
-                  return (
-                    <div
-                      key={res.id}
-                      className={`p-3.5 rounded-2xl border transition-all ${
-                        isActive
-                          ? 'bg-[#0d1c3d] border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
-                          : 'bg-[#090e24] border-slate-800'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <div className="font-bold text-white text-sm flex items-center gap-1.5">
-                            {res.title}
-                            {isActive && (
-                              <span className="px-2 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-500 text-[9px]">
-                                ACTIVE VARIANT
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">{res.targetRole} • {res.fileName}</div>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="text-emerald-400 font-bold text-sm block">{res.atsScore}% ATS</span>
-                          {!isActive && (
-                            <button
-                              onClick={() => {
-                                setCandidateProfile(prev => ({ ...prev, activeResumeId: res.id }));
-                              }}
-                              className="text-[10px] text-cyan-300 underline mt-0.5 hover:text-white"
-                            >
-                              Make Active
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              {/* Formula Card */}
+              <div className="p-4 bg-[#081524] border border-emerald-700/60 rounded-2xl text-center space-y-2">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest">AGGREGATE FORMULA SCORE</span>
+                <div className="text-4xl font-black text-emerald-400">{totalCalculatedProbability}%</div>
+                <p className="text-[11px] text-slate-300 font-sans">
+                  Tier-1 Super Dream Probability verified for Deccan College of Engineering & Technology.
+                </p>
               </div>
 
-              <div className="pt-2 flex justify-between items-center border-t border-slate-800">
-                <span className="text-[10px] text-slate-500">Machine-Parsable ATS v4.2 Certified</span>
+              {/* Mathematical Weight Breakdown */}
+              <div className="space-y-2 text-slate-300">
+                <div className="flex justify-between p-2.5 bg-[#0d1633] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">Academic Integrity (30% Max)</strong>
+                    <div className="text-[10px] text-slate-400">Current CGPA: {candidateProfile.cgpa} / 10.0</div>
+                  </div>
+                  <span className="text-cyan-300 font-bold text-sm">+{cgpaComponent}%</span>
+                </div>
+
+                <div className="flex justify-between p-2.5 bg-[#0d1633] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">AI War-Room 2.0 Simulation (40% Max)</strong>
+                    <div className="text-[10px] text-slate-400">Technical Speech & MVCC Concurrency Score</div>
+                  </div>
+                  <span className="text-purple-300 font-bold text-sm">+{mockComponent}%</span>
+                </div>
+
+                <div className="flex justify-between p-2.5 bg-[#0d1633] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">PoE Hash & Commits Ledger (30% Max)</strong>
+                    <div className="text-[10px] text-slate-400">120+ GitHub Commits & Cryptographic Seal</div>
+                  </div>
+                  <span className="text-emerald-300 font-bold text-sm">+{poeComponent}%</span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
                 <button
-                  onClick={() => {
-                    alert('PDF Upload Dialog: You can add new resume variants here.');
-                  }}
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-xl font-bold"
+                  onClick={() => setIsProbabilityModalOpen(false)}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl"
                 >
-                  + Upload New Variant
+                  Confirm & Close Audit
                 </button>
               </div>
             </div>
@@ -773,66 +827,118 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ================================================================ */}
-        {/* MODAL 2: EXPLAINABLE AI SKILL-GAP RADAR */}
+        {/* MODAL: ACTIONABLE CAREER ROADMAP DRAWER */}
         {/* ================================================================ */}
-        {selectedJobRadar && (
+        {isRoadmapDrawerOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative font-mono space-y-4 shadow-[0_0_40px_rgba(6,182,212,0.25)]">
               <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div>
                   <h3 className="text-base font-bold text-white font-sans">
-                    Explainable AI Skill-Gap Radar • {selectedJobRadar.company}
+                    Target Career Roadmap • {activeRoadmapJob.company}
                   </h3>
-                  <p className="text-[10px] text-slate-400">Target Role: {selectedJobRadar.title}</p>
+                  <p className="text-[10px] text-cyan-400">Role: {activeRoadmapJob.title}</p>
                 </div>
                 <button
-                  onClick={() => setSelectedJobRadar(null)}
+                  onClick={() => setIsRoadmapDrawerOpen(false)}
                   className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">ROLE MATCH PERCENTAGE:</span>
-                  <span className="text-emerald-400 font-bold text-base">{selectedJobRadar.matchScore}%</span>
-                </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full"
-                    style={{ width: `${selectedJobRadar.matchScore}%` }}
-                  />
+              <div className="p-3 bg-[#08122c] border border-cyan-900/60 rounded-xl space-y-1">
+                <span className="text-slate-400 text-[10px]">CURRENT ROLE FITMENT:</span>
+                <div className="text-sm font-bold text-emerald-400">
+                  {activeRoadmapJob.matchScore}% Matched (Missing: {activeRoadmapJob.missing.join(', ') || 'None'})
                 </div>
               </div>
 
-              <div className="space-y-2 text-slate-300">
-                <div className="font-bold text-white text-xs">Skill Verification Breakdown:</div>
-                <div className="p-3 bg-[#0d1633] rounded-xl space-y-1.5 text-[11px]">
-                  <div className="text-emerald-400 font-bold">
-                    ✓ Verified Competencies: {selectedJobRadar.matched.join(', ')}
-                  </div>
-                  {selectedJobRadar.missing.length > 0 ? (
-                    <div className="text-rose-400 font-bold">
-                      ⚠️ Target Skill Gap: {selectedJobRadar.missing.join(', ')}
+              {/* Milestones list */}
+              <div className="space-y-3">
+                <span className="font-bold text-white text-xs block">Prescribed Skill-Gap Bridging Track:</span>
+                {activeRoadmapJob.roadmapMilestones.map((ms, idx) => (
+                  <div key={idx} className="p-3 bg-[#0d1633] border border-slate-800 rounded-2xl flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-600 flex items-center justify-center text-[10px]">
+                          {idx + 1}
+                        </span>
+                        {ms.title}
+                      </div>
+                      <div className="text-[11px] text-slate-300 font-sans">{ms.focus}</div>
                     </div>
-                  ) : (
-                    <div className="text-emerald-300">✓ 100% Core Requirements Matched</div>
-                  )}
-                  <p className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-sans">
-                    {selectedJobRadar.aiMatchExplanation}
-                  </p>
-                </div>
+                    <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold shrink-0">
+                      ⏱️ {ms.duration}
+                    </span>
+                  </div>
+                ))}
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex justify-between items-center border-t border-slate-800">
+                <span className="text-[10px] text-slate-500">Autonomous Track Curated by CampusNex AI</span>
                 <button
-                  onClick={() => setSelectedJobRadar(null)}
-                  className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl"
+                  onClick={() => {
+                    alert('Roadmap modules verified. Tracking progress toward your Tier-1 drive application.');
+                    setIsRoadmapDrawerOpen(false);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
                 >
-                  Close Radar
+                  Start Preparation Track
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: RESUME MANAGER */}
+        {isResumeModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-xl p-6 text-xs relative font-mono space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white font-sans">Multi-Resume Portfolio Manager</h3>
+                <button onClick={() => setIsResumeModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+              <div className="space-y-2.5">
+                {candidateProfile.resumes.map(res => (
+                  <div key={res.id} className="p-3 bg-[#0d1c3d] border border-cyan-400 rounded-2xl flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-white text-sm">{res.title}</div>
+                      <div className="text-[10px] text-slate-400">{res.targetRole} • {res.fileName}</div>
+                    </div>
+                    <span className="text-emerald-400 font-bold text-sm">{res.atsScore}% ATS</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => setIsResumeModalOpen(false)} className="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: SKILL GAP RADAR */}
+        {selectedJobRadar && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white font-sans">
+                  Skill-Gap Radar • {selectedJobRadar.company}
+                </h3>
+                <button onClick={() => setSelectedJobRadar(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+              <div className="p-3 bg-[#081024] rounded-xl text-emerald-400 font-bold">
+                Role Match: {selectedJobRadar.matchScore}%
+              </div>
+              <div className="p-3 bg-[#0d1633] rounded-xl space-y-1">
+                <div className="text-emerald-400 font-bold">Verified: {selectedJobRadar.matched.join(', ')}</div>
+                {selectedJobRadar.missing.length > 0 && (
+                  <div className="text-rose-400 font-bold">Gap: {selectedJobRadar.missing.join(', ')}</div>
+                )}
+              </div>
+              <button onClick={() => setSelectedJobRadar(null)} className="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl">
+                Close Radar
+              </button>
             </div>
           </div>
         )}
@@ -845,7 +951,6 @@ export default function CampusNexPlatform() {
                 <h3 className="text-lg font-bold text-white font-sans">Select Portal Role</h3>
                 <p className="text-[10px] text-slate-400">DCET Hyderabad Campus Network</p>
               </div>
-
               <div className="space-y-2">
                 <button
                   onClick={() => handleLaunchRoleDashboard('student')}
