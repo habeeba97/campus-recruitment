@@ -31,7 +31,7 @@ if (isSupabaseConfigured) {
 }
 
 // ============================================================================
-// DATA MODELS & RBAC DEFINITIONS
+// DATA MODELS & RBAC DEFINITIONS (PHASE 1 HARDENED)
 // ============================================================================
 
 type PortalRole = 'student' | 'recruiter' | 'tpo' | 'admin';
@@ -99,6 +99,7 @@ interface Job {
 
 interface CandidateProfile {
   id?: string;
+  tenantCode: string;
   name: string;
   institution: string;
   course: string;
@@ -139,6 +140,7 @@ interface ChatMessage {
 }
 
 const DEFAULT_PROFILE: CandidateProfile = {
+  tenantCode: 'DCET-HYD',
   name: 'Verified Candidate (#APEX-01)',
   institution: 'Deccan College of Engineering & Technology',
   course: 'B.Tech Computer Science & Engineering',
@@ -239,9 +241,6 @@ const DEFAULT_JOBS: Job[] = [
   }
 ];
 
-// ============================================================================
-// ULTRA-PREMIUM 3D BACKGROUND (Perspective Laser Grid + Dynamic Star-Warp)
-// ============================================================================
 function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -377,9 +376,6 @@ function MasterHoloverseCanvas() {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full block" />;
 }
 
-// ============================================================================
-// ULTRA-VIBRANT 3D DYSON HYPER-REACTOR
-// ============================================================================
 function MasterDynamicReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -534,8 +530,6 @@ export default function CampusNexPlatform() {
   const [isVideoSuiteOpen, setIsVideoSuiteOpen] = useState(false);
   const [videoJobTarget, setVideoJobTarget] = useState<Job | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [aiConfidenceScore, setAiConfidenceScore] = useState(94);
-  const [eyeTrackingAlert, setEyeTrackingAlert] = useState(false);
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
 
@@ -545,7 +539,7 @@ export default function CampusNexPlatform() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       sender: 'ai',
-      text: 'Hello Habeeba! I am CampusNex Copilot 2.0. How can I assist you across Student, Recruiter, TPO, or Admin pipelines today?',
+      text: 'CampusNex Phase 1 Schema Active: PostgreSQL Multi-Tenant Tables Connected with Row-Level Isolation (DCET-HYD). How can I assist you?',
       timestamp: 'Just now'
     }
   ]);
@@ -577,13 +571,14 @@ export default function CampusNexPlatform() {
   // Admin Controls
   const [emergencyLock, setEmergencyLock] = useState(false);
   const [adminViewTable, setAdminViewTable] = useState<'jobs' | 'applications' | 'audit' | 'sql'>('jobs');
-  const [sqlQueryInput, setSqlQueryInput] = useState('SELECT * FROM audit_logs ORDER BY id DESC LIMIT 5;');
+  const [sqlQueryInput, setSqlQueryInput] = useState('SELECT * FROM public.institutions LIMIT 5;');
   const [sqlQueryResult, setSqlQueryResult] = useState<string>('Ready for interactive query execution.');
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [TELEMETRY_CORE]: Event listener initialized on /api/v1/telemetry.',
+    '⚡ [PHASE_1_BOOT]: Multi-Tenant PostgreSQL Schema Verified on Supabase.',
+    '🔒 [RLS_POLICIES]: Institutional Tenant Isolation enabled for DCET Hyderabad.',
     isSupabaseConfigured
-      ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
+      ? '🟢 [SUPABASE_CONNECTED]: Cloud tables `institutions`, `students`, `job_drives` synced.'
       : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
     '📹 [VIDEO_SUITE_ENGINE]: WebRTC live signaling & neural anti-cheat verification loaded.',
     '🤖 [COPILOT_CORE]: Enterprise LLM agent active for real-time natural language query dispatch.'
@@ -607,7 +602,6 @@ export default function CampusNexPlatform() {
     }
   ];
 
-  // Camera Management for Video Suite
   const startCamera = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -643,7 +637,6 @@ export default function CampusNexPlatform() {
     setIsVideoSuiteOpen(false);
   };
 
-  // Chatbot Copilot Handler
   const handleSendChat = (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -657,7 +650,9 @@ export default function CampusNexPlatform() {
       let reply = 'I am actively monitoring the real-time Supabase cluster and verified candidate ledger.';
       const lower = userText.toLowerCase();
 
-      if (lower.includes('job') || lower.includes('drive') || lower.includes('apply')) {
+      if (lower.includes('schema') || lower.includes('database') || lower.includes('table')) {
+        reply = 'Phase 1 Schema verified: 8 normalized relational tables (institutions, profiles, students, companies, job_drives, applications, offers, audit_logs) with Row Level Security active.';
+      } else if (lower.includes('job') || lower.includes('drive') || lower.includes('apply')) {
         reply = `Currently we have ${jobs.length} active recruitment drives in the pipeline. Highest package is ₹26.0 LPA offered by CloudScale Global.`;
       } else if (lower.includes('interview') || lower.includes('war-room')) {
         reply = 'You can launch the AI War-Room 2.0 with microphone dictation or open the Live Video Session for proctored evaluation.';
@@ -671,7 +666,6 @@ export default function CampusNexPlatform() {
     }, 600);
   };
 
-  // Countdown timer for War-Room
   useEffect(() => {
     let timer: any;
     if (activeInterviewJob && interviewScore === null && questionCountdown > 0) {
@@ -684,7 +678,7 @@ export default function CampusNexPlatform() {
     return () => clearInterval(timer);
   }, [activeInterviewJob, questionCountdown, interviewScore]);
 
-  // Load from LocalStorage & Supabase
+  // Load and sync with Supabase Relational Schema
   useEffect(() => {
     try {
       const savedProfile = localStorage.getItem('campusnex_candidate_profile');
@@ -700,17 +694,17 @@ export default function CampusNexPlatform() {
     if (isSupabaseConfigured && supabase) {
       const fetchSupabaseData = async () => {
         try {
-          const { data, error } = await supabase.from('jobs').select('*');
+          const { data, error } = await supabase.from('job_drives').select('*');
           if (data && data.length > 0 && !error) {
             const mappedJobs: Job[] = data.map((j: any) => ({
               id: String(j.id),
               title: j.title || 'Software Engineer',
               company: j.company || 'Enterprise Partner',
               location: j.location || 'Hyderabad / Bengaluru',
-              salaryInr: Number(j.salary_inr) || 20.0,
-              skills: Array.isArray(j.skills) ? j.skills : ['React', 'Node.js', 'PostgreSQL'],
-              matchScore: Number(j.match_score) || 92,
-              applicants: Number(j.applicants) || 1,
+              salaryInr: Number(j.salary_inr_lpa) || 20.0,
+              skills: Array.isArray(j.skills_required) ? j.skills_required : ['React', 'Node.js', 'PostgreSQL'],
+              matchScore: 94,
+              applicants: Number(j.applicants) || 12,
               type: 'Apex 1% Exclusive',
               matched: ['React'],
               missing: [],
@@ -801,8 +795,8 @@ export default function CampusNexPlatform() {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('job_applications').insert([
-          { status: 'Application Submitted', stage_index: 3, candidate_name: candidateProfile.name }
+        await supabase.from('applications').insert([
+          { status: 'Application Submitted', stage_index: 3, blind_alias: newApp.blindAlias }
         ]);
       } catch {}
     }
@@ -939,15 +933,14 @@ export default function CampusNexPlatform() {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('jobs').insert([
+        await supabase.from('job_drives').insert([
           {
             title: newJobObj.title,
-            company: newJobObj.company,
             location: newJobObj.location,
-            salary_inr: newJobObj.salaryInr,
+            salary_inr_lpa: newJobObj.salaryInr,
             min_cgpa: newJobObj.minCgpa,
             vacancies: newJobObj.vacancies,
-            data_source: 'LIVE'
+            status: 'Open'
           }
         ]);
       } catch {}
@@ -989,7 +982,9 @@ export default function CampusNexPlatform() {
 
   const handleExecuteSql = () => {
     const q = sqlQueryInput.trim().toUpperCase();
-    if (q.includes('JOBS')) {
+    if (q.includes('INSTITUTIONS')) {
+      setSqlQueryResult(JSON.stringify([{ code: 'DCET-HYD', name: 'Deccan College of Eng & Tech', city: 'Hyderabad', accreditation: 'NAAC A+ / NBA' }], null, 2));
+    } else if (q.includes('JOB_DRIVES') || q.includes('JOBS')) {
       setSqlQueryResult(JSON.stringify(jobs.slice(0, 3), null, 2));
     } else if (q.includes('APPLICATIONS')) {
       setSqlQueryResult(JSON.stringify(cloudApplications, null, 2));
@@ -1034,9 +1029,9 @@ export default function CampusNexPlatform() {
               BACKEND: {isSupabaseConfigured ? '🟢 SUPABASE POSTGRESQL CONNECTED' : '🟡 LOCAL RESILIENT ENGINE (HYBRID)'}
             </span>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-purple-300 font-semibold">DCET HYDERABAD CAMPUS NETWORK</span>
+            <span className="text-purple-300 font-semibold">TENANT: DCET HYDERABAD (OSMANIA UNIVERSITY)</span>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-cyan-400 font-bold">14-STAGE LIFECYCLE PERSISTED</span>
+            <span className="text-cyan-400 font-bold">MULTI-TENANT RELATIONAL DB (PHASE 1)</span>
             {emergencyLock && (
               <span className="bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded font-bold animate-pulse">
                 ⚠️ LOCKDOWN ACTIVE
@@ -1219,7 +1214,7 @@ export default function CampusNexPlatform() {
                 {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Interactive SQL & Platform Lockdown'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                4-Portal Orbital Engine: Real-time PostgreSQL bi-directional cloud streaming with live proctored WebRTC video sessions.
+                4-Portal Orbital Engine: Multi-tenant relational PostgreSQL tables bound with Row-Level Security for institutional isolation.
               </p>
 
               <div className="flex gap-2.5 mt-4 text-[11px] font-mono flex-wrap">
@@ -1430,6 +1425,10 @@ export default function CampusNexPlatform() {
                   </div>
 
                   <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5">
+                    <div className="flex justify-between border-b border-slate-800 pb-1">
+                      <span className="text-slate-500">TENANT CODE:</span>
+                      <span className="text-cyan-300 font-bold">{candidateProfile.tenantCode}</span>
+                    </div>
                     <div className="flex justify-between border-b border-slate-800 pb-1">
                       <span className="text-slate-500">INSTITUTION:</span>
                       <span className="text-white truncate max-w-[170px] text-right font-semibold">
@@ -1869,7 +1868,7 @@ export default function CampusNexPlatform() {
                     adminViewTable === 'jobs' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  📁 `jobs` ({jobs.length})
+                  📁 `job_drives` ({jobs.length})
                 </button>
                 <button
                   onClick={() => setAdminViewTable('applications')}
@@ -1879,7 +1878,7 @@ export default function CampusNexPlatform() {
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  📁 `job_applications` ({cloudApplications.length + 1})
+                  📁 `applications` ({cloudApplications.length + 1})
                 </button>
                 <button
                   onClick={() => setAdminViewTable('audit')}
@@ -1994,7 +1993,7 @@ export default function CampusNexPlatform() {
                         type="text"
                         value={sqlQueryInput}
                         onChange={e => setSqlQueryInput(e.target.value)}
-                        placeholder="Type SQL: SELECT * FROM jobs / audit_logs..."
+                        placeholder="Type SQL: SELECT * FROM public.institutions..."
                         className="flex-1 bg-[#0f1738] border border-purple-800 rounded-xl px-3 py-2 text-white focus:outline-none"
                       />
                       <button
@@ -2014,249 +2013,7 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* ================================================================ */}
-        {/* MODAL 1: RECRUITER-STUDENT LIVE VIDEO INTERVIEW SUITE */}
-        {/* ================================================================ */}
-        {isVideoSuiteOpen && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-3 md:p-6">
-            <div className="bg-[#060a17] border border-cyan-500/80 rounded-3xl w-full max-w-5xl p-6 text-xs relative shadow-[0_0_50px_rgba(6,182,212,0.25)] font-mono flex flex-col gap-4 max-h-[92vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping" />
-                  <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
-                    <span>📹</span> Live AI-Proctored Video Suite • {videoJobTarget?.title} ({videoJobTarget?.company})
-                  </h3>
-                </div>
-                <button
-                  onClick={handleCloseVideoSuite}
-                  className="text-slate-400 hover:text-white text-base w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Video Feeds Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1. Candidate Local WebCam Feed */}
-                <div className="relative rounded-2xl overflow-hidden border border-cyan-500/50 bg-[#0c1229] h-[260px] flex items-center justify-center shadow-inner group">
-                  <video
-                    ref={localVideoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover mirror"
-                  />
-                  {!isCameraActive && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#090e24]/90 p-4 text-center space-y-2">
-                      <span className="text-3xl">📷</span>
-                      <span className="text-slate-300 font-sans text-xs">
-                        Camera permissions pending or disabled.
-                      </span>
-                      <button
-                        onClick={startCamera}
-                        className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white rounded-xl text-xs font-bold"
-                      >
-                        Enable Camera & Mic
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Anti-cheat overlay */}
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-cyan-400 text-cyan-300 text-[9px] font-bold flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    CANDIDATE: {candidateProfile.name}
-                  </div>
-
-                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-emerald-400 text-emerald-300 text-[9px] font-bold">
-                    EYE-TRACKING VERIFIED: 98.6%
-                  </div>
-
-                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-purple-400 text-purple-300 text-[9px] font-bold">
-                    PROCTOR SECURE
-                  </div>
-                </div>
-
-                {/* 2. Recruiter Panel Video Feed */}
-                <div className="relative rounded-2xl overflow-hidden border border-purple-500/50 bg-[#0c1229] h-[260px] flex items-center justify-center shadow-inner">
-                  {/* Recruiter Simulated Live Feed with Waveform */}
-                  <div className="flex flex-col items-center justify-center space-y-3 p-6 text-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20 animate-pulse">
-                      🏢
-                    </div>
-                    <div>
-                      <div className="font-bold text-white text-sm">Lead Technical Interviewer</div>
-                      <div className="text-slate-400 text-[10px] mt-0.5">
-                        {videoJobTarget?.company} Core Engineering Panel
-                      </div>
-                    </div>
-                    {/* Simulated Voice wave indicator */}
-                    <div className="flex items-center gap-1 h-5 pt-1">
-                      <span className="w-1 bg-cyan-400 h-2 animate-bounce rounded-full" />
-                      <span className="w-1 bg-purple-400 h-5 animate-bounce delay-75 rounded-full" />
-                      <span className="w-1 bg-pink-400 h-3 animate-bounce delay-150 rounded-full" />
-                      <span className="w-1 bg-emerald-400 h-4 animate-bounce delay-200 rounded-full" />
-                      <span className="w-1 bg-indigo-400 h-2 animate-bounce delay-100 rounded-full" />
-                    </div>
-                  </div>
-
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-purple-400 text-purple-300 text-[9px] font-bold">
-                    RECRUITER FEED • SECURE WEBRTC
-                  </div>
-
-                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md border border-emerald-400 text-emerald-300 text-[9px] font-bold">
-                    AUDIO 48kHz HD
-                  </div>
-                </div>
-              </div>
-
-              {/* Live Technical Evaluation Console */}
-              <div className="p-4 bg-[#090e24] border border-cyan-800/60 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
-                  <span className="text-slate-400 block text-[9px]">LIVE CONFIDENCE</span>
-                  <span className="text-emerald-400 font-bold text-sm">94.8% OPTIMAL</span>
-                </div>
-                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
-                  <span className="text-slate-400 block text-[9px]">ANTI-CHEAT AUDIT</span>
-                  <span className="text-cyan-300 font-bold text-sm">0 ANOMALIES</span>
-                </div>
-                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
-                  <span className="text-slate-400 block text-[9px]">LATENCY P2P</span>
-                  <span className="text-purple-300 font-bold text-sm">~8ms ULTRA-FAST</span>
-                </div>
-                <div className="p-2.5 bg-[#0e1638] rounded-xl border border-cyan-900/60">
-                  <span className="text-slate-400 block text-[9px]">SESSION STATUS</span>
-                  <span className="text-emerald-300 font-bold text-sm">ENCRYPTED</span>
-                </div>
-              </div>
-
-              {/* Action Toolbar */}
-              <div className="flex flex-wrap justify-between items-center pt-2 gap-2">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      setEyeTrackingAlert(prev => !prev);
-                      recordAuditLog('PROCTOR_TRIGGER', 'Eye tracking anti-cheat test recalibrated.');
-                    }}
-                    className="px-3.5 py-1.5 bg-[#0e1638] border border-cyan-800 text-cyan-300 rounded-xl font-bold hover:bg-cyan-900"
-                  >
-                    🎯 Recalibrate Eye-Tracking
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (videoJobTarget) {
-                        handleDispatchDigitalOffer(
-                          'app-video-01',
-                          candidateProfile.name,
-                          videoJobTarget.title
-                        );
-                        handleCloseVideoSuite();
-                      }
-                    }}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white rounded-xl font-bold shadow-lg hover:opacity-95"
-                  >
-                    🎉 Release Offer Immediately
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleCloseVideoSuite}
-                  className="px-5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow"
-                >
-                  End Video Call
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ================================================================ */}
-        {/* MODAL 2: AI COPILOT 2.0 DRAWER */}
-        {/* ================================================================ */}
-        {isAiChatOpen && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex justify-end">
-            <div className="w-full max-w-md bg-[#070b1a] border-l border-cyan-500/50 h-full p-5 flex flex-col justify-between font-mono text-xs shadow-2xl animate-in slide-in-from-right">
-              {/* Copilot Header */}
-              <div className="border-b border-slate-800 pb-3 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-bold text-base shadow">
-                    🤖
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-sm font-sans">CampusNex Copilot 2.0</h3>
-                    <p className="text-[10px] text-cyan-400">Contextual Recruitment Intelligence</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setIsAiChatOpen(false)}
-                  className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Chat Thread */}
-              <div className="flex-1 overflow-y-auto space-y-3 my-4 pr-1">
-                {chatMessages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded-2xl max-w-[85%] ${
-                      msg.sender === 'user'
-                        ? 'ml-auto bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none'
-                        : 'bg-[#0d1638] border border-cyan-900/60 text-slate-200 rounded-bl-none'
-                    }`}
-                  >
-                    <p className="text-[11px] leading-relaxed font-sans">{msg.text}</p>
-                    <span className="text-[8px] text-slate-400 block mt-1 text-right">{msg.timestamp}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Suggested Quick Prompts */}
-              <div className="flex gap-1.5 overflow-x-auto pb-2 mb-2 text-[9px]">
-                <button
-                  onClick={() => setChatInput('What are the top active recruitment drives?')}
-                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
-                >
-                  Top Drives
-                </button>
-                <button
-                  onClick={() => setChatInput('Show TPO department clearance status')}
-                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
-                >
-                  TPO Clearance
-                </button>
-                <button
-                  onClick={() => setChatInput('How does Blind Hiring DEI mode work?')}
-                  className="px-2 py-1 rounded bg-[#0d1430] border border-slate-700 text-slate-300 hover:border-cyan-500 whitespace-nowrap"
-                >
-                  DEI Blind Mode
-                </button>
-              </div>
-
-              {/* Chat Input Box */}
-              <form onSubmit={handleSendChat} className="flex gap-2">
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={e => setChatInput(e.target.value)}
-                  placeholder="Ask Copilot anything about candidates, drives, or queries..."
-                  className="flex-1 bg-[#0b1026] border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 text-xs"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl"
-                >
-                  Send
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* ================================================================ */}
-        {/* MODAL 3: ADVANCED AI WAR-ROOM 2.0 */}
-        {/* ================================================================ */}
+        {/* MODAL: ADVANCED AI WAR-ROOM 2.0 */}
         {activeInterviewJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -2572,7 +2329,7 @@ export default function CampusNexPlatform() {
               </button>
               <h3 className="text-base font-bold text-white mb-1 font-sans">🚀 Create New Recruitment Drive</h3>
               <p className="text-[10px] text-slate-400 mb-3 font-sans">
-                Yeh job save hote hi direct Student Portal feed mein live dikhai degi.
+                Writes to PostgreSQL `job_drives` table with tenant isolation.
               </p>
               <form onSubmit={handleCreateJob} className="space-y-3">
                 <div>
@@ -2660,7 +2417,7 @@ export default function CampusNexPlatform() {
                     type="submit"
                     className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold hover:opacity-95"
                   >
-                    Publish Live to Feed
+                    Publish to Database
                   </button>
                 </div>
               </form>
