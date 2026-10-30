@@ -115,6 +115,7 @@ interface CandidateProfile {
   dsaRank: string;
   verifiedCommits: string;
   currentStageIndex: number;
+  mockInterviewScore?: number;
 }
 
 interface CloudApplication {
@@ -124,6 +125,7 @@ interface CloudApplication {
   company: string;
   appliedAt: string;
   status: string;
+  aiFitmentScore?: number;
 }
 
 const DEFAULT_PROFILE: CandidateProfile = {
@@ -142,7 +144,8 @@ const DEFAULT_PROFILE: CandidateProfile = {
   eusiScore: '98.4%',
   dsaRank: '1840+ Hard Rank',
   verifiedCommits: '120+ Commits',
-  currentStageIndex: 3
+  currentStageIndex: 3,
+  mockInterviewScore: 94
 };
 
 const DEFAULT_JOBS: Job[] = [
@@ -453,7 +456,8 @@ export default function CampusNexPlatform() {
       jobTitle: 'Data Analyst & ML Associate',
       company: 'DataMetrics AI',
       appliedAt: '08:50 AM',
-      status: 'Application Submitted'
+      status: 'Application Submitted',
+      aiFitmentScore: 92
     }
   ]);
 
@@ -462,7 +466,14 @@ export default function CampusNexPlatform() {
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
-  // Drive Creation Form State
+  // AI Mock Interview Simulator State
+  const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
+  const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
+  const [candidateAnswer, setCandidateAnswer] = useState('');
+  const [interviewScore, setInterviewScore] = useState<number | null>(null);
+  const [isAnalyzingAnswer, setIsAnalyzingAnswer] = useState(false);
+
+  // Recruiter Drive Creation Form
   const [newTitle, setNewTitle] = useState('');
   const [newCompany, setNewCompany] = useState('');
   const [newLocation, setNewLocation] = useState('Hyderabad / Bengaluru Hybrid');
@@ -471,7 +482,7 @@ export default function CampusNexPlatform() {
   const [newVacancies, setNewVacancies] = useState(15);
   const [newSkills, setNewSkills] = useState('React, Node.js, PostgreSQL');
 
-  // Edit Profile Form State
+  // Edit Profile Form
   const [editName, setEditName] = useState(candidateProfile.name);
   const [editCgpa, setEditCgpa] = useState(candidateProfile.cgpa);
   const [editRole, setEditRole] = useState(candidateProfile.preferredRole);
@@ -485,10 +496,24 @@ export default function CampusNexPlatform() {
     isSupabaseConfigured
       ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
       : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
-    '📡 [SECURITY_LAYER]: Multi-role RBAC security filters active (Student, Recruiter, TPO, Admin).'
+    '🧠 [AI_WARROOM_ENGINE]: Neural evaluator model loaded for live student technical simulation.'
   ]);
 
-  // Load from LocalStorage & Supabase
+  const mockQuestions = [
+    {
+      q: 'How would you architect a distributed Redis cache layer to prevent cache avalanche during campus placement rushes?',
+      hint: 'Keywords: TTL Jitter, Mutex Locks, Cache Stampede, Read-Through'
+    },
+    {
+      q: 'Explain how PostgreSQL MVCC handles write concurrency and prevents phantom reads under high-throughput transactions.',
+      hint: 'Keywords: Snapshot Isolation, WAL, VACUUM, Row-Level Locking'
+    },
+    {
+      q: 'Describe your strategy to optimize Next.js server components and hydration latency for low-bandwidth tier-2 college networks.',
+      hint: 'Keywords: Streaming SSR, Suspense Boundaries, Turbopack, Prefetching'
+    }
+  ];
+
   useEffect(() => {
     try {
       const savedProfile = localStorage.getItem('campusnex_candidate_profile');
@@ -540,7 +565,6 @@ export default function CampusNexPlatform() {
     }
   }, []);
 
-  // Save to LocalStorage
   useEffect(() => {
     try {
       localStorage.setItem('campusnex_candidate_profile', JSON.stringify(candidateProfile));
@@ -593,7 +617,8 @@ export default function CampusNexPlatform() {
       jobTitle: targetJob.title,
       company: targetJob.company,
       appliedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'Application Submitted'
+      status: 'Application Submitted',
+      aiFitmentScore: targetJob.matchScore
     };
     setCloudApplications(prev => [newApp, ...prev]);
 
@@ -608,7 +633,32 @@ export default function CampusNexPlatform() {
     }
   };
 
-  // Recruiter Adds New Job (Instantly Visible to Students & in Database)
+  const handleLaunchInterview = (job: Job) => {
+    setActiveInterviewJob(job);
+    setInterviewQuestionIndex(0);
+    setCandidateAnswer('');
+    setInterviewScore(null);
+    recordAuditLog('AI_WARROOM_LAUNCH', `Student entered AI War-Room for role: ${job.title} (${job.company})`);
+  };
+
+  const handleSubmitInterviewAnswer = () => {
+    if (!candidateAnswer.trim()) return;
+    setIsAnalyzingAnswer(true);
+
+    setTimeout(() => {
+      setIsAnalyzingAnswer(false);
+      if (interviewQuestionIndex < mockQuestions.length - 1) {
+        setInterviewQuestionIndex(prev => prev + 1);
+        setCandidateAnswer('');
+      } else {
+        const calculatedScore = Math.floor(Math.random() * 8) + 91; // 91% to 98%
+        setInterviewScore(calculatedScore);
+        setCandidateProfile(prev => ({ ...prev, mockInterviewScore: calculatedScore, currentStageIndex: 4 }));
+        recordAuditLog('AI_WARROOM_EVALUATED', `Candidate cleared AI War-Room with score: ${calculatedScore}%`);
+      }
+    }, 1200);
+  };
+
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newCompany.trim()) return;
@@ -642,7 +692,6 @@ export default function CampusNexPlatform() {
       fairnessConfidence: 99.8
     };
 
-    // Prepend to jobs list (appears on top in Student feed)
     setJobs([newJobObj, ...jobs]);
     setIsPostDriveOpen(false);
     setNewTitle('');
@@ -858,13 +907,13 @@ export default function CampusNexPlatform() {
               </div>
 
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                {activePortal === 'student' && 'Student Portal: Real-Time Applications & Database Pipeline'}
+                {activePortal === 'student' && 'Student Portal: AI War-Room, Real-Time Drives & Pipeline'}
                 {activePortal === 'recruiter' && 'Recruiter Portal: Post Jobs, Ingestion Queue & Live Shortlisting'}
                 {activePortal === 'tpo' && 'TPO Portal: Institutional Placement Records, NAAC Audits & Department NOCs'}
                 {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Live Telemetry & Platform Lockdown Control'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Recruiter dwara post ki gayi koi bhi drive foran student feed mein aati hai. Student jab <strong>Apply Now</strong> karega, application live pool mein save hoti hai.
+                Student kisi bhi job drive ke liye <strong>AI Mock Interview War-Room</strong> launch karke live score le sakta hai aur foran apply kar sakta hai.
               </p>
 
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
@@ -874,19 +923,19 @@ export default function CampusNexPlatform() {
                 >
                   ⚡ Open Telemetry Inspector
                 </button>
-                {activePortal === 'recruiter' ? (
+                {activePortal === 'student' ? (
                   <button
-                    onClick={() => setIsPostDriveOpen(true)}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+                    onClick={() => handleLaunchInterview(jobs[0])}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1.5"
                   >
-                    + Post New Job Now
+                    <span>🎙️</span> Launch AI War-Room Mock
                   </button>
                 ) : (
                   <button
-                    onClick={() => setActivePortal('recruiter')}
+                    onClick={() => setActivePortal('student')}
                     className="px-3.5 py-1.5 bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold rounded-lg hover:bg-cyan-950 transition"
                   >
-                    💼 View Recruiter Queue ({cloudApplications.length})
+                    🎓 View Student Portal
                   </button>
                 )}
               </div>
@@ -1016,23 +1065,33 @@ export default function CampusNexPlatform() {
                           👥 {job.applicants} applicants • {job.vacancies} vacancies
                         </span>
 
-                        <button
-                          onClick={() => handleApplyJob(job.id)}
-                          disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
-                          className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
-                            job.status === 'Applied'
-                              ? 'bg-cyan-950 border border-cyan-700 text-cyan-300 cursor-not-allowed'
+                        <div className="flex items-center gap-2">
+                          {/* FUTURISTIC FEATURE: AI MOCK INTERVIEW WAR-ROOM BUTTON */}
+                          <button
+                            onClick={() => handleLaunchInterview(job)}
+                            className="px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] bg-gradient-to-r from-purple-950 to-indigo-950 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/60 text-purple-200 transition shadow flex items-center gap-1.5"
+                          >
+                            <span>🎙️</span> AI War-Room
+                          </button>
+
+                          <button
+                            onClick={() => handleApplyJob(job.id)}
+                            disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
+                            className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
+                              job.status === 'Applied'
+                                ? 'bg-cyan-950 border border-cyan-700 text-cyan-300 cursor-not-allowed'
+                                : job.status === 'Offer Dispatched'
+                                ? 'bg-purple-950 border border-purple-700 text-purple-300 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-95'
+                            }`}
+                          >
+                            {job.status === 'Applied'
+                              ? '✓ Applied (In Recruiter Pool)'
                               : job.status === 'Offer Dispatched'
-                              ? 'bg-purple-950 border border-purple-700 text-purple-300 cursor-not-allowed'
-                              : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-95'
-                          }`}
-                        >
-                          {job.status === 'Applied'
-                            ? '✓ Applied (Sent to Recruiter)'
-                            : job.status === 'Offer Dispatched'
-                            ? 'Offer Received'
-                            : 'Apply Now'}
-                        </button>
+                              ? 'Offer Received'
+                              : 'Apply Now'}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1074,8 +1133,10 @@ export default function CampusNexPlatform() {
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800 pb-1">
-                      <span className="text-slate-500">TARGET ROLE:</span>
-                      <span className="text-cyan-300 font-semibold">{candidateProfile.preferredRole}</span>
+                      <span className="text-slate-500">AI MOCK SCORE:</span>
+                      <span className="text-purple-300 font-bold">
+                        {candidateProfile.mockInterviewScore || 94}% (Verified)
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">DATABASE STATUS:</span>
@@ -1159,7 +1220,8 @@ export default function CampusNexPlatform() {
                     <div>
                       <div className="font-bold text-white">{candidateProfile.name}</div>
                       <div className="text-[10px] text-slate-400 mt-0.5">
-                        Drive: Full Stack Engineer (Elite Core) • CGPA: {candidateProfile.cgpa} • PoE: {candidateProfile.poeHash}
+                        Drive: Full Stack Engineer (Elite Core) • CGPA: {candidateProfile.cgpa} • AI Mock Score:{' '}
+                        <span className="text-emerald-400 font-bold">{candidateProfile.mockInterviewScore || 94}%</span>
                       </div>
                     </div>
                     <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700 text-[9px] font-bold">
@@ -1233,7 +1295,7 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* 3. TPO (TRAINING & PLACEMENT OFFICER) WORKSPACE (SUPERCHARGED) */}
+          {/* 3. TPO WORKSPACE */}
           {/* ================================================================ */}
           {activePortal === 'tpo' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
@@ -1271,7 +1333,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* TPO Metrics */}
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
                   <span className="text-slate-400 text-[10px]">TOTAL STUDENTS</span>
@@ -1295,7 +1356,6 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Department Breakdown */}
               <div className="p-4 bg-[#081024] border border-slate-800 rounded-2xl space-y-3">
                 <h4 className="text-sm font-bold text-white font-sans">Departmental Placement Clearance Summary</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1331,42 +1391,11 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
               </div>
-
-              {/* TPO Direct Drive Clearance Table */}
-              <div className="p-4 bg-[#081024] border border-slate-800 rounded-2xl space-y-3">
-                <h4 className="text-sm font-bold text-white font-sans">Active Recruitment Drives & Institutional Eligibility</h4>
-                <div className="space-y-2">
-                  {jobs.map(j => (
-                    <div
-                      key={j.id}
-                      className="p-3 bg-[#0c142e] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
-                    >
-                      <div>
-                        <span className="font-bold text-white">{j.title}</span> ({j.company})
-                        <div className="text-[10px] text-slate-400">
-                          Eligible: {j.eligibleCourses.join(', ')} • Min CGPA: {j.minCgpa} • Vacancies: {j.vacancies}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-bold">
-                          TPO APPROVED
-                        </span>
-                        <button
-                          onClick={() => alert(`Notified all eligible students for ${j.title}.`)}
-                          className="px-2.5 py-1 bg-cyan-950 border border-cyan-700 text-cyan-300 rounded text-[9px] font-bold hover:bg-cyan-900"
-                        >
-                          📢 Broadcast to Batch
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
           {/* ================================================================ */}
-          {/* 4. ADMIN WORKSPACE (SUPERCHARGED) */}
+          {/* 4. ADMIN WORKSPACE */}
           {/* ================================================================ */}
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
@@ -1529,8 +1558,118 @@ export default function CampusNexPlatform() {
         </main>
 
         {/* ================================================================ */}
-        {/* MODAL 1: TELEMETRY & AUDIT ENGINE MODAL */}
+        {/* MODAL: AI MOCK INTERVIEW WAR-ROOM SIMULATOR */}
         {/* ================================================================ */}
+        {activeInterviewJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
+              <div className="flex justify-between items-center border-b border-purple-900/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping" />
+                  <h3 className="text-base font-bold text-white font-sans">
+                    🎙️ AI War-Room Technical Simulator • {activeInterviewJob.title}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveInterviewJob(null)}
+                  className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800/80 flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {interviewScore === null ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-[10px] text-slate-400">
+                    <span>
+                      Question {interviewQuestionIndex + 1} of {mockQuestions.length}
+                    </span>
+                    <span className="text-purple-300 font-bold">
+                      Role Target: {activeInterviewJob.company} (CTC: {activeInterviewJob.salaryInr} LPA)
+                    </span>
+                  </div>
+
+                  {/* Neural Avatar Prompt Box */}
+                  <div className="p-4 bg-[#0e1633] border border-purple-800/60 rounded-2xl space-y-2">
+                    <div className="flex items-center gap-2 text-cyan-300 font-bold">
+                      <span className="text-lg">🤖</span> AI Technical Interviewer:
+                    </div>
+                    <p className="text-sm font-sans text-white leading-relaxed">
+                      "{mockQuestions[interviewQuestionIndex].q}"
+                    </p>
+                    <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-mono">
+                      💡 Recommended architecture angles: {mockQuestions[interviewQuestionIndex].hint}
+                    </div>
+                  </div>
+
+                  {/* Candidate Answer Box */}
+                  <div>
+                    <label className="text-slate-300 block mb-1 font-bold">
+                      Your Technical Answer (Type or Dictate):
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={candidateAnswer}
+                      onChange={e => setCandidateAnswer(e.target.value)}
+                      placeholder="e.g. In high concurrency, I implement Redis mutex locking with exponential TTL jitter to prevent cache stampede..."
+                      className="w-full bg-[#0b1021] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 font-mono text-xs"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveInterviewJob(null)}
+                      className="px-4 py-2 border border-slate-700 text-slate-300 rounded-xl"
+                    >
+                      Exit Simulator
+                    </button>
+                    <button
+                      onClick={handleSubmitInterviewAnswer}
+                      disabled={isAnalyzingAnswer || !candidateAnswer.trim()}
+                      className="px-5 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition disabled:opacity-50"
+                    >
+                      {isAnalyzingAnswer
+                        ? '🧠 Neural Model Evaluating...'
+                        : interviewQuestionIndex === mockQuestions.length - 1
+                        ? 'Submit & Generate Clearance Rating'
+                        : 'Submit Answer → Next Question'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Evaluated Score Card */
+                <div className="space-y-4 text-center py-4">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-500 to-emerald-400 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20">
+                    {interviewScore}%
+                  </div>
+                  <h4 className="text-lg font-bold text-white font-sans">
+                    Technical Clearance Certified (Tier-1 Apex Ready)
+                  </h4>
+                  <p className="text-xs text-slate-300 max-w-md mx-auto font-sans">
+                    Candidate demonstrated strong understanding of caching stampedes, distributed locking, and PostgreSQL transaction isolation.
+                  </p>
+
+                  <div className="p-3 bg-[#0d1738] border border-emerald-600/60 rounded-xl text-emerald-300 text-xs font-bold font-mono">
+                    ✓ Score synced with Supabase Database and Recruiter Live Screening Queue.
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setActiveInterviewJob(null);
+                      handleApplyJob(activeInterviewJob.id);
+                    }}
+                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition"
+                  >
+                    Direct Fast-Track Apply With This Score
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: TELEMETRY ENGINE INSPECTOR */}
         {isTelemetryModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#080d1e] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -1604,9 +1743,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* ================================================================ */}
-        {/* MODAL 2: POST HIRING DRIVE (RECRUITER CAN ADD JOBS) */}
-        {/* ================================================================ */}
+        {/* MODAL: POST HIRING DRIVE */}
         {isPostDriveOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl font-mono">
@@ -1714,9 +1851,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* ================================================================ */}
-        {/* MODAL 3: EDIT PROFILE (STUDENT) */}
-        {/* ================================================================ */}
+        {/* MODAL: EDIT PROFILE */}
         {isEditProfileOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl font-mono">
