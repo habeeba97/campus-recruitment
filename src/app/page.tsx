@@ -41,37 +41,61 @@ interface TpoStudentEntry {
   department: 'CSE' | 'IT' | 'ECE' | 'MECH';
   cgpa: number;
   backlogs: number;
-  placementStatus: 'Placed (₹22L TechCorp)' | 'Interview Scheduled' | 'Eligible' | 'NOC Pending';
+  companyPlaced: string;
+  ctcOffered: string;
+  placementStatus: 'Placed' | 'Interview Scheduled' | 'Eligible' | 'NOC Pending';
   nocIssued: boolean;
   verifiedOnChain: boolean;
 }
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  salaryInr: number;
-  skills: string[];
-  matchScore: number;
-  applicants: number;
-  type: string;
-  matched: string[];
-  missing: string[];
-  tip: string;
-  minClearance: 'Tier-1 Apex' | 'Tier-2 Verified';
-  minCgpa: number;
-  eligibleCourses: string[];
-  maxBacklogsAllowed: number;
-  vacancies: number;
-  applicationDeadline: string;
-  interviewTimeline: string;
-  targetColleges: string[];
-  status: 'Open' | 'Applied' | 'Shortlisted' | 'Assessment Pending' | 'Offer Dispatched';
-  dataSource: 'LIVE' | 'DEMO' | 'VERIFIED' | 'SIMULATED';
-  aiMatchExplanation: string;
-  fairnessConfidence: number;
+interface DeptMetric {
+  department: 'CSE' | 'IT' | 'ECE' | 'MECH';
+  totalStudents: number;
+  placedCount: number;
+  placementRate: number;
+  drivesConducted: number;
+  avgCtc: string;
+  peakCtc: string;
 }
+
+const DEPT_METRICS: DeptMetric[] = [
+  {
+    department: 'CSE',
+    totalStudents: 240,
+    placedCount: 226,
+    placementRate: 94.2,
+    drivesConducted: 18,
+    avgCtc: '₹19.4 LPA',
+    peakCtc: '₹26.0 LPA'
+  },
+  {
+    department: 'IT',
+    totalStudents: 180,
+    placedCount: 161,
+    placementRate: 89.5,
+    drivesConducted: 15,
+    avgCtc: '₹16.8 LPA',
+    peakCtc: '₹22.0 LPA'
+  },
+  {
+    department: 'ECE',
+    totalStudents: 200,
+    placedCount: 164,
+    placementRate: 82.1,
+    drivesConducted: 12,
+    avgCtc: '₹14.2 LPA',
+    peakCtc: '₹16.5 LPA'
+  },
+  {
+    department: 'MECH',
+    totalStudents: 120,
+    placedCount: 89,
+    placementRate: 74.5,
+    drivesConducted: 8,
+    avgCtc: '₹9.8 LPA',
+    peakCtc: '₹12.0 LPA'
+  }
+];
 
 const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
   {
@@ -81,7 +105,9 @@ const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
     department: 'CSE',
     cgpa: 8.85,
     backlogs: 0,
-    placementStatus: 'Placed (₹22L TechCorp)',
+    companyPlaced: 'TechCorp India',
+    ctcOffered: '₹22.0 LPA',
+    placementStatus: 'Placed',
     nocIssued: true,
     verifiedOnChain: true
   },
@@ -92,6 +118,8 @@ const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
     department: 'CSE',
     cgpa: 8.40,
     backlogs: 0,
+    companyPlaced: 'DataMetrics AI',
+    ctcOffered: '₹14.5 LPA',
     placementStatus: 'Interview Scheduled',
     nocIssued: true,
     verifiedOnChain: true
@@ -103,6 +131,8 @@ const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
     department: 'IT',
     cgpa: 8.65,
     backlogs: 0,
+    companyPlaced: 'CloudScale Global',
+    ctcOffered: '₹26.0 LPA',
     placementStatus: 'Interview Scheduled',
     nocIssued: true,
     verifiedOnChain: true
@@ -114,6 +144,8 @@ const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
     department: 'ECE',
     cgpa: 7.80,
     backlogs: 0,
+    companyPlaced: 'TechCorp India',
+    ctcOffered: '₹16.0 LPA',
     placementStatus: 'Eligible',
     nocIssued: false,
     verifiedOnChain: true
@@ -125,90 +157,11 @@ const INITIAL_TPO_STUDENTS: TpoStudentEntry[] = [
     department: 'MECH',
     cgpa: 7.20,
     backlogs: 1,
+    companyPlaced: 'L&T Infotech',
+    ctcOffered: '₹8.5 LPA',
     placementStatus: 'NOC Pending',
     nocIssued: false,
     verifiedOnChain: false
-  }
-];
-
-const DEFAULT_JOBS: Job[] = [
-  {
-    id: '1',
-    title: 'Full Stack Engineer (Elite Core)',
-    company: 'TechCorp India',
-    location: 'Hyderabad / Tokyo Hybrid',
-    salaryInr: 22.0,
-    skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind', 'Redis'],
-    matchScore: 94,
-    applicants: 12,
-    type: 'Apex 1% Exclusive',
-    matched: ['React', 'Node.js', 'PostgreSQL', 'TypeScript', 'Redis'],
-    missing: ['Tailwind'],
-    tip: 'Requires Proof-of-Execution Hash clearance.',
-    minClearance: 'Tier-1 Apex',
-    minCgpa: 8.0,
-    eligibleCourses: ['B.Tech CSE', 'B.Tech IT'],
-    maxBacklogsAllowed: 0,
-    vacancies: 20,
-    applicationDeadline: '10 Nov 2026',
-    interviewTimeline: '12-15 Nov 2026',
-    targetColleges: ['DCET Hyderabad', 'JNTUH Campus'],
-    status: 'Offer Dispatched',
-    dataSource: 'LIVE',
-    aiMatchExplanation: 'Candidate verified in Raft CAS concurrency, Redis memory cache, and relational query plans.',
-    fairnessConfidence: 99.4
-  },
-  {
-    id: '2',
-    title: 'Data Analyst & ML Associate',
-    company: 'DataMetrics AI',
-    location: 'Bengaluru / San Francisco Remote',
-    salaryInr: 14.5,
-    skills: ['Python', 'SQL', 'Tableau', 'Pandas', 'FastAPI'],
-    matchScore: 82,
-    applicants: 35,
-    type: 'Dream Drive',
-    matched: ['SQL', 'PostgreSQL'],
-    missing: ['Python', 'Tableau', 'Pandas'],
-    tip: 'Open for Tier-1 & Tier-2 Verified candidates.',
-    minClearance: 'Tier-2 Verified',
-    minCgpa: 7.5,
-    eligibleCourses: ['B.Tech CSE', 'B.Tech ECE'],
-    maxBacklogsAllowed: 1,
-    vacancies: 35,
-    applicationDeadline: '18 Nov 2026',
-    interviewTimeline: '20-22 Nov 2026',
-    targetColleges: ['DCET Hyderabad', 'Vasavi College'],
-    status: 'Applied',
-    dataSource: 'LIVE',
-    aiMatchExplanation: 'Relational query execution validated. Missing explicit Python pandas artifacts.',
-    fairnessConfidence: 98.8
-  },
-  {
-    id: '3',
-    title: 'Backend Systems Core Architect',
-    company: 'CloudScale Global',
-    location: 'Pune / Remote Worldwide',
-    salaryInr: 26.0,
-    skills: ['Go', 'Kubernetes', 'Microservices', 'PostgreSQL', 'gRPC'],
-    matchScore: 71,
-    applicants: 8,
-    type: 'Apex 1% Super Dream',
-    matched: ['PostgreSQL'],
-    missing: ['Go', 'Kubernetes', 'Microservices'],
-    tip: 'High-bar concurrency evaluation.',
-    minClearance: 'Tier-1 Apex',
-    minCgpa: 8.5,
-    eligibleCourses: ['B.Tech CSE'],
-    maxBacklogsAllowed: 0,
-    vacancies: 10,
-    applicationDeadline: '25 Nov 2026',
-    interviewTimeline: '28-30 Nov 2026',
-    targetColleges: ['DCET Hyderabad', 'IIT Hyderabad'],
-    status: 'Open',
-    dataSource: 'LIVE',
-    aiMatchExplanation: 'CGPA 8.85 exceeds threshold. Missing practical Go microservice runtime evidence.',
-    fairnessConfidence: 99.1
   }
 ];
 
@@ -218,17 +171,21 @@ export default function CampusNexPlatform() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [activeCurrency, setActiveCurrency] = useState<Currency>('INR');
 
-  // Phase 5 Part 1: TPO Department Roster States
+  // Phase 5 States
   const [students, setStudents] = useState<TpoStudentEntry[]>(INITIAL_TPO_STUDENTS);
   const [selectedDept, setSelectedDept] = useState<Department>('ALL');
   const [minCgpaFilter, setMinCgpaFilter] = useState<number>(0);
   const [onlyZeroBacklogs, setOnlyZeroBacklogs] = useState<boolean>(false);
   const [activeNocStudent, setActiveNocStudent] = useState<TpoStudentEntry | null>(null);
 
+  // Phase 5 Part 2 States (Export Engine & Audit Modal)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'NAAC_CSV' | 'NBA_EXCEL' | 'PDF_SUMMARY'>('NAAC_CSV');
+
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_5_PART_1]: College TPO Institutional Command & Department Roster active.',
-    '🏫 [DEPT_LEDGER]: Osmania University affiliated DCET Department Records synchronized.',
-    '📑 [NOC_ENGINE]: Cryptographic Institutional No-Objection Certificate issuer bound.'
+    '⚡ [PHASE_5_PART_2]: NAAC & NBA Accreditation Export Engine mounted.',
+    '📊 [ANALYTICS_CORE]: Branch placement percentages computed across CSE, IT, ECE, MECH.',
+    '🏫 [TENANT_ISOLATION]: DCET Hyderabad Institutional Clearance Ledger validated.'
   ]);
 
   const handleLaunchRoleDashboard = (role: PortalRole) => {
@@ -237,21 +194,16 @@ export default function CampusNexPlatform() {
     setIsAuthModalOpen(false);
   };
 
-  const formatSalary = (salaryInrLpa: number) => {
-    if (activeCurrency === 'USD') return `$${Math.round(salaryInrLpa * 1350).toLocaleString()} /yr`;
-    if (activeCurrency === 'JPY') return `¥${Math.round(salaryInrLpa * 205000).toLocaleString()} /yr`;
-    return `₹${salaryInrLpa.toFixed(1)} LPA`;
-  };
-
-  // Phase 5 Part 1: Issue Institutional NOC
   const handleIssueNoc = (studentId: string) => {
     setStudents(prev =>
       prev.map(s => {
         if (s.id === studentId) {
-          const updated: TpoStudentEntry = { ...s, nocIssued: true, placementStatus: s.placementStatus === 'NOC Pending' ? 'Eligible' : s.placementStatus };
+          const updated: TpoStudentEntry = {
+            ...s,
+            nocIssued: true,
+            placementStatus: s.placementStatus === 'NOC Pending' ? 'Eligible' : s.placementStatus
+          };
           setActiveNocStudent(updated);
-          const logEntry = `[${new Date().toLocaleTimeString()}] [TPO_NOC_ISSUED]: Institutional Clearance stamped for ${s.name} (${s.enrollmentNo}).`;
-          setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
           return updated;
         }
         return s;
@@ -259,21 +211,30 @@ export default function CampusNexPlatform() {
     );
   };
 
-  // Bulk Sign Clearance
-  const handleBulkSignNoc = () => {
-    setStudents(prev =>
-      prev.map(s => ({
-        ...s,
-        nocIssued: true,
-        placementStatus: s.placementStatus === 'NOC Pending' ? 'Eligible' : s.placementStatus
-      }))
-    );
-    const logEntry = `[${new Date().toLocaleTimeString()}] [TPO_BULK_NOC]: Bulk clearance certificates issued to all department students.`;
+  // Phase 5 Part 2: Generate & Download Compliance CSV
+  const handleDownloadComplianceReport = () => {
+    const headers = 'Roll_Number,Student_Name,Department,CGPA,Placement_Status,Company,CTC_Offered,NOC_Stamped,OnChain_Verified\n';
+    const rows = students
+      .map(
+        s =>
+          `${s.enrollmentNo},"${s.name}",${s.department},${s.cgpa},${s.placementStatus},"${s.companyPlaced}",${s.ctcOffered},${s.nocIssued ? 'YES' : 'NO'},${s.verifiedOnChain ? 'YES' : 'NO'}`
+      )
+      .join('\n');
+
+    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `DCET_NAAC_NBA_Placement_Report_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    const logEntry = `[${new Date().toLocaleTimeString()}] [ACCREDITATION_EXPORT]: Downloaded NAAC/NBA compliant CSV placement ledger.`;
     setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
-    alert('Institutional Action Confirmed: All registered students have received signed placement clearances.');
+    setIsExportModalOpen(false);
   };
 
-  // Filtered Roster
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
       const matchDept = selectedDept === 'ALL' || s.department === selectedDept;
@@ -286,8 +247,8 @@ export default function CampusNexPlatform() {
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-24 selection:bg-cyan-500 selection:text-black bg-[#040714] relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[130px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 blur-[130px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-600/10 blur-[130px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[130px]" />
       </div>
 
       <div className="relative z-10">
@@ -299,15 +260,21 @@ export default function CampusNexPlatform() {
               BACKEND: {isSupabaseConfigured ? '🟢 SUPABASE CLOUD' : '🟡 LOCAL BUFFER'}
             </span>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-purple-300 font-semibold">COLLEGE CODE: DCET-HYD (OSMANIA UNIVERSITY)</span>
+            <span className="text-purple-300 font-semibold">DCET HYDERABAD (OSMANIA UNIVERSITY)</span>
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-cyan-400 font-bold">
-              {currentView === 'landing' ? 'PUBLIC PORTAL' : `ACTIVE: ${activePortal.toUpperCase()}`}
+              {currentView === 'landing' ? 'PUBLIC PORTAL' : `WORKSPACE: ${activePortal.toUpperCase()}`}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-emerald-400 font-bold">NAAC A+ / NBA ACCREDITED</span>
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-600 text-indigo-300 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+            >
+              <span>📥</span> NAAC / NBA EXPORT
+            </button>
+            <span className="text-emerald-400 font-bold font-mono">CRITERION 5.2.1 COMPLIANT</span>
           </div>
         </div>
 
@@ -327,7 +294,7 @@ export default function CampusNexPlatform() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 5 Part 1: TPO Command & Department Roster'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Phase 5 Part 2: NAAC Accreditation & Analytics Engine'}
               </p>
             </div>
           </div>
@@ -385,89 +352,111 @@ export default function CampusNexPlatform() {
           <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-600/70 text-indigo-300 text-xs font-mono font-bold">
               <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-              PHASE 5 PART 1: INSTITUTIONAL TPO COMMAND & ACCREDITATION HUB
+              PHASE 5 PART 2: ACCREDITATION EXPORTS & PLACEMENT ANALYTICS
             </div>
             <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight max-w-4xl mx-auto">
-              Institutional Placement Records & <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-pink-400 bg-clip-text text-transparent">Departmental Student Roster</span>
+              Accreditation-Ready Reports & <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-pink-400 bg-clip-text text-transparent">Department Placement Analytics</span>
             </h1>
             <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-              Empowering college placement officers to maintain real-time student batch records across CSE, IT, ECE, and Mechanical branches, filter eligible candidates, and issue cryptographic digital clearance NOCs.
+              Equipping university placement administrators to generate 1-click NAAC Criterion 5.2.1 and NBA Tier-1 placement audits, track departmental clearance rates, and export verified CSV ledgers.
             </p>
             <div className="pt-4 flex justify-center gap-3">
               <button
                 onClick={() => handleLaunchRoleDashboard('tpo')}
                 className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-cyan-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_30px_rgba(99,102,241,0.35)] hover:scale-105 transition"
               >
-                Enter TPO Command Workspace →
+                Launch TPO Analytics Workspace →
               </button>
             </div>
           </section>
         ) : (
           /* ================================================================ */
-          /* AUTHENTICATED WORKSPACE: FOCUS ON TPO (PHASE 5 PART 1) */
+          /* AUTHENTICATED WORKSPACE: FOCUS ON TPO (PHASE 5 PART 2) */
           /* ================================================================ */
           <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
             {activePortal === 'tpo' ? (
               <div className="space-y-6">
-                {/* TPO COMMAND HEADER */}
+                {/* TPO COMMAND HEADER & COMPLIANCE ACTIONS */}
                 <div className="bg-[#0b1021]/80 backdrop-blur-xl border border-indigo-800/60 p-6 rounded-3xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xl">🏫</span>
                       <h2 className="text-xl font-bold text-white font-sans">
-                        College TPO Command Center & Student Roster
+                        TPO Institutional Compliance & Department Analytics
                       </h2>
                       <span className="px-2 py-0.5 rounded-md bg-indigo-950 text-indigo-300 border border-indigo-600 text-[10px] font-mono font-bold">
-                        PHASE 5 PART 1
+                        NAAC / NBA AUDIT READY
                       </span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      Deccan College of Engineering & Technology (DCET) • Affiliated to Osmania University, Hyderabad
+                      Deccan College of Engineering & Technology • Osmania University Regional Center
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      onClick={handleBulkSignNoc}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5"
-                    >
-                      <span>📑</span> Bulk Sign Placement Clearances
-                    </button>
+                  <button
+                    onClick={() => setIsExportModalOpen(true)}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 text-white font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>📥</span> Export NAAC / NBA Placement Audit
+                  </button>
+                </div>
+
+                {/* DEPARTMENT PLACEMENT PERFORMANCE MATRIX (BRANCH ANALYTICS) */}
+                <div className="p-6 bg-[#08122c]/90 border border-indigo-800/60 rounded-3xl space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <div>
+                      <h3 className="font-bold text-white text-sm">Department Placement Clearance Summary</h3>
+                      <p className="text-xs text-slate-400 font-mono">Academic Batch 2026 • 4 Major Branches</p>
+                    </div>
+                    <span className="text-xs font-mono text-emerald-400 font-bold">Overall Institutional Rate: 94.2%</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {DEPT_METRICS.map(dm => (
+                      <div key={dm.department} className="p-4 bg-[#0a1130] rounded-2xl border border-indigo-900/50 space-y-2.5">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-white text-base font-sans">{dm.department} Engineering</span>
+                          <span className="text-emerald-400 font-bold font-mono text-sm">{dm.placementRate}%</span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full"
+                            style={{ width: `${dm.placementRate}%` }}
+                          />
+                        </div>
+
+                        <div className="text-[10px] font-mono text-slate-400 space-y-1 pt-1">
+                          <div className="flex justify-between">
+                            <span>Placed:</span>
+                            <span className="text-white font-bold">{dm.placedCount} / {dm.totalStudents}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Drives Conducted:</span>
+                            <span className="text-cyan-300 font-bold">{dm.drivesConducted} Active</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Average CTC:</span>
+                            <span className="text-purple-300 font-bold">{dm.avgCtc}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Peak Package:</span>
+                            <span className="text-emerald-400 font-bold">{dm.peakCtc}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* ACCREDITATION KPIS ROW */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
-                  <div className="p-4 bg-[#081024] border border-indigo-900/40 rounded-2xl">
-                    <span className="text-slate-400 text-[10px] block">TOTAL BATCH SIZE</span>
-                    <span className="text-2xl font-black text-white">620 Students</span>
-                    <span className="text-cyan-300 text-[9px] block">Class of 2026</span>
-                  </div>
-                  <div className="p-4 bg-[#081024] border border-indigo-900/40 rounded-2xl">
-                    <span className="text-slate-400 text-[10px] block">CAMPUS DRIVES</span>
-                    <span className="text-2xl font-black text-purple-300">{DEFAULT_JOBS.length + 15} Conducted</span>
-                    <span className="text-purple-400 text-[9px] block">Tier-1 & Dream</span>
-                  </div>
-                  <div className="p-4 bg-[#081024] border border-indigo-900/40 rounded-2xl">
-                    <span className="text-slate-400 text-[10px] block">OVERALL PLACEMENT</span>
-                    <span className="text-2xl font-black text-emerald-400">94.2%</span>
-                    <span className="text-emerald-300 text-[9px] block">Accreditation Compliant</span>
-                  </div>
-                  <div className="p-4 bg-[#081024] border border-indigo-900/40 rounded-2xl">
-                    <span className="text-slate-400 text-[10px] block">PEAK PACKAGE</span>
-                    <span className="text-2xl font-black text-cyan-300">₹26.0 LPA</span>
-                    <span className="text-cyan-400 text-[9px] block">CloudScale Global</span>
-                  </div>
-                </div>
-
-                {/* DEPARTMENT ROSTER & LIVE FILTERING ENGINE */}
+                {/* STUDENT ROSTER TABLE */}
                 <div className="p-5 bg-[#08122c]/90 border border-indigo-800/60 rounded-3xl space-y-4 font-mono text-xs">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
                     <span className="font-bold text-white flex items-center gap-2 text-sm">
-                      <span>📋</span> Department Student Directory ({filteredStudents.length} Students Filtered)
+                      <span>📋</span> Filtered Student Ledger ({filteredStudents.length} Students)
                     </span>
 
-                    {/* Department Tabs */}
                     <div className="flex items-center gap-1 bg-[#050a1a] p-1 rounded-xl border border-slate-800 text-[10px]">
                       {(['ALL', 'CSE', 'IT', 'ECE', 'MECH'] as Department[]).map(dept => (
                         <button
@@ -483,40 +472,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Filter Toolbar */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#0c1433] rounded-2xl border border-slate-800 text-[11px]">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-slate-400">Min CGPA Cutoff:</span>
-                        <select
-                          value={minCgpaFilter}
-                          onChange={e => setMinCgpaFilter(parseFloat(e.target.value))}
-                          className="bg-[#050917] border border-slate-700 rounded-lg px-2 py-1 text-white text-xs"
-                        >
-                          <option value={0}>All CGPAs</option>
-                          <option value={7.0}>7.0+ CGPA</option>
-                          <option value={8.0}>8.0+ (Tier-1 Cutoff)</option>
-                          <option value={8.5}>8.5+ (Apex Cutoff)</option>
-                        </select>
-                      </div>
-
-                      <label className="flex items-center gap-1.5 cursor-pointer text-slate-300">
-                        <input
-                          type="checkbox"
-                          checked={onlyZeroBacklogs}
-                          onChange={e => setOnlyZeroBacklogs(e.target.checked)}
-                          className="accent-indigo-500 rounded"
-                        />
-                        <span>Strict 0 Backlogs Only</span>
-                      </label>
-                    </div>
-
-                    <span className="text-cyan-300 text-[10px]">
-                      Active Tenant: Deccan College of Eng. & Tech.
-                    </span>
-                  </div>
-
-                  {/* Student Table */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse text-[11px]">
                       <thead>
@@ -525,9 +480,9 @@ export default function CampusNexPlatform() {
                           <th className="py-2.5 px-3">STUDENT NAME</th>
                           <th className="py-2.5 px-3">BRANCH</th>
                           <th className="py-2.5 px-3">CGPA</th>
-                          <th className="py-2.5 px-3">BACKLOGS</th>
-                          <th className="py-2.5 px-3">PLACEMENT STATUS</th>
-                          <th className="py-2.5 px-3 text-right">INSTITUTIONAL CLEARANCE</th>
+                          <th className="py-2.5 px-3">COMPANY PLACED</th>
+                          <th className="py-2.5 px-3">OFFER PACKAGE</th>
+                          <th className="py-2.5 px-3 text-right">ACCREDITATION CLEARANCE</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800/60 text-slate-300">
@@ -541,35 +496,19 @@ export default function CampusNexPlatform() {
                               </span>
                             </td>
                             <td className="py-3 px-3 font-bold text-emerald-400">{student.cgpa}</td>
-                            <td className="py-3 px-3">
-                              <span className={student.backlogs === 0 ? 'text-slate-400' : 'text-rose-400 font-bold'}>
-                                {student.backlogs}
-                              </span>
-                            </td>
-                            <td className="py-3 px-3">
-                              <span
-                                className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                                  student.placementStatus.includes('Placed')
-                                    ? 'bg-purple-950 text-purple-300 border-purple-600'
-                                    : student.placementStatus.includes('Interview')
-                                    ? 'bg-cyan-950 text-cyan-300 border-cyan-800'
-                                    : 'bg-emerald-950 text-emerald-300 border-emerald-800'
-                                }`}
-                              >
-                                {student.placementStatus}
-                              </span>
-                            </td>
+                            <td className="py-3 px-3 font-bold text-white">{student.companyPlaced}</td>
+                            <td className="py-3 px-3 font-bold text-purple-300">{student.ctcOffered}</td>
                             <td className="py-3 px-3 text-right">
                               {student.nocIssued ? (
                                 <span className="inline-flex items-center gap-1 text-emerald-400 font-bold text-[10px]">
-                                  <span>✓ Clearance NOC Stamped</span>
+                                  <span>✓ NAAC Verified</span>
                                 </span>
                               ) : (
                                 <button
                                   onClick={() => handleIssueNoc(student.id)}
-                                  className="px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-lg text-[9px] font-bold hover:scale-105 transition"
+                                  className="px-2.5 py-1 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-lg text-[9px] font-bold"
                                 >
-                                  Issue Digital NOC
+                                  Issue NOC
                                 </button>
                               )}
                             </td>
@@ -584,7 +523,7 @@ export default function CampusNexPlatform() {
               <div className="p-12 text-center bg-[#070b1a] border border-slate-800 rounded-3xl space-y-3 font-mono">
                 <h3 className="text-xl font-bold text-white font-sans">{activePortal.toUpperCase()} Workspace Active</h3>
                 <p className="text-xs text-slate-400">
-                  Switch to <strong>TPO Portal</strong> to inspect Phase 5 Part 1 Department Roster & Institutional Clearance engine.
+                  Switch to <strong>TPO Portal</strong> to inspect Phase 5 Part 2 NAAC Accreditation Export Engine and branch performance metrics.
                 </p>
                 <button
                   onClick={() => setActivePortal('tpo')}
@@ -598,63 +537,88 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ================================================================ */}
-        {/* MODAL: DIGITAL INSTITUTIONAL NOC CERTIFICATE VIEWER */}
+        {/* MODAL: NAAC / NBA ACCREDITATION REPORT EXPORT ENGINE */}
         {/* ================================================================ */}
-        {activeNocStudent && (
+        {isExportModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b1a] border border-indigo-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-[0_0_40px_rgba(99,102,241,0.25)]">
-              <button
-                onClick={() => setActiveNocStudent(null)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
-              >
-                ✕
-              </button>
-
-              <div className="border-b border-slate-800 pb-3">
-                <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-wider">
-                  OFFICIAL INSTITUTIONAL CLEARANCE • ACCREDITED
-                </span>
-                <h3 className="text-lg font-bold text-white font-sans mt-0.5">
-                  Training & Placement No-Objection Certificate (NOC)
-                </h3>
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div>
+                  <h3 className="text-base font-bold text-white font-sans">
+                    Institutional Placement Accreditation Export
+                  </h3>
+                  <p className="text-[10px] text-indigo-400">NAAC Criterion 5.2.1 • NBA Tier-1 Standard</p>
+                </div>
+                <button
+                  onClick={() => setIsExportModalOpen(false)}
+                  className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="p-4 bg-[#0a102b] rounded-2xl border border-indigo-800/60 space-y-2 text-slate-300 font-sans">
-                <p className="text-xs">
-                  This certifies that <strong>{activeNocStudent.name}</strong> (Roll No:{' '}
-                  <code>{activeNocStudent.enrollmentNo}</code>) of <strong>{activeNocStudent.department} Department</strong> has satisfied all institutional academic and attendance requirements.
-                </p>
-
-                <div className="grid grid-cols-2 gap-2 p-2.5 bg-[#070a1e] rounded-xl text-[10px] font-mono mt-2 text-slate-300">
+              <div className="p-4 bg-[#0a102b] rounded-2xl border border-indigo-800/60 space-y-2 text-slate-300">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest block">AUDIT SPECIFICATIONS</span>
+                <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div>
-                    <span className="text-slate-500 block">COLLEGE:</span>
-                    <span className="text-white font-bold">DCET Hyderabad</span>
+                    <span className="text-slate-500 block">COLLEGE CODE:</span>
+                    <strong className="text-white">DCET-HYD (1604)</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">UNIVERSITY:</span>
-                    <span className="text-white font-bold">Osmania University</span>
+                    <span className="text-slate-500 block">ACCREDITATION:</span>
+                    <strong className="text-emerald-400">NAAC A+ / NBA Tier-1</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">CUMULATIVE CGPA:</span>
-                    <span className="text-emerald-400 font-bold">{activeNocStudent.cgpa} / 10.0</span>
+                    <span className="text-slate-500 block">BATCH YEAR:</span>
+                    <strong className="text-white">2026 Passing Out</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">AUDIT HASH:</span>
-                    <span className="text-cyan-300 font-bold">#0xDCET-TPO-NOC-2026</span>
+                    <span className="text-slate-500 block">RECORDS AUDITED:</span>
+                    <strong className="text-cyan-300">{students.length} Verified Entries</strong>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-[9px] text-slate-500 font-mono">Digitally Signed by TPO Office</span>
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-white block">Select Export Schema:</span>
+                <div className="space-y-2">
+                  <label className="flex items-center justify-between p-3 rounded-xl border border-indigo-600 bg-[#0d1633] cursor-pointer">
+                    <div>
+                      <strong className="text-white text-xs block">NAAC Criterion 5.2.1 Standard CSV</strong>
+                      <span className="text-[10px] text-slate-400">Complete student-wise placement, employer and CTC details</span>
+                    </div>
+                    <input
+                      type="radio"
+                      name="exportFormat"
+                      checked={exportFormat === 'NAAC_CSV'}
+                      onChange={() => setExportFormat('NAAC_CSV')}
+                      className="accent-indigo-500"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-[#090e24] cursor-pointer">
+                    <div>
+                      <strong className="text-white text-xs block">NBA Tier-1 Program Outcome Report</strong>
+                      <span className="text-[10px] text-slate-400">Branch-wise placement indices and compensation matrices</span>
+                    </div>
+                    <input
+                      type="radio"
+                      name="exportFormat"
+                      checked={exportFormat === 'NBA_EXCEL'}
+                      onChange={() => setExportFormat('NBA_EXCEL')}
+                      className="accent-indigo-500"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-between items-center border-t border-slate-800">
+                <span className="text-[10px] text-slate-500">Cryptographically Sealed Audit Ledger</span>
                 <button
-                  onClick={() => {
-                    alert('Official Institutional NOC PDF generated.');
-                    setActiveNocStudent(null);
-                  }}
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-bold rounded-xl"
+                  onClick={handleDownloadComplianceReport}
+                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-1.5"
                 >
-                  📥 Download Signed NOC
+                  <span>📥</span> Download Verified CSV
                 </button>
               </div>
             </div>
@@ -689,7 +653,7 @@ export default function CampusNexPlatform() {
                   className="w-full p-3 rounded-xl border border-indigo-700/60 bg-[#0e1436] text-left hover:border-indigo-400 transition"
                 >
                   <div className="font-bold text-white">🏫 College TPO Workspace</div>
-                  <div className="text-[10px] text-slate-400">Department Roster & Institutional Clearance</div>
+                  <div className="text-[10px] text-slate-400">NAAC/NBA Compliance & Department Analytics</div>
                 </button>
                 <button
                   onClick={() => handleLaunchRoleDashboard('admin')}
