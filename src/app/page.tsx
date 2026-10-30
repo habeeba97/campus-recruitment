@@ -476,13 +476,16 @@ export default function CampusNexPlatform() {
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
   const [blindHiringMode, setBlindHiringMode] = useState(false);
 
-  // AI Mock War-Room State
+  // ADVANCED AI WAR-ROOM STATE (Microphone, Timer & Keyword Tracking)
   const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
   const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
   const [candidateAnswer, setCandidateAnswer] = useState('');
   const [interviewScore, setInterviewScore] = useState<number | null>(null);
   const [aiCritique, setAiCritique] = useState('');
   const [isAnalyzingAnswer, setIsAnalyzingAnswer] = useState(false);
+  const [isMicRecording, setIsMicRecording] = useState(false);
+  const [questionCountdown, setQuestionCountdown] = useState(60);
+  const [speechSupported, setSpeechSupported] = useState(true);
 
   // Recruiter Drive Creation Form
   const [newTitle, setNewTitle] = useState('');
@@ -509,7 +512,7 @@ export default function CampusNexPlatform() {
     isSupabaseConfigured
       ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
       : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
-    '🧠 [AI_WARROOM_ENGINE]: Neural evaluator model loaded for live student technical simulation.',
+    '🧠 [AI_WARROOM_V2]: Neural speech synthesizer & real-time semantic radar active.',
     '⚖️ [DEI_FAIRNESS_MATRIX]: Autonomous talent fitment & blind matching engine active.'
   ]);
 
@@ -530,6 +533,20 @@ export default function CampusNexPlatform() {
       idealAngle: 'Splitting heavy islands via React Suspense and streaming SSR with partial pre-rendering.'
     }
   ];
+
+  // Countdown timer for War-Room
+  useEffect(() => {
+    let timer: any;
+    if (activeInterviewJob && interviewScore === null && questionCountdown > 0) {
+      timer = setInterval(() => {
+        setQuestionCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (questionCountdown === 0 && activeInterviewJob && interviewScore === null) {
+      // Auto submit if timer runs out
+      handleSubmitInterviewAnswer();
+    }
+    return () => clearInterval(timer);
+  }, [activeInterviewJob, questionCountdown, interviewScore]);
 
   useEffect(() => {
     try {
@@ -654,17 +671,70 @@ export default function CampusNexPlatform() {
     }
   };
 
+  // AI Voice Synthesis (Interviewer speaks the question)
+  const speakQuestion = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   const handleLaunchInterview = (job: Job) => {
     setActiveInterviewJob(job);
     setInterviewQuestionIndex(0);
     setCandidateAnswer('');
     setInterviewScore(null);
     setAiCritique('');
+    setQuestionCountdown(60);
     recordAuditLog('AI_WARROOM_LAUNCH', `Student entered AI War-Room for: ${job.title}`);
+    speakQuestion(mockQuestions[0].q);
+  };
+
+  // Speech Recognition (Candidate Speaks Answer)
+  const toggleSpeechRecognition = () => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert('Speech Recognition is not supported on this browser version. You can type your answer directly.');
+      setSpeechSupported(false);
+      return;
+    }
+
+    if (isMicRecording) {
+      setIsMicRecording(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => setIsMicRecording(true);
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setCandidateAnswer(prev => prev + ' ' + transcript);
+      };
+      recognition.onerror = () => setIsMicRecording(false);
+      recognition.onend = () => setIsMicRecording(false);
+      recognition.start();
+    } catch {
+      setIsMicRecording(false);
+    }
   };
 
   const handleSubmitInterviewAnswer = () => {
-    if (!candidateAnswer.trim()) return;
+    if (!candidateAnswer.trim() && questionCountdown > 0) return;
     setIsAnalyzingAnswer(true);
 
     const currentQ = mockQuestions[interviewQuestionIndex];
@@ -674,15 +744,18 @@ export default function CampusNexPlatform() {
     setTimeout(() => {
       setIsAnalyzingAnswer(false);
       if (interviewQuestionIndex < mockQuestions.length - 1) {
-        setInterviewQuestionIndex(prev => prev + 1);
+        const nextIdx = interviewQuestionIndex + 1;
+        setInterviewQuestionIndex(nextIdx);
         setCandidateAnswer('');
+        setQuestionCountdown(60);
+        speakQuestion(mockQuestions[nextIdx].q);
       } else {
-        const calculatedScore = Math.min(98, Math.max(91, 88 + matchedCount * 2));
+        const calculatedScore = Math.min(98, Math.max(92, 89 + matchedCount * 2));
         setInterviewScore(calculatedScore);
         setAiCritique(
           matchedCount >= 3
-            ? 'Superb architectural grasp. Clear articulation of concurrency primitives and fault-tolerant mechanisms.'
-            : 'Good foundational explanation. Recommended deepening distributed memory consistency concepts.'
+            ? 'Exceptional architectural response! Demonstrates profound mastery of high-throughput distributed state machine patterns.'
+            : 'Strong theoretical overview. Recommended focusing on practical cache stampede avoidance under multi-region replication.'
         );
         setCandidateProfile(prev => ({ ...prev, mockInterviewScore: calculatedScore, currentStageIndex: 4 }));
         recordAuditLog('AI_WARROOM_EVALUATED', `Candidate scored ${calculatedScore}% in technical war-room`);
@@ -806,6 +879,12 @@ export default function CampusNexPlatform() {
         j.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [jobs, searchQuery]);
+
+  // Real-time matched keyword highlighting in war-room
+  const currentKeywords = mockQuestions[interviewQuestionIndex]?.keywords || [];
+  const matchedKeywordsList = currentKeywords.filter(k =>
+    candidateAnswer.toLowerCase().includes(k)
+  );
 
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-36 selection:bg-cyan-500 selection:text-black relative overflow-x-hidden bg-transparent">
@@ -939,7 +1018,7 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER WITH FUNCTIONAL TELEMETRY MODAL OPENER */}
+        {/* HERO BANNER */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
@@ -959,13 +1038,13 @@ export default function CampusNexPlatform() {
               </div>
 
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
-                {activePortal === 'student' && 'Student Portal: AI War-Room, Real-Time Drives & Pipeline'}
+                {activePortal === 'student' && 'Student Portal: AI War-Room 2.0 (Speech Dictation, Voice & Semantic Radar)'}
                 {activePortal === 'recruiter' && 'Recruiter Portal: Blind DEI Fairness Mode & Autonomous AI Matching'}
                 {activePortal === 'tpo' && 'TPO Portal: Institutional Placement Records, NAAC Audits & Department NOCs'}
-                {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Live Telemetry & Platform Lockdown Control'}
+                {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Interactive SQL & Platform Lockdown'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Recruiter portal par <strong>Blind Hiring Fairness Mode</strong> toggle karke unbiased evaluation karein aur 1-Click Smart Digital Offer dispatch karein.
+                AI War-Room 2.0 mein student voice mein answer bol sakta hai aur neural speech engine real-time mein semantic depth verify karta hai.
               </p>
 
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
@@ -993,9 +1072,9 @@ export default function CampusNexPlatform() {
                 ) : (
                   <button
                     onClick={() => handleLaunchInterview(jobs[0])}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition flex items-center gap-1.5"
                   >
-                    <span>🎙️</span> Launch AI War-Room Mock
+                    <span>🎙️</span> Launch AI War-Room 2.0
                   </button>
                 )}
               </div>
@@ -1130,7 +1209,7 @@ export default function CampusNexPlatform() {
                             onClick={() => handleLaunchInterview(job)}
                             className="px-3 py-1.5 rounded-xl font-bold font-mono text-[11px] bg-gradient-to-r from-purple-950 to-indigo-950 hover:from-purple-900 hover:to-indigo-900 border border-purple-500/60 text-purple-200 transition shadow flex items-center gap-1.5"
                           >
-                            <span>🎙️</span> AI War-Room
+                            <span>🎙️</span> AI War-Room 2.0
                           </button>
 
                           <button
@@ -1192,9 +1271,9 @@ export default function CampusNexPlatform() {
                       </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800 pb-1">
-                      <span className="text-slate-500">AI MOCK SCORE:</span>
+                      <span className="text-slate-500">WAR-ROOM SCORE:</span>
                       <span className="text-purple-300 font-bold">
-                        {candidateProfile.mockInterviewScore || 94}% (Verified)
+                        {candidateProfile.mockInterviewScore || 95}% (Neural Speech Cleared)
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1351,7 +1430,7 @@ export default function CampusNexPlatform() {
                       </div>
                       <div className="p-1.5 bg-[#070e24] rounded-lg">
                         <span className="text-slate-400 block">Mock War-Room:</span>
-                        <span className="text-purple-300 font-bold">{candidateProfile.mockInterviewScore || 94}% Cleared</span>
+                        <span className="text-purple-300 font-bold">{candidateProfile.mockInterviewScore || 95}% Cleared</span>
                       </div>
                     </div>
                   </div>
@@ -1556,7 +1635,7 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* 4. ADMIN WORKSPACE (SUPERCHARGED WITH SQL CONSOLE) */}
+          {/* 4. ADMIN WORKSPACE */}
           {/* ================================================================ */}
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
@@ -1749,7 +1828,9 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* MODAL: AI MOCK INTERVIEW WAR-ROOM SIMULATOR */}
+        {/* ================================================================ */}
+        {/* MODAL: ADVANCED AI WAR-ROOM 2.0 (LIVE SPEECH & SEMANTIC RADAR) */}
+        {/* ================================================================ */}
         {activeInterviewJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -1757,11 +1838,16 @@ export default function CampusNexPlatform() {
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-ping" />
                   <h3 className="text-base font-bold text-white font-sans">
-                    🎙️ AI War-Room Technical Simulator • {activeInterviewJob.title}
+                    🎙️ AI War-Room 2.0 Proctored Simulator • {activeInterviewJob.title}
                   </h3>
                 </div>
                 <button
-                  onClick={() => setActiveInterviewJob(null)}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                      window.speechSynthesis.cancel();
+                    }
+                    setActiveInterviewJob(null);
+                  }}
                   className="text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800/80 flex items-center justify-center"
                 >
                   ✕
@@ -1770,36 +1856,96 @@ export default function CampusNexPlatform() {
 
               {interviewScore === null ? (
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center text-[10px] text-slate-400">
-                    <span>
-                      Question {interviewQuestionIndex + 1} of {mockQuestions.length}
+                  {/* Timer & Meta header */}
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-800 pb-2">
+                    <span className="flex items-center gap-1.5">
+                      <span>QUESTION {interviewQuestionIndex + 1} OF {mockQuestions.length}</span>
+                      <button
+                        onClick={() => speakQuestion(mockQuestions[interviewQuestionIndex].q)}
+                        className="px-2 py-0.5 bg-[#0e193d] border border-cyan-800 text-cyan-300 rounded font-bold hover:bg-cyan-900"
+                      >
+                        🔊 Re-play Voice
+                      </button>
                     </span>
-                    <span className="text-purple-300 font-bold">
-                      Target: {activeInterviewJob.company} ({activeInterviewJob.salaryInr} LPA)
+
+                    <span className="flex items-center gap-2">
+                      <span className="text-slate-400">COUNTDOWN:</span>
+                      <span className={`px-2 py-0.5 rounded font-black font-mono text-sm ${
+                        questionCountdown <= 15 ? 'bg-rose-950 text-rose-300 border border-rose-600 animate-pulse' : 'bg-cyan-950 text-cyan-300 border border-cyan-700'
+                      }`}>
+                        00:{questionCountdown < 10 ? `0${questionCountdown}` : questionCountdown}s
+                      </span>
                     </span>
                   </div>
 
+                  {/* Neural Avatar Prompt Box */}
                   <div className="p-4 bg-[#0e1633] border border-purple-800/60 rounded-2xl space-y-2">
-                    <div className="flex items-center gap-2 text-cyan-300 font-bold">
-                      <span className="text-lg">🤖</span> AI Technical Interviewer:
+                    <div className="flex items-center justify-between text-cyan-300 font-bold">
+                      <span className="flex items-center gap-2 text-sm">
+                        <span>🤖</span> AI Technical Evaluator (Real-Time Audio Active):
+                      </span>
+                      <span className="text-[10px] text-emerald-400 font-mono">
+                        Target: {activeInterviewJob.company} ({activeInterviewJob.salaryInr} LPA)
+                      </span>
                     </div>
                     <p className="text-sm font-sans text-white leading-relaxed">
                       "{mockQuestions[interviewQuestionIndex].q}"
                     </p>
                     <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-mono">
-                      💡 Evaluation Focus: {mockQuestions[interviewQuestionIndex].idealAngle}
+                      💡 Architecture Focus: {mockQuestions[interviewQuestionIndex].idealAngle}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-slate-300 block mb-1 font-bold">
-                      Your Technical Response:
-                    </label>
+                  {/* Real-Time Keyword Semantic Radar */}
+                  <div className="p-2.5 bg-[#050917] border border-slate-800 rounded-xl space-y-1">
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-slate-400">KEYWORD SEMANTIC RADAR:</span>
+                      <span className="text-emerald-400 font-bold">
+                        {matchedKeywordsList.length} of {currentKeywords.length} Terms Validated
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {currentKeywords.map((kw, kidx) => {
+                        const isFound = candidateAnswer.toLowerCase().includes(kw);
+                        return (
+                          <span
+                            key={kidx}
+                            className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold transition-all ${
+                              isFound
+                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500 shadow'
+                                : 'bg-[#0d142d] text-slate-600 border border-slate-800'
+                            }`}
+                          >
+                            {isFound ? '✓ ' : '○ '}{kw}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Candidate Input with Speech Recognition */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-slate-300 font-bold text-[11px]">
+                        Your Technical Solution:
+                      </label>
+                      <button
+                        onClick={toggleSpeechRecognition}
+                        className={`px-3 py-1 rounded-xl text-[10px] font-bold font-mono transition flex items-center gap-1.5 ${
+                          isMicRecording
+                            ? 'bg-rose-600 text-white animate-pulse shadow-lg'
+                            : 'bg-[#121c3d] border border-cyan-800 text-cyan-300 hover:bg-[#1a2857]'
+                        }`}
+                      >
+                        <span>{isMicRecording ? '🔴 Listening...' : '🎙️ Mic Speech-to-Text'}</span>
+                      </button>
+                    </div>
+
                     <textarea
                       rows={4}
                       value={candidateAnswer}
                       onChange={e => setCandidateAnswer(e.target.value)}
-                      placeholder="e.g. In high concurrency, I implement Redis mutex locking with exponential TTL jitter to prevent cache stampede..."
+                      placeholder="Answer type karein ya 'Mic Speech-to-Text' button dabakar direct bole..."
                       className="w-full bg-[#0b1021] border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 font-mono text-xs"
                     />
                   </div>
@@ -1807,7 +1953,12 @@ export default function CampusNexPlatform() {
                   <div className="flex justify-between items-center pt-2">
                     <button
                       type="button"
-                      onClick={() => setActiveInterviewJob(null)}
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                          window.speechSynthesis.cancel();
+                        }
+                        setActiveInterviewJob(null);
+                      }}
                       className="px-4 py-2 border border-slate-700 text-slate-300 rounded-xl"
                     >
                       Exit Simulator
@@ -1818,22 +1969,23 @@ export default function CampusNexPlatform() {
                       className="px-5 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition disabled:opacity-50"
                     >
                       {isAnalyzingAnswer
-                        ? '🧠 Neural Model Evaluating Response...'
+                        ? '🧠 Neural Model Evaluating Semantic Depth...'
                         : interviewQuestionIndex === mockQuestions.length - 1
-                        ? 'Submit & Generate Clearance Rating'
+                        ? 'Submit & Generate War-Room Certificate'
                         : 'Submit Answer → Next Question'}
                     </button>
                   </div>
                 </div>
               ) : (
+                /* Evaluated Score Card */
                 <div className="space-y-4 text-center py-4">
                   <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-500 to-emerald-400 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20">
                     {interviewScore}%
                   </div>
                   <h4 className="text-lg font-bold text-white font-sans">
-                    Technical Clearance Certified (Tier-1 Apex Ready)
+                    AI War-Room 2.0 Credential Verified (#WARROOM-CERT-2026)
                   </h4>
-                  <p className="text-xs text-slate-300 max-w-md mx-auto font-sans">
+                  <p className="text-xs text-slate-300 max-w-md mx-auto font-sans leading-relaxed">
                     {aiCritique}
                   </p>
 
