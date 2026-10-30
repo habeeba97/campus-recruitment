@@ -1,13 +1,31 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase client initialization
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
-const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseAnonKey) : null;
+// Safe Supabase client initialization (Never crashes build)
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+const isValidHttpUrl = (str: string) => {
+  try {
+    const u = new URL(str);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+const isSupabaseConfigured = Boolean(isValidHttpUrl(rawUrl) && rawKey.trim().length > 10);
+let supabase: SupabaseClient | null = null;
+
+if (isSupabaseConfigured) {
+  try {
+    supabase = createClient(rawUrl, rawKey);
+  } catch {
+    supabase = null;
+  }
+}
 
 // ============================================================================
 // DATA MODELS & RBAC DEFINITIONS
@@ -205,7 +223,6 @@ const DEFAULT_JOBS: Job[] = [
   }
 ];
 
-// 3D Canvas Perspective Floor
 function MasterHoloverseCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -238,7 +255,7 @@ function MasterHoloverseCanvas() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    const starCount = 70;
+    const starCount = 65;
     const stars: { x: number; y: number; z: number; size: number }[] = [];
     for (let i = 0; i < starCount; i++) {
       stars.push({
@@ -322,7 +339,6 @@ function MasterHoloverseCanvas() {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full block" />;
 }
 
-// 3D Dyson Reactor
 function CyberSingularityReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -420,9 +436,6 @@ function CyberSingularityReactor() {
   );
 }
 
-// ============================================================================
-// MAIN PRODUCTION COMPONENT
-// ============================================================================
 export default function CampusNexPlatform() {
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
   const [searchQuery, setSearchQuery] = useState('');
@@ -445,7 +458,6 @@ export default function CampusNexPlatform() {
       : '🟡 [LOCAL_ENGINE]: Hybrid resilient storage ready.'
   ]);
 
-  // Load saved state & fetch from Supabase
   useEffect(() => {
     try {
       const savedProfile = localStorage.getItem('campusnex_candidate_profile');
@@ -461,13 +473,13 @@ export default function CampusNexPlatform() {
           const { data, error } = await supabase.from('jobs').select('*');
           if (data && data.length > 0 && !error) {
             const mappedJobs: Job[] = data.map((j: any) => ({
-              id: j.id,
-              title: j.title,
-              company: j.company,
+              id: String(j.id),
+              title: j.title || 'Software Engineer',
+              company: j.company || 'Hiring Enterprise',
               location: j.location || 'Hyderabad / Bengaluru',
               salaryInr: Number(j.salary_inr) || 20.0,
-              skills: j.skills || ['React', 'Node.js'],
-              matchScore: j.match_score || 90,
+              skills: Array.isArray(j.skills) ? j.skills : ['React', 'Node.js'],
+              matchScore: Number(j.match_score) || 90,
               applicants: 1,
               type: 'Apex 1% Exclusive',
               matched: ['React'],
@@ -477,7 +489,7 @@ export default function CampusNexPlatform() {
               minCgpa: Number(j.min_cgpa) || 7.5,
               eligibleCourses: ['B.Tech CSE'],
               maxBacklogsAllowed: 0,
-              vacancies: j.vacancies || 10,
+              vacancies: Number(j.vacancies) || 10,
               applicationDeadline: j.deadline || '30 Nov 2026',
               interviewTimeline: 'Continuous',
               targetColleges: ['DCET Hyderabad'],
@@ -494,7 +506,6 @@ export default function CampusNexPlatform() {
     }
   }, []);
 
-  // Save changes locally
   useEffect(() => {
     try {
       localStorage.setItem('campusnex_candidate_profile', JSON.stringify(candidateProfile));
@@ -507,7 +518,6 @@ export default function CampusNexPlatform() {
     } catch {}
   }, [jobs]);
 
-  // Handle Apply Job (Student Action)
   const handleApplyJob = async (jobId: string) => {
     const targetJob = jobs.find(j => j.id === jobId);
     if (!targetJob) return;
@@ -525,7 +535,6 @@ export default function CampusNexPlatform() {
     };
     setCloudApplications(prev => [newApp, ...prev]);
 
-    // Supabase insert
     if (isSupabaseConfigured && supabase) {
       try {
         await supabase.from('job_applications').insert([
@@ -541,7 +550,6 @@ export default function CampusNexPlatform() {
     }
   };
 
-  // Handle Create Job (Recruiter Action)
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newCompany.trim()) return;
