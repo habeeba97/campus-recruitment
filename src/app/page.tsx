@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Safe Supabase client initialization (Resilient)
+// Safe Supabase client initialization (Crash-proof)
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const rawKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
@@ -148,8 +148,8 @@ const DEFAULT_PROFILE: CandidateProfile = {
   eusiScore: '98.4%',
   dsaRank: '1840+ Hard Rank',
   verifiedCommits: '120+ Commits',
-  currentStageIndex: 3,
-  mockInterviewScore: 94
+  currentStageIndex: 8,
+  mockInterviewScore: 95
 };
 
 const DEFAULT_JOBS: Job[] = [
@@ -469,17 +469,19 @@ export default function CampusNexPlatform() {
     }
   ]);
 
-  // Modals & Futuristic Feature Toggles
+  // Modals & Feature Toggles
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const [blindHiringMode, setBlindHiringMode] = useState(false); // Blind DEI Mode Toggle
+  const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
+  const [blindHiringMode, setBlindHiringMode] = useState(false);
 
-  // AI Mock Interview Simulator State
+  // AI Mock War-Room State
   const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
   const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
   const [candidateAnswer, setCandidateAnswer] = useState('');
   const [interviewScore, setInterviewScore] = useState<number | null>(null);
+  const [aiCritique, setAiCritique] = useState('');
   const [isAnalyzingAnswer, setIsAnalyzingAnswer] = useState(false);
 
   // Recruiter Drive Creation Form
@@ -498,7 +500,9 @@ export default function CampusNexPlatform() {
 
   // Admin Controls
   const [emergencyLock, setEmergencyLock] = useState(false);
-  const [adminViewTable, setAdminViewTable] = useState<'jobs' | 'applications' | 'audit'>('jobs');
+  const [adminViewTable, setAdminViewTable] = useState<'jobs' | 'applications' | 'audit' | 'sql'>('jobs');
+  const [sqlQueryInput, setSqlQueryInput] = useState('SELECT * FROM audit_logs ORDER BY id DESC LIMIT 5;');
+  const [sqlQueryResult, setSqlQueryResult] = useState<string>('Ready for interactive query execution.');
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     '⚡ [TELEMETRY_CORE]: Event listener initialized on /api/v1/telemetry.',
@@ -512,15 +516,18 @@ export default function CampusNexPlatform() {
   const mockQuestions = [
     {
       q: 'How would you architect a distributed Redis cache layer to prevent cache avalanche during campus placement rushes?',
-      hint: 'Keywords: TTL Jitter, Mutex Locks, Cache Stampede, Read-Through'
+      keywords: ['ttl', 'jitter', 'mutex', 'stampede', 'lock', 'invalidation', 'cache'],
+      idealAngle: 'Implementing randomized TTL jitter and distributed mutex locks on hot key misses.'
     },
     {
       q: 'Explain how PostgreSQL MVCC handles write concurrency and prevents phantom reads under high-throughput transactions.',
-      hint: 'Keywords: Snapshot Isolation, WAL, VACUUM, Row-Level Locking'
+      keywords: ['mvcc', 'isolation', 'snapshot', 'lock', 'serializable', 'wal', 'vacuum', 'transaction'],
+      idealAngle: 'Leveraging Snapshot Isolation and multi-version concurrency control with row-level locks.'
     },
     {
       q: 'Describe your strategy to optimize Next.js server components and hydration latency for low-bandwidth tier-2 college networks.',
-      hint: 'Keywords: Streaming SSR, Suspense Boundaries, Turbopack, Prefetching'
+      keywords: ['ssr', 'suspense', 'streaming', 'bundle', 'turbopack', 'prefetch', 'component', 'hydration'],
+      idealAngle: 'Splitting heavy islands via React Suspense and streaming SSR with partial pre-rendering.'
     }
   ];
 
@@ -630,13 +637,13 @@ export default function CampusNexPlatform() {
       appliedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'Application Submitted',
       aiFitmentScore: targetJob.matchScore,
-      technicalDepthScore: Math.floor(Math.random() * 6) + 93,
-      systemDesignScore: Math.floor(Math.random() * 8) + 89,
+      technicalDepthScore: 94,
+      systemDesignScore: 92,
       offerDispatched: false
     };
     setCloudApplications(prev => [newApp, ...prev]);
 
-    await recordAuditLog('STUDENT_APPLIED', `Student applied for ${targetJob.title} at ${targetJob.company}`);
+    await recordAuditLog('STUDENT_APPLIED', `Applied for ${targetJob.title} at ${targetJob.company}`);
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -652,12 +659,17 @@ export default function CampusNexPlatform() {
     setInterviewQuestionIndex(0);
     setCandidateAnswer('');
     setInterviewScore(null);
-    recordAuditLog('AI_WARROOM_LAUNCH', `Student entered AI War-Room for role: ${job.title} (${job.company})`);
+    setAiCritique('');
+    recordAuditLog('AI_WARROOM_LAUNCH', `Student entered AI War-Room for: ${job.title}`);
   };
 
   const handleSubmitInterviewAnswer = () => {
     if (!candidateAnswer.trim()) return;
     setIsAnalyzingAnswer(true);
+
+    const currentQ = mockQuestions[interviewQuestionIndex];
+    const lowerAns = candidateAnswer.toLowerCase();
+    const matchedCount = currentQ.keywords.filter(k => lowerAns.includes(k)).length;
 
     setTimeout(() => {
       setIsAnalyzingAnswer(false);
@@ -665,10 +677,15 @@ export default function CampusNexPlatform() {
         setInterviewQuestionIndex(prev => prev + 1);
         setCandidateAnswer('');
       } else {
-        const calculatedScore = Math.floor(Math.random() * 8) + 91; // 91% to 98%
+        const calculatedScore = Math.min(98, Math.max(91, 88 + matchedCount * 2));
         setInterviewScore(calculatedScore);
+        setAiCritique(
+          matchedCount >= 3
+            ? 'Superb architectural grasp. Clear articulation of concurrency primitives and fault-tolerant mechanisms.'
+            : 'Good foundational explanation. Recommended deepening distributed memory consistency concepts.'
+        );
         setCandidateProfile(prev => ({ ...prev, mockInterviewScore: calculatedScore, currentStageIndex: 4 }));
-        recordAuditLog('AI_WARROOM_EVALUATED', `Candidate cleared AI War-Room with score: ${calculatedScore}%`);
+        recordAuditLog('AI_WARROOM_EVALUATED', `Candidate scored ${calculatedScore}% in technical war-room`);
       }
     }, 1200);
   };
@@ -711,7 +728,7 @@ export default function CampusNexPlatform() {
     setNewTitle('');
     setNewCompany('');
 
-    await recordAuditLog('JOB_PUBLISHED', `Recruiter published drive: ${newJobObj.title} (${newJobObj.company})`);
+    await recordAuditLog('JOB_PUBLISHED', `Recruiter published drive: ${newJobObj.title}`);
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -760,7 +777,19 @@ export default function CampusNexPlatform() {
     );
     setCandidateProfile(prev => ({ ...prev, currentStageIndex: 8 }));
     recordAuditLog('SMART_OFFER_DISPATCH', `Digital encrypted offer dispatched to ${candidateName} for ${role}`);
-    alert(`🎉 Smart Digital Offer successfully dispatched to ${candidateName}! Verified on Cloud Ledger.`);
+    setIsOfferLetterOpen(true);
+  };
+
+  const handleExecuteSql = () => {
+    const q = sqlQueryInput.trim().toUpperCase();
+    if (q.includes('JOBS')) {
+      setSqlQueryResult(JSON.stringify(jobs.slice(0, 3), null, 2));
+    } else if (q.includes('APPLICATIONS')) {
+      setSqlQueryResult(JSON.stringify(cloudApplications, null, 2));
+    } else {
+      setSqlQueryResult(JSON.stringify(terminalLogs.slice(0, 4), null, 2));
+    }
+    recordAuditLog('SQL_EXECUTE', `Admin ran query: ${sqlQueryInput}`);
   };
 
   const formatSalary = (salaryInrLpa: number) => {
@@ -959,7 +988,7 @@ export default function CampusNexPlatform() {
                         : 'bg-[#09122c] border border-purple-800 text-purple-300 hover:bg-purple-950'
                     }`}
                   >
-                    <span>⚖️</span> {blindHiringMode ? 'Blind Hiring: ON (DEI Protected)' : 'Enable Blind Hiring Mode'}
+                    <span>⚖️</span> {blindHiringMode ? 'Blind Mode: ACTIVE' : 'Enable Blind Mode'}
                   </button>
                 ) : (
                   <button
@@ -1169,8 +1198,16 @@ export default function CampusNexPlatform() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-500">DATABASE STATUS:</span>
-                      <span className="text-emerald-400 font-bold">PostgreSQL Realtime Ready</span>
+                      <span className="text-slate-500">OFFER STATUS:</span>
+                      <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <span>✓ Released</span>
+                        <button
+                          onClick={() => setIsOfferLetterOpen(true)}
+                          className="underline text-cyan-300 ml-1 hover:text-white"
+                        >
+                          (View Letter)
+                        </button>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1219,7 +1256,7 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* 2. RECRUITER WORKSPACE (SUPERCHARGED WITH DEI & AUTONOMOUS MATCHING) */}
+          {/* 2. RECRUITER WORKSPACE */}
           {/* ================================================================ */}
           {activePortal === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
@@ -1236,7 +1273,6 @@ export default function CampusNexPlatform() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* DEI BLIND TOGGLE */}
                   <button
                     onClick={() => {
                       const next = !blindHiringMode;
@@ -1261,7 +1297,7 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Ingestion Queue with Autonomous Metrics */}
+              {/* Ingestion Queue */}
               <div className="p-4 bg-[#08122c] border border-cyan-800/60 rounded-2xl space-y-3 font-mono text-xs">
                 <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
                   <span className="font-bold text-white flex items-center gap-2 text-sm">
@@ -1273,7 +1309,6 @@ export default function CampusNexPlatform() {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Top Candidate Row */}
                   <div className="p-3.5 bg-[#0d1838] rounded-xl border border-slate-800 space-y-2">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                       <div>
@@ -1296,10 +1331,15 @@ export default function CampusNexPlatform() {
                         <span className="px-2 py-1 rounded bg-purple-950 text-purple-300 border border-purple-700 text-[9px] font-bold">
                           Offer Dispatched
                         </span>
+                        <button
+                          onClick={() => setIsOfferLetterOpen(true)}
+                          className="px-2 py-1 bg-cyan-950 text-cyan-300 border border-cyan-700 rounded text-[9px] font-bold hover:bg-cyan-900"
+                        >
+                          View Offer
+                        </button>
                       </div>
                     </div>
 
-                    {/* AI Fitment Matrix Chips */}
                     <div className="grid grid-cols-3 gap-2 text-[10px] pt-1 border-t border-slate-800/80">
                       <div className="p-1.5 bg-[#070e24] rounded-lg">
                         <span className="text-slate-400 block">Technical Depth:</span>
@@ -1316,7 +1356,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Dynamic Applications */}
                   {cloudApplications.map(app => (
                     <div
                       key={app.id}
@@ -1358,7 +1397,6 @@ export default function CampusNexPlatform() {
                             </button>
                           )}
 
-                          {/* 1-CLICK SMART DIGITAL OFFER DISPATCH */}
                           {!app.offerDispatched && (
                             <button
                               onClick={() => handleDispatchDigitalOffer(app.id, app.candidateName, app.jobTitle)}
@@ -1370,7 +1408,6 @@ export default function CampusNexPlatform() {
                         </div>
                       </div>
 
-                      {/* Radar Breakdown */}
                       <div className="grid grid-cols-3 gap-2 text-[10px] pt-1 border-t border-slate-800/80">
                         <div className="p-1.5 bg-[#070e24] rounded-lg">
                           <span className="text-slate-400 block">Tech Depth:</span>
@@ -1519,7 +1556,7 @@ export default function CampusNexPlatform() {
           )}
 
           {/* ================================================================ */}
-          {/* 4. ADMIN WORKSPACE */}
+          {/* 4. ADMIN WORKSPACE (SUPERCHARGED WITH SQL CONSOLE) */}
           {/* ================================================================ */}
           {activePortal === 'admin' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
@@ -1560,14 +1597,14 @@ export default function CampusNexPlatform() {
               </div>
 
               {/* Admin Schema Viewer Controls */}
-              <div className="flex gap-2 border-b border-slate-800 pb-2">
+              <div className="flex gap-2 border-b border-slate-800 pb-2 flex-wrap">
                 <button
                   onClick={() => setAdminViewTable('jobs')}
                   className={`px-3 py-1 rounded-lg transition ${
                     adminViewTable === 'jobs' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  📁 Table: `jobs` ({jobs.length})
+                  📁 `jobs` ({jobs.length})
                 </button>
                 <button
                   onClick={() => setAdminViewTable('applications')}
@@ -1577,7 +1614,7 @@ export default function CampusNexPlatform() {
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  📁 Table: `job_applications` ({cloudApplications.length + 1})
+                  📁 `job_applications` ({cloudApplications.length + 1})
                 </button>
                 <button
                   onClick={() => setAdminViewTable('audit')}
@@ -1585,7 +1622,15 @@ export default function CampusNexPlatform() {
                     adminViewTable === 'audit' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  📁 Table: `audit_logs` ({terminalLogs.length})
+                  📁 `audit_logs` ({terminalLogs.length})
+                </button>
+                <button
+                  onClick={() => setAdminViewTable('sql')}
+                  className={`px-3 py-1 rounded-lg transition ${
+                    adminViewTable === 'sql' ? 'bg-purple-600 text-white font-bold' : 'text-purple-400 hover:text-white'
+                  }`}
+                >
+                  💻 Interactive SQL Console
                 </button>
               </div>
 
@@ -1676,6 +1721,29 @@ export default function CampusNexPlatform() {
                     ))}
                   </div>
                 )}
+
+                {adminViewTable === 'sql' && (
+                  <div className="space-y-3 font-mono">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={sqlQueryInput}
+                        onChange={e => setSqlQueryInput(e.target.value)}
+                        placeholder="Type SQL: SELECT * FROM jobs / audit_logs..."
+                        className="flex-1 bg-[#0f1738] border border-purple-800 rounded-xl px-3 py-2 text-white focus:outline-none"
+                      />
+                      <button
+                        onClick={handleExecuteSql}
+                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl"
+                      >
+                        Execute
+                      </button>
+                    </div>
+                    <pre className="p-3 bg-[#040817] rounded-xl text-cyan-300 text-[10px] max-h-48 overflow-auto border border-slate-800">
+                      {sqlQueryResult}
+                    </pre>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1707,7 +1775,7 @@ export default function CampusNexPlatform() {
                       Question {interviewQuestionIndex + 1} of {mockQuestions.length}
                     </span>
                     <span className="text-purple-300 font-bold">
-                      Role Target: {activeInterviewJob.company} (CTC: {activeInterviewJob.salaryInr} LPA)
+                      Target: {activeInterviewJob.company} ({activeInterviewJob.salaryInr} LPA)
                     </span>
                   </div>
 
@@ -1719,13 +1787,13 @@ export default function CampusNexPlatform() {
                       "{mockQuestions[interviewQuestionIndex].q}"
                     </p>
                     <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-mono">
-                      💡 Recommended architecture angles: {mockQuestions[interviewQuestionIndex].hint}
+                      💡 Evaluation Focus: {mockQuestions[interviewQuestionIndex].idealAngle}
                     </div>
                   </div>
 
                   <div>
                     <label className="text-slate-300 block mb-1 font-bold">
-                      Your Technical Answer (Type or Dictate):
+                      Your Technical Response:
                     </label>
                     <textarea
                       rows={4}
@@ -1750,7 +1818,7 @@ export default function CampusNexPlatform() {
                       className="px-5 py-2 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition disabled:opacity-50"
                     >
                       {isAnalyzingAnswer
-                        ? '🧠 Neural Model Evaluating...'
+                        ? '🧠 Neural Model Evaluating Response...'
                         : interviewQuestionIndex === mockQuestions.length - 1
                         ? 'Submit & Generate Clearance Rating'
                         : 'Submit Answer → Next Question'}
@@ -1766,7 +1834,7 @@ export default function CampusNexPlatform() {
                     Technical Clearance Certified (Tier-1 Apex Ready)
                   </h4>
                   <p className="text-xs text-slate-300 max-w-md mx-auto font-sans">
-                    Candidate demonstrated strong understanding of caching stampedes, distributed locking, and PostgreSQL transaction isolation.
+                    {aiCritique}
                   </p>
 
                   <div className="p-3 bg-[#0d1738] border border-emerald-600/60 rounded-xl text-emerald-300 text-xs font-bold font-mono">
@@ -1784,6 +1852,63 @@ export default function CampusNexPlatform() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: OFFICIAL DIGITAL OFFER LETTER */}
+        {isOfferLetterOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative shadow-2xl font-mono space-y-4">
+              <button
+                onClick={() => setIsOfferLetterOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white text-base w-7 h-7 rounded-full bg-slate-800/80 flex items-center justify-center"
+              >
+                ✕
+              </button>
+
+              <div className="border-b border-slate-800 pb-3">
+                <span className="text-[10px] text-emerald-400 font-bold">DIGITAL OFFER LETTER • VERIFIED ON-CHAIN</span>
+                <h3 className="text-lg font-bold text-white font-sans mt-0.5">Formal Employment Offer</h3>
+              </div>
+
+              <div className="p-4 bg-[#070d1e] rounded-2xl border border-slate-800 space-y-2 text-slate-300">
+                <p>Dear <strong className="text-white">{candidateProfile.name}</strong>,</p>
+                <p className="text-[11px] leading-relaxed">
+                  We are pleased to extend an offer for the position of <strong>Full Stack Engineer (Elite Core)</strong> at <strong>TechCorp India</strong>.
+                </p>
+                <div className="grid grid-cols-2 gap-2 p-2.5 bg-[#0e1738] rounded-xl text-[10px] mt-2">
+                  <div>
+                    <span className="text-slate-400 block">ANNUAL CTC:</span>
+                    <span className="text-emerald-400 font-bold text-sm">₹22.0 LPA</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">JOINING DATE:</span>
+                    <span className="text-cyan-300 font-bold text-sm">01 July 2027</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">LOCATION:</span>
+                    <span className="text-white font-semibold">Hyderabad / Tokyo Hybrid</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">INSTITUTION:</span>
+                    <span className="text-white font-semibold">DCET Hyderabad</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-[9px] text-slate-500">SEAL: 0x8942-APEX-VERIFIED-CORP</span>
+                <button
+                  onClick={() => {
+                    alert('Official Offer Letter PDF generated and saved to your device.');
+                    setIsOfferLetterOpen(false);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
+                >
+                  📥 Download Signed PDF
+                </button>
+              </div>
             </div>
           </div>
         )}
