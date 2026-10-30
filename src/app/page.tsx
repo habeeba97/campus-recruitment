@@ -349,7 +349,10 @@ function MasterHoloverseCanvas() {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 w-full h-full block" />;
 }
 
-function CyberSingularityReactor() {
+// ============================================================================
+// 3D ORBITAL DYSON RING REACTOR (4-Portal Gyroscopic Core)
+// ============================================================================
+function OrbitalDysonReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -359,8 +362,8 @@ function CyberSingularityReactor() {
     if (!ctx) return;
 
     let animId: number;
-    const width = 320;
-    const height = 220;
+    const width = 340;
+    const height = 240;
     canvas.width = width;
     canvas.height = height;
 
@@ -368,80 +371,100 @@ function CyberSingularityReactor() {
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
-
       const cx = width / 2;
       const cy = height / 2;
-      const maxR = 84;
 
-      const corePulse = Math.sin(t * 3.4) * 4.5;
-      const coreR = 20 + corePulse;
-      const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 2.8);
-      coreGrad.addColorStop(0, '#ffffff');
-      coreGrad.addColorStop(0.25, '#f43f5e');
-      coreGrad.addColorStop(0.65, '#c026d3');
-      coreGrad.addColorStop(1, 'rgba(192, 38, 211, 0)');
+      // 1. Central Pulsating Quantum Core
+      const corePulse = Math.sin(t * 3.2) * 5;
+      const coreR = 24 + corePulse;
+      const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 3);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.2, '#06b6d4');
+      grad.addColorStop(0.55, '#8b5cf6');
+      grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
 
       ctx.save();
       ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 2.8, 0, Math.PI * 2);
-      ctx.fillStyle = coreGrad;
+      ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
       ctx.fill();
 
+      // Neural Core Hexagon Center
       ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 0.65, 0, Math.PI * 2);
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI) / 3 + t * 0.5;
+        const hx = cx + Math.cos(angle) * (coreR * 0.7);
+        const hy = cy + Math.sin(angle) * (coreR * 0.7);
+        if (i === 0) ctx.moveTo(hx, hy);
+        else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
       ctx.fillStyle = '#ffffff';
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = '#06b6d4';
       ctx.fill();
       ctx.restore();
 
-      ctx.save();
-      ctx.translate(cx, cy);
+      // 2. Gyroscopic Dyson Rings (4 Portals representation)
+      const drawRing = (
+        radiusX: number,
+        radiusY: number,
+        rotAngle: number,
+        color: string,
+        lineW: number,
+        speed: number,
+        dotText?: string
+      ) => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rotAngle);
 
-      const r1 = maxR * 0.95;
-      ctx.save();
-      ctx.rotate(t * 0.45);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r1, r1 * Math.abs(Math.cos(t * 0.75)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#f43f5e';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineW;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = color;
+        ctx.stroke();
 
-      const r2 = maxR * 0.75;
-      ctx.save();
-      ctx.rotate(-t * 0.55 + 1.2);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r2, r2 * Math.abs(Math.sin(t * 0.6)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#c084fc';
-      ctx.lineWidth = 1.8;
-      ctx.stroke();
-      ctx.restore();
+        // Orbiting Data Packet on Ring
+        const particleAngle = t * speed;
+        const px = Math.cos(particleAngle) * radiusX;
+        const py = Math.sin(particleAngle) * radiusY;
 
-      const r3 = maxR * 0.52;
-      ctx.save();
-      ctx.rotate(t * 0.75 - 0.7);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r3, r3 * Math.abs(Math.cos(t * 1.05)), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = '#22d3ee';
-      ctx.lineWidth = 1.6;
-      ctx.stroke();
-      ctx.restore();
+        ctx.beginPath();
+        ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = color;
+        ctx.fill();
 
-      ctx.restore();
+        ctx.restore();
+      };
+
+      // Ring 1: Student (Cyan)
+      drawRing(105, 38, t * 0.4, 'rgba(6, 182, 212, 0.85)', 2, 2.2);
+
+      // Ring 2: Recruiter (Purple)
+      drawRing(92, 42, -t * 0.5 + 1.1, 'rgba(168, 85, 247, 0.85)', 1.8, -2.5);
+
+      // Ring 3: TPO (Indigo)
+      drawRing(78, 30, t * 0.6 + 2.2, 'rgba(99, 102, 241, 0.85)', 1.6, 2.8);
+
+      // Ring 4: Admin (Rose/Pink)
+      drawRing(62, 24, -t * 0.7 + 0.5, 'rgba(244, 63, 94, 0.85)', 1.4, -3.1);
 
       t += 0.016;
       animId = requestAnimationFrame(render);
     };
 
     render();
-
     return () => cancelAnimationFrame(animId);
   }, []);
 
   return (
-    <div className="w-[320px] h-[220px] flex items-center justify-center relative pointer-events-none shrink-0">
-      <canvas ref={canvasRef} className="block w-[320px] h-[220px]" />
+    <div className="w-[340px] h-[240px] flex items-center justify-center relative pointer-events-none shrink-0">
+      <canvas ref={canvasRef} className="block w-[340px] h-[240px]" />
     </div>
   );
 }
@@ -476,7 +499,7 @@ export default function CampusNexPlatform() {
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
   const [blindHiringMode, setBlindHiringMode] = useState(false);
 
-  // ADVANCED AI WAR-ROOM STATE (Microphone, Timer & Keyword Tracking)
+  // AI Mock War-Room State
   const [activeInterviewJob, setActiveInterviewJob] = useState<Job | null>(null);
   const [interviewQuestionIndex, setInterviewQuestionIndex] = useState(0);
   const [candidateAnswer, setCandidateAnswer] = useState('');
@@ -485,7 +508,6 @@ export default function CampusNexPlatform() {
   const [isAnalyzingAnswer, setIsAnalyzingAnswer] = useState(false);
   const [isMicRecording, setIsMicRecording] = useState(false);
   const [questionCountdown, setQuestionCountdown] = useState(60);
-  const [speechSupported, setSpeechSupported] = useState(true);
 
   // Recruiter Drive Creation Form
   const [newTitle, setNewTitle] = useState('');
@@ -542,7 +564,6 @@ export default function CampusNexPlatform() {
         setQuestionCountdown(prev => prev - 1);
       }, 1000);
     } else if (questionCountdown === 0 && activeInterviewJob && interviewScore === null) {
-      // Auto submit if timer runs out
       handleSubmitInterviewAnswer();
     }
     return () => clearInterval(timer);
@@ -671,7 +692,6 @@ export default function CampusNexPlatform() {
     }
   };
 
-  // AI Voice Synthesis (Interviewer speaks the question)
   const speakQuestion = (text: string) => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
@@ -693,7 +713,6 @@ export default function CampusNexPlatform() {
     speakQuestion(mockQuestions[0].q);
   };
 
-  // Speech Recognition (Candidate Speaks Answer)
   const toggleSpeechRecognition = () => {
     if (typeof window === 'undefined') return;
 
@@ -702,7 +721,6 @@ export default function CampusNexPlatform() {
 
     if (!SpeechRecognition) {
       alert('Speech Recognition is not supported on this browser version. You can type your answer directly.');
-      setSpeechSupported(false);
       return;
     }
 
@@ -880,7 +898,6 @@ export default function CampusNexPlatform() {
     );
   }, [jobs, searchQuery]);
 
-  // Real-time matched keyword highlighting in war-room
   const currentKeywords = mockQuestions[interviewQuestionIndex]?.keywords || [];
   const matchedKeywordsList = currentKeywords.filter(k =>
     candidateAnswer.toLowerCase().includes(k)
@@ -891,14 +908,18 @@ export default function CampusNexPlatform() {
       <MasterHoloverseCanvas />
 
       <div className="relative z-10">
-        {/* TELEMETRY MATRIX TOP BAR */}
-        <div className="bg-[#070d1e]/90 backdrop-blur-md border-b border-cyan-950/70 px-4 py-2 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400 gap-2">
+        {/* ================================================================ */}
+        {/* TOP STATUS RIBBON (High-Tech Telemetry Bar) */}
+        {/* ================================================================ */}
+        <div className="bg-[#050916]/95 backdrop-blur-md border-b border-cyan-950/80 px-4 md:px-8 py-1.5 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400 gap-2">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="flex items-center gap-1.5 font-bold text-white">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               BACKEND: {isSupabaseConfigured ? '🟢 SUPABASE POSTGRESQL CONNECTED' : '🟡 LOCAL RESILIENT ENGINE (HYBRID)'}
             </span>
-            <span className="text-purple-300">WORKSPACE: {activePortal.toUpperCase()}</span>
+            <span className="text-slate-600 hidden sm:inline">|</span>
+            <span className="text-purple-300 font-semibold">DCET HYDERABAD CAMPUS NETWORK</span>
+            <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-cyan-400 font-bold">14-STAGE LIFECYCLE PERSISTED</span>
             {emergencyLock && (
               <span className="bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded font-bold animate-pulse">
@@ -910,19 +931,19 @@ export default function CampusNexPlatform() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsTelemetryModalOpen(true)}
-              className="bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/80 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+              className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-700/80 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
               <span>📊</span> AUDIT DASHBOARD
             </button>
 
             <div className="flex items-center gap-1 bg-[#09122c] border border-cyan-900/60 px-2 py-0.5 rounded-lg text-[9px]">
-              <span className="text-slate-400">CURRENCY:</span>
+              <span className="text-slate-500">CURRENCY:</span>
               <button
                 onClick={() => {
                   setActiveCurrency('INR');
                   recordAuditLog('CURRENCY_SWITCH', 'Switched to INR');
                 }}
-                className={`px-1.5 rounded font-bold ${activeCurrency === 'INR' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}
+                className={`px-1.5 rounded font-bold transition ${activeCurrency === 'INR' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
               >
                 ₹ INR
               </button>
@@ -931,7 +952,7 @@ export default function CampusNexPlatform() {
                   setActiveCurrency('USD');
                   recordAuditLog('CURRENCY_SWITCH', 'Switched to USD');
                 }}
-                className={`px-1.5 rounded font-bold ${activeCurrency === 'USD' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}
+                className={`px-1.5 rounded font-bold transition ${activeCurrency === 'USD' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
               >
                 $ USD
               </button>
@@ -940,7 +961,7 @@ export default function CampusNexPlatform() {
                   setActiveCurrency('JPY');
                   recordAuditLog('CURRENCY_SWITCH', 'Switched to JPY');
                 }}
-                className={`px-1.5 rounded font-bold ${activeCurrency === 'JPY' ? 'bg-cyan-600 text-white' : 'text-slate-400'}`}
+                className={`px-1.5 rounded font-bold transition ${activeCurrency === 'JPY' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
               >
                 ¥ JPY
               </button>
@@ -948,77 +969,111 @@ export default function CampusNexPlatform() {
           </div>
         </div>
 
-        {/* HEADER */}
-        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/85 border-b border-indigo-950/80 px-4 md:px-8 py-3.5 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-xl shadow-lg border border-cyan-300/30">
+        {/* ================================================================ */}
+        {/* NEW UPGRADED HEADER: FLOATING ISLAND COMMAND CAPSULE */}
+        {/* ================================================================ */}
+        <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[#060a17]/90 border-b border-indigo-950/80 px-4 md:px-8 py-3 shadow-2xl flex flex-col md:flex-row justify-between items-center gap-3">
+          {/* Left Brand Area */}
+          <div className="flex items-center space-x-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-pink-500 flex items-center justify-center font-black text-white text-2xl shadow-lg border border-cyan-300/40 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition duration-300" />
               ✦
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
+                <span className="text-2xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent tracking-tight">
                   CampusNex AI
                 </span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider shadow">
                   ENTERPRISE OS
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">PostgreSQL Cloud Tables • Telemetry Audit Ledger • Bidirectional Sync</p>
+              <p className="text-[11px] text-slate-400 font-mono">
+                PostgreSQL Cloud Tables • Telemetry Audit Ledger • Bidirectional Sync
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap justify-center">
+          {/* Center: Futuristic Floating Island Navigation Capsule */}
+          <div className="flex items-center bg-[#070e24]/90 backdrop-blur-2xl p-1 rounded-2xl border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] text-xs font-bold gap-1">
+            <button
+              onClick={() => {
+                setActivePortal('student');
+                recordAuditLog('PORTAL_ROUTING', 'Switched to Student Portal');
+              }}
+              className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 ${
+                activePortal === 'student'
+                  ? 'bg-gradient-to-r from-cyan-600 via-indigo-600 to-cyan-500 text-white shadow-lg scale-105 border border-cyan-300/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>🎓</span> Student
+            </button>
+            <button
+              onClick={() => {
+                setActivePortal('recruiter');
+                recordAuditLog('PORTAL_ROUTING', 'Switched to Recruiter Portal');
+              }}
+              className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 ${
+                activePortal === 'recruiter'
+                  ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 text-white shadow-lg scale-105 border border-purple-300/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>💼</span> Recruiter
+            </button>
+            <button
+              onClick={() => {
+                setActivePortal('tpo');
+                recordAuditLog('PORTAL_ROUTING', 'Switched to TPO Portal');
+              }}
+              className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 ${
+                activePortal === 'tpo'
+                  ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg scale-105 border border-indigo-300/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>🏫</span> College / TPO
+            </button>
+            <button
+              onClick={() => {
+                setActivePortal('admin');
+                recordAuditLog('PORTAL_ROUTING', 'Switched to Admin Portal');
+              }}
+              className={`px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 ${
+                activePortal === 'admin'
+                  ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white shadow-lg scale-105 border border-rose-300/40'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>🛡️</span> Admin
+            </button>
+          </div>
+
+          {/* Right Action Hub */}
+          <div className="flex items-center gap-2">
             {activePortal === 'recruiter' && (
               <button
                 onClick={() => setIsPostDriveOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-mono font-bold text-xs shadow-lg hover:scale-105 transition"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-mono font-bold text-xs shadow-lg hover:scale-105 transition flex items-center gap-1"
               >
-                + Post Hiring Drive
+                <span>+</span> Post Hiring Drive
               </button>
             )}
 
-            <div className="flex bg-[#0b1226]/90 backdrop-blur-xl p-1 rounded-2xl border border-slate-800 text-xs font-bold gap-1 shadow-inner">
-              <button
-                onClick={() => {
-                  setActivePortal('student');
-                  recordAuditLog('PORTAL_ROUTING', 'Switched to Student Portal');
-                }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                🎓 Student
-              </button>
-              <button
-                onClick={() => {
-                  setActivePortal('recruiter');
-                  recordAuditLog('PORTAL_ROUTING', 'Switched to Recruiter Portal');
-                }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                💼 Recruiter
-              </button>
-              <button
-                onClick={() => {
-                  setActivePortal('tpo');
-                  recordAuditLog('PORTAL_ROUTING', 'Switched to TPO Portal');
-                }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                🏫 College / TPO
-              </button>
-              <button
-                onClick={() => {
-                  setActivePortal('admin');
-                  recordAuditLog('PORTAL_ROUTING', 'Switched to Admin Portal');
-                }}
-                className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'admin' ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                🛡️ Admin
-              </button>
-            </div>
+            <button
+              onClick={() => setIsTelemetryModalOpen(true)}
+              className="px-3 py-2 rounded-xl bg-[#09122c] border border-cyan-800/80 hover:border-cyan-400 text-cyan-300 font-mono text-xs font-bold transition flex items-center gap-1.5 shadow"
+            >
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>12ms HUD</span>
+            </button>
           </div>
         </header>
 
-        {/* HERO BANNER */}
+        {/* ================================================================ */}
+        {/* HERO BANNER WITH 3D ORBITAL DYSON REACTOR */}
+        {/* ================================================================ */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
@@ -1044,7 +1099,7 @@ export default function CampusNexPlatform() {
                 {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Interactive SQL & Platform Lockdown'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                AI War-Room 2.0 mein student voice mein answer bol sakta hai aur neural speech engine real-time mein semantic depth verify karta hai.
+                4-Portal Orbital Engine: Real-time PostgreSQL bi-directional cloud streaming across all candidate pipelines.
               </p>
 
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
@@ -1080,8 +1135,9 @@ export default function CampusNexPlatform() {
               </div>
             </div>
 
+            {/* Futuristic 3D Gyroscopic Dyson Ring Reactor */}
             <div className="relative z-20 shrink-0">
-              <CyberSingularityReactor />
+              <OrbitalDysonReactor />
             </div>
           </div>
         </div>
@@ -1828,9 +1884,7 @@ export default function CampusNexPlatform() {
           )}
         </main>
 
-        {/* ================================================================ */}
-        {/* MODAL: ADVANCED AI WAR-ROOM 2.0 (LIVE SPEECH & SEMANTIC RADAR) */}
-        {/* ================================================================ */}
+        {/* MODAL: ADVANCED AI WAR-ROOM 2.0 */}
         {activeInterviewJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -1856,7 +1910,6 @@ export default function CampusNexPlatform() {
 
               {interviewScore === null ? (
                 <div className="space-y-4">
-                  {/* Timer & Meta header */}
                   <div className="flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-800 pb-2">
                     <span className="flex items-center gap-1.5">
                       <span>QUESTION {interviewQuestionIndex + 1} OF {mockQuestions.length}</span>
@@ -1878,7 +1931,6 @@ export default function CampusNexPlatform() {
                     </span>
                   </div>
 
-                  {/* Neural Avatar Prompt Box */}
                   <div className="p-4 bg-[#0e1633] border border-purple-800/60 rounded-2xl space-y-2">
                     <div className="flex items-center justify-between text-cyan-300 font-bold">
                       <span className="flex items-center gap-2 text-sm">
@@ -1896,7 +1948,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Real-Time Keyword Semantic Radar */}
                   <div className="p-2.5 bg-[#050917] border border-slate-800 rounded-xl space-y-1">
                     <div className="flex justify-between text-[10px]">
                       <span className="text-slate-400">KEYWORD SEMANTIC RADAR:</span>
@@ -1923,7 +1974,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Candidate Input with Speech Recognition */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
                       <label className="text-slate-300 font-bold text-[11px]">
@@ -1977,7 +2027,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
               ) : (
-                /* Evaluated Score Card */
                 <div className="space-y-4 text-center py-4">
                   <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-500 to-emerald-400 flex items-center justify-center text-3xl font-black text-white shadow-xl border border-white/20">
                     {interviewScore}%
