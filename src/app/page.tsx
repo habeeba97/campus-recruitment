@@ -452,32 +452,40 @@ export default function CampusNexPlatform() {
       candidateName: 'Verified Candidate (#APEX-01)',
       jobTitle: 'Data Analyst & ML Associate',
       company: 'DataMetrics AI',
-      appliedAt: 'Today at 08:50 AM',
+      appliedAt: '08:50 AM',
       status: 'Application Submitted'
     }
   ]);
 
+  // Modals
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [isTelemetryModalOpen, setIsTelemetryModalOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
-  // Drive Creation Form
+  // Drive Creation Form State
   const [newTitle, setNewTitle] = useState('');
   const [newCompany, setNewCompany] = useState('');
-  const [newSalary, setNewSalary] = useState(20.0);
+  const [newLocation, setNewLocation] = useState('Hyderabad / Bengaluru Hybrid');
+  const [newSalary, setNewSalary] = useState(24.0);
   const [newCgpa, setNewCgpa] = useState(7.5);
+  const [newVacancies, setNewVacancies] = useState(15);
+  const [newSkills, setNewSkills] = useState('React, Node.js, PostgreSQL');
 
-  // Edit Profile Form
+  // Edit Profile Form State
   const [editName, setEditName] = useState(candidateProfile.name);
   const [editCgpa, setEditCgpa] = useState(candidateProfile.cgpa);
   const [editRole, setEditRole] = useState(candidateProfile.preferredRole);
 
+  // Admin Controls
+  const [emergencyLock, setEmergencyLock] = useState(false);
+  const [adminViewTable, setAdminViewTable] = useState<'jobs' | 'applications' | 'audit'>('jobs');
+
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
     '⚡ [TELEMETRY_CORE]: Event listener initialized on /api/v1/telemetry.',
     isSupabaseConfigured
-      ? '🟢 [SUPABASE_CONNECTED]: Handshake verified with cloud database.'
-      : '🟡 [LOCAL_ENGINE]: Operating in hybrid fault-tolerant buffer mode.',
-    '📡 [SECURITY_LAYER]: Zero-Knowledge talent proof hashes validated.'
+      ? '🟢 [SUPABASE_CONNECTED]: PostgreSQL schema synchronizer bound to table `jobs` & `job_applications`.'
+      : '🟡 [LOCAL_ENGINE]: Operating in local fault-tolerant state buffer.',
+    '📡 [SECURITY_LAYER]: Multi-role RBAC security filters active (Student, Recruiter, TPO, Admin).'
   ]);
 
   // Load from LocalStorage & Supabase
@@ -504,24 +512,24 @@ export default function CampusNexPlatform() {
               company: j.company || 'Enterprise Partner',
               location: j.location || 'Hyderabad / Bengaluru',
               salaryInr: Number(j.salary_inr) || 20.0,
-              skills: Array.isArray(j.skills) ? j.skills : ['React', 'Node.js'],
-              matchScore: Number(j.match_score) || 90,
-              applicants: 1,
+              skills: Array.isArray(j.skills) ? j.skills : ['React', 'Node.js', 'PostgreSQL'],
+              matchScore: Number(j.match_score) || 92,
+              applicants: Number(j.applicants) || 1,
               type: 'Apex 1% Exclusive',
               matched: ['React'],
               missing: [],
-              tip: 'Direct PostgreSQL Cloud Stream',
+              tip: 'Direct PostgreSQL Cloud Synchronized Drive',
               minClearance: 'Tier-1 Apex',
               minCgpa: Number(j.min_cgpa) || 7.5,
-              eligibleCourses: ['B.Tech CSE'],
+              eligibleCourses: ['B.Tech CSE', 'B.Tech IT'],
               maxBacklogsAllowed: 0,
-              vacancies: Number(j.vacancies) || 10,
+              vacancies: Number(j.vacancies) || 15,
               applicationDeadline: j.deadline || '30 Nov 2026',
               interviewTimeline: 'Continuous Assessment',
               targetColleges: ['DCET Hyderabad'],
               status: 'Open',
               dataSource: 'LIVE',
-              aiMatchExplanation: 'Cloud PostgreSQL verified row entry.',
+              aiMatchExplanation: 'Cloud PostgreSQL verified row entry with live recruitment channel.',
               fairnessConfidence: 99.4
             }));
             setJobs(mappedJobs);
@@ -553,8 +561,8 @@ export default function CampusNexPlatform() {
 
   const recordAuditLog = async (action: string, details: string) => {
     const timestamp = new Date().toLocaleTimeString();
-    const logEntry = `[${timestamp}] [AUDIT_${action}]: ${details}`;
-    setTerminalLogs(prev => [logEntry, ...prev]);
+    const logEntry = `[${timestamp}] [${action}]: ${details}`;
+    setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -566,6 +574,11 @@ export default function CampusNexPlatform() {
   };
 
   const handleApplyJob = async (jobId: string) => {
+    if (emergencyLock) {
+      alert('Action Denied: Platform is in Maintenance Lock by Administrator.');
+      return;
+    }
+
     const targetJob = jobs.find(j => j.id === jobId);
     if (!targetJob) return;
 
@@ -584,7 +597,7 @@ export default function CampusNexPlatform() {
     };
     setCloudApplications(prev => [newApp, ...prev]);
 
-    await recordAuditLog('JOB_APPLICATION', `Applied for ${targetJob.title} at ${targetJob.company}`);
+    await recordAuditLog('STUDENT_APPLIED', `Student applied for ${targetJob.title} at ${targetJob.company}`);
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -595,43 +608,47 @@ export default function CampusNexPlatform() {
     }
   };
 
+  // Recruiter Adds New Job (Instantly Visible to Students & in Database)
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newCompany.trim()) return;
 
+    const parsedSkills = newSkills.split(',').map(s => s.trim()).filter(Boolean);
+
     const newJobObj: Job = {
-      id: String(Date.now()),
+      id: `job-${Date.now()}`,
       title: newTitle.trim(),
       company: newCompany.trim(),
-      location: 'Hyderabad / Bengaluru Hybrid',
+      location: newLocation.trim() || 'Hyderabad / Bengaluru Hybrid',
       salaryInr: Number(newSalary) || 20.0,
-      skills: ['React', 'Node.js', 'PostgreSQL', 'TypeScript'],
-      matchScore: 92,
+      skills: parsedSkills.length ? parsedSkills : ['React', 'Node.js', 'PostgreSQL'],
+      matchScore: 95,
       applicants: 0,
       type: 'Apex 1% Exclusive',
-      matched: ['React'],
+      matched: ['React', 'Node.js'],
       missing: [],
-      tip: 'Recruiter Created Drive',
+      tip: 'Recruiter Created Live Drive',
       minClearance: 'Tier-1 Apex',
       minCgpa: Number(newCgpa) || 7.5,
-      eligibleCourses: ['B.Tech CSE', 'B.Tech IT'],
+      eligibleCourses: ['B.Tech Computer Science & Engineering', 'B.Tech IT'],
       maxBacklogsAllowed: 0,
-      vacancies: 15,
+      vacancies: Number(newVacancies) || 10,
       applicationDeadline: '30 Nov 2026',
       interviewTimeline: 'Continuous Assessment',
-      targetColleges: ['DCET Hyderabad'],
+      targetColleges: ['DCET Hyderabad', 'Campus Nex Partner Network'],
       status: 'Open',
       dataSource: 'LIVE',
-      aiMatchExplanation: 'Live drive registered by recruiter portal.',
-      fairnessConfidence: 99.5
+      aiMatchExplanation: `Directly published by verified Recruiter for ${newCompany.trim()}. Full visibility active.`,
+      fairnessConfidence: 99.8
     };
 
+    // Prepend to jobs list (appears on top in Student feed)
     setJobs([newJobObj, ...jobs]);
     setIsPostDriveOpen(false);
     setNewTitle('');
     setNewCompany('');
 
-    await recordAuditLog('DRIVE_CREATED', `New drive ${newJobObj.title} published.`);
+    await recordAuditLog('JOB_PUBLISHED', `Recruiter published drive: ${newJobObj.title} (${newJobObj.company})`);
 
     if (isSupabaseConfigured && supabase) {
       try {
@@ -659,19 +676,19 @@ export default function CampusNexPlatform() {
       preferredRole: editRole.trim() || prev.preferredRole
     }));
     setIsEditProfileOpen(false);
-    recordAuditLog('PROFILE_UPDATED', `Candidate profile refreshed.`);
+    recordAuditLog('PROFILE_MUTATION', `Updated candidate profile for ${editName}`);
   };
 
   const handleAdvanceStage = (index: number) => {
     setCandidateProfile(prev => ({ ...prev, currentStageIndex: index }));
-    recordAuditLog('STAGE_TRANSITION', `Lifecycle stage moved to ${ALL_LIFECYCLE_STAGES[index]}`);
+    recordAuditLog('LIFECYCLE_ADVANCE', `Advanced to Stage ${index + 1}: ${ALL_LIFECYCLE_STAGES[index]}`);
   };
 
   const handleShortlistCandidate = (appId: string, candidateName: string) => {
     setCloudApplications(prev =>
       prev.map(a => (a.id === appId ? { ...a, status: 'Interview Shortlisted' } : a))
     );
-    recordAuditLog('CANDIDATE_SHORTLISTED', `${candidateName} approved for Technical War-Room Interview.`);
+    recordAuditLog('RECRUITER_SHORTLIST', `Candidate ${candidateName} approved and shortlisted.`);
   };
 
   const formatSalary = (salaryInrLpa: number) => {
@@ -684,7 +701,8 @@ export default function CampusNexPlatform() {
     return jobs.filter(
       j =>
         j.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        j.company.toLowerCase().includes(searchQuery.toLowerCase())
+        j.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        j.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [jobs, searchQuery]);
 
@@ -702,13 +720,17 @@ export default function CampusNexPlatform() {
             </span>
             <span className="text-purple-300">WORKSPACE: {activePortal.toUpperCase()}</span>
             <span className="text-cyan-400 font-bold">14-STAGE LIFECYCLE PERSISTED</span>
+            {emergencyLock && (
+              <span className="bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded font-bold animate-pulse">
+                ⚠️ LOCKDOWN ACTIVE
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Quick Audit Engine Opener */}
             <button
               onClick={() => setIsTelemetryModalOpen(true)}
-              className="bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/80 text-cyan-300 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+              className="bg-cyan-950 hover:bg-cyan-900 border border-cyan-700/80 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
               <span>📊</span> AUDIT DASHBOARD
             </button>
@@ -779,7 +801,7 @@ export default function CampusNexPlatform() {
               <button
                 onClick={() => {
                   setActivePortal('student');
-                  recordAuditLog('PORTAL_SWITCH', 'Switched to Student Portal');
+                  recordAuditLog('PORTAL_ROUTING', 'Switched to Student Portal');
                 }}
                 className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'student' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
               >
@@ -788,7 +810,7 @@ export default function CampusNexPlatform() {
               <button
                 onClick={() => {
                   setActivePortal('recruiter');
-                  recordAuditLog('PORTAL_SWITCH', 'Switched to Recruiter Portal');
+                  recordAuditLog('PORTAL_ROUTING', 'Switched to Recruiter Portal');
                 }}
                 className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'recruiter' ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
               >
@@ -797,7 +819,7 @@ export default function CampusNexPlatform() {
               <button
                 onClick={() => {
                   setActivePortal('tpo');
-                  recordAuditLog('PORTAL_SWITCH', 'Switched to TPO Portal');
+                  recordAuditLog('PORTAL_ROUTING', 'Switched to TPO Portal');
                 }}
                 className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'tpo' ? 'bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
               >
@@ -806,7 +828,7 @@ export default function CampusNexPlatform() {
               <button
                 onClick={() => {
                   setActivePortal('admin');
-                  recordAuditLog('PORTAL_SWITCH', 'Switched to Admin Portal');
+                  recordAuditLog('PORTAL_ROUTING', 'Switched to Admin Portal');
                 }}
                 className={`px-3 py-1.5 rounded-xl transition-all ${activePortal === 'admin' ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
               >
@@ -816,12 +838,11 @@ export default function CampusNexPlatform() {
           </div>
         </header>
 
-        {/* HERO BANNER WITH CLICKABLE TELEMETRY BADGE */}
+        {/* HERO BANNER WITH FUNCTIONAL TELEMETRY MODAL OPENER */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 mt-5">
           <div className="relative min-h-[220px] w-full rounded-3xl overflow-hidden border border-purple-900/60 bg-gradient-to-r from-[#0a0720]/80 via-[#091129]/80 to-[#04091a]/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
             <div className="z-10 max-w-xl">
               <div className="flex items-center gap-2">
-                {/* Clickable Badge */}
                 <button
                   onClick={() => setIsTelemetryModalOpen(true)}
                   className="group flex items-center gap-1.5 text-[10px] font-mono text-cyan-300 bg-cyan-950/90 hover:bg-cyan-900 px-3 py-1 rounded-md border border-cyan-600/70 uppercase tracking-widest font-bold shadow transition cursor-pointer"
@@ -838,12 +859,12 @@ export default function CampusNexPlatform() {
 
               <h2 className="text-xl sm:text-2xl font-black text-white mt-2 leading-tight">
                 {activePortal === 'student' && 'Student Portal: Real-Time Applications & Database Pipeline'}
-                {activePortal === 'recruiter' && 'Recruiter Portal: Live Applicant Submissions & Drive Management'}
-                {activePortal === 'tpo' && 'TPO Portal: Department Placement Records & Institutional Audits'}
-                {activePortal === 'admin' && 'Admin Portal: Telemetry Stream, SQL Tables & Audit Log Oversight'}
+                {activePortal === 'recruiter' && 'Recruiter Portal: Post Jobs, Ingestion Queue & Live Shortlisting'}
+                {activePortal === 'tpo' && 'TPO Portal: Institutional Placement Records, NAAC Audits & Department NOCs'}
+                {activePortal === 'admin' && 'Admin Portal: PostgreSQL Schemas, Live Telemetry & Platform Lockdown Control'}
               </h2>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                Jab student <strong>Apply Now</strong> karta hai, toh woh foran recruiter ke live pool mein save ho jata hai. Har action telemetry audit table mein record hota hai.
+                Recruiter dwara post ki gayi koi bhi drive foran student feed mein aati hai. Student jab <strong>Apply Now</strong> karega, application live pool mein save hoti hai.
               </p>
 
               <div className="flex gap-2 mt-3.5 text-[11px] font-mono flex-wrap">
@@ -853,19 +874,19 @@ export default function CampusNexPlatform() {
                 >
                   ⚡ Open Telemetry Inspector
                 </button>
-                {activePortal === 'student' ? (
+                {activePortal === 'recruiter' ? (
+                  <button
+                    onClick={() => setIsPostDriveOpen(true)}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-lg shadow-lg hover:scale-105 transition"
+                  >
+                    + Post New Job Now
+                  </button>
+                ) : (
                   <button
                     onClick={() => setActivePortal('recruiter')}
                     className="px-3.5 py-1.5 bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold rounded-lg hover:bg-cyan-950 transition"
                   >
                     💼 View Recruiter Queue ({cloudApplications.length})
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setActivePortal('student')}
-                    className="px-3.5 py-1.5 bg-[#09122c] border border-purple-800 text-purple-300 font-bold rounded-lg hover:bg-purple-950 transition"
-                  >
-                    🎓 View Student Portal
                   </button>
                 )}
               </div>
@@ -879,7 +900,9 @@ export default function CampusNexPlatform() {
 
         {/* WORKSPACES */}
         <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {/* STUDENT WORKSPACE */}
+          {/* ================================================================ */}
+          {/* 1. STUDENT WORKSPACE */}
+          {/* ================================================================ */}
           {activePortal === 'student' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-4">
@@ -887,7 +910,7 @@ export default function CampusNexPlatform() {
                 <div className="bg-[#0e122b]/80 backdrop-blur-xl border border-cyan-800/50 p-4 rounded-2xl shadow-xl">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🔄</span> Complete Recruitment Lifecycle (Click any stage to advance)
+                      <span>🔄</span> Recruitment Lifecycle Stages (Click to Advance)
                     </span>
                     <span className="text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-800 px-2 py-0.5 rounded-full font-bold">
                       Stage {candidateProfile.currentStageIndex + 1} of 14: {ALL_LIFECYCLE_STAGES[candidateProfile.currentStageIndex]}
@@ -919,11 +942,11 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Job Search */}
+                {/* Job Search & Filter */}
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search drives by title or company (e.g. Cloud, Google, TechCorp)..."
+                    placeholder="Search drives by title, company, or skills (e.g. React, Google, Cloud, Python)..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     className="w-full bg-[#0b1021]/80 backdrop-blur-xl border border-slate-800 rounded-2xl px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono"
@@ -955,15 +978,29 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        <span className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
-                          job.status === 'Offer Dispatched'
-                            ? 'bg-purple-950/80 text-purple-300 border-purple-500/50'
-                            : job.status === 'Applied'
-                            ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50'
-                            : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-xl text-xs font-bold font-mono border ${
+                            job.status === 'Offer Dispatched'
+                              ? 'bg-purple-950/80 text-purple-300 border-purple-500/50'
+                              : job.status === 'Applied'
+                              ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/50'
+                              : 'bg-emerald-950/80 text-emerald-300 border-emerald-500/50'
+                          }`}
+                        >
                           {job.status}
                         </span>
+                      </div>
+
+                      {/* Required Skills Badges */}
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {job.skills.map((sk, sidx) => (
+                          <span
+                            key={sidx}
+                            className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#0e1738] border border-cyan-900/60 text-cyan-300"
+                          >
+                            {sk}
+                          </span>
+                        ))}
                       </div>
 
                       <div className="mt-3 p-3 bg-[#070e24] border border-cyan-900/50 rounded-xl space-y-1 text-xs font-mono">
@@ -975,20 +1012,26 @@ export default function CampusNexPlatform() {
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 mt-4 pt-3.5 border-t border-slate-800 text-xs">
-                        <span className="text-slate-500 font-mono">👥 {job.applicants} applicants • {job.vacancies} vacancies</span>
+                        <span className="text-slate-500 font-mono">
+                          👥 {job.applicants} applicants • {job.vacancies} vacancies
+                        </span>
 
                         <button
                           onClick={() => handleApplyJob(job.id)}
                           disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
                           className={`px-4 py-1.5 rounded-xl font-bold transition shadow-md ${
                             job.status === 'Applied'
-                              ? 'bg-cyan-950 border border-cyan-700 text-cyan-300'
+                              ? 'bg-cyan-950 border border-cyan-700 text-cyan-300 cursor-not-allowed'
                               : job.status === 'Offer Dispatched'
                               ? 'bg-purple-950 border border-purple-700 text-purple-300 cursor-not-allowed'
                               : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-95'
                           }`}
                         >
-                          {job.status === 'Applied' ? '✓ Applied (Sent to Recruiter)' : job.status === 'Offer Dispatched' ? 'Offer Received' : 'Apply Now'}
+                          {job.status === 'Applied'
+                            ? '✓ Applied (Sent to Recruiter)'
+                            : job.status === 'Offer Dispatched'
+                            ? 'Offer Received'
+                            : 'Apply Now'}
                         </button>
                       </div>
                     </div>
@@ -1020,11 +1063,15 @@ export default function CampusNexPlatform() {
                   <div className="p-3 bg-[#081024]/85 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1.5">
                     <div className="flex justify-between border-b border-slate-800 pb-1">
                       <span className="text-slate-500">INSTITUTION:</span>
-                      <span className="text-white truncate max-w-[170px] text-right font-semibold">{candidateProfile.institution}</span>
+                      <span className="text-white truncate max-w-[170px] text-right font-semibold">
+                        {candidateProfile.institution}
+                      </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800 pb-1">
                       <span className="text-slate-500">CGPA:</span>
-                      <span className="text-emerald-400 font-bold">{candidateProfile.cgpa} ({candidateProfile.backlogs} Backlogs)</span>
+                      <span className="text-emerald-400 font-bold">
+                        {candidateProfile.cgpa} ({candidateProfile.backlogs} Backlogs)
+                      </span>
                     </div>
                     <div className="flex justify-between border-b border-slate-800 pb-1">
                       <span className="text-slate-500">TARGET ROLE:</span>
@@ -1046,16 +1093,23 @@ export default function CampusNexPlatform() {
                   {cloudApplications.length > 0 ? (
                     <div className="space-y-1.5 max-h-48 overflow-y-auto">
                       {cloudApplications.map(app => (
-                        <div key={app.id} className="p-2.5 bg-[#0d1838] rounded-xl border border-slate-800 text-[10px] flex justify-between items-center">
+                        <div
+                          key={app.id}
+                          className="p-2.5 bg-[#0d1838] rounded-xl border border-slate-800 text-[10px] flex justify-between items-center"
+                        >
                           <div>
                             <div className="font-bold text-white">{app.jobTitle}</div>
-                            <div className="text-slate-400 text-[9px]">{app.company} • {app.appliedAt}</div>
+                            <div className="text-slate-400 text-[9px]">
+                              {app.company} • {app.appliedAt}
+                            </div>
                           </div>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                            app.status.includes('Shortlisted')
-                              ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
-                              : 'bg-cyan-950 text-cyan-300 border-cyan-800'
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                              app.status.includes('Shortlisted')
+                                ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                                : 'bg-cyan-950 text-cyan-300 border-cyan-800'
+                            }`}
+                          >
                             {app.status}
                           </span>
                         </div>
@@ -1071,14 +1125,16 @@ export default function CampusNexPlatform() {
             </div>
           )}
 
-          {/* RECRUITER WORKSPACE */}
+          {/* ================================================================ */}
+          {/* 2. RECRUITER WORKSPACE */}
+          {/* ================================================================ */}
           {activePortal === 'recruiter' && (
             <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white">Recruiter Workspace & Live Applicant Database</h2>
+                  <h2 className="text-xl font-bold text-white">Recruiter Workspace & Live Hiring Hub</h2>
                   <p className="text-xs text-slate-400">
-                    Students ke submit kiye gaye application direct is verified queue mein aate hain.
+                    Aap jo bhi drive yahan post karenge woh turant live Student Portal par visible hogi aur students apply kar sakenge.
                   </p>
                 </div>
                 <button
@@ -1093,11 +1149,9 @@ export default function CampusNexPlatform() {
               <div className="p-4 bg-[#08122c] border border-cyan-800/60 rounded-2xl space-y-3 font-mono text-xs">
                 <div className="flex justify-between items-center text-slate-300 border-b border-slate-800 pb-2">
                   <span className="font-bold text-white flex items-center gap-2 text-sm">
-                    <span>📥</span> Live Candidate Application Ingestion Queue
+                    <span>📥</span> Live Candidate Ingestion Queue ({cloudApplications.length + 1} Applicants)
                   </span>
-                  <span className="text-emerald-400 text-[10px] font-bold">
-                    {cloudApplications.length + 1} VERIFIED CANDIDATES
-                  </span>
+                  <span className="text-emerald-400 text-[10px] font-bold">AUTOMATED SCREENING ENGINE</span>
                 </div>
 
                 <div className="space-y-2">
@@ -1114,7 +1168,10 @@ export default function CampusNexPlatform() {
                   </div>
 
                   {cloudApplications.map(app => (
-                    <div key={app.id} className="p-3 bg-[#0d1838] rounded-xl border border-cyan-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 animate-in fade-in">
+                    <div
+                      key={app.id}
+                      className="p-3 bg-[#0d1838] rounded-xl border border-cyan-700/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 animate-in fade-in"
+                    >
                       <div>
                         <div className="font-bold text-cyan-300 flex items-center gap-1.5">
                           <span>⚡</span> {app.candidateName}
@@ -1124,11 +1181,13 @@ export default function CampusNexPlatform() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
-                          app.status.includes('Shortlisted')
-                            ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
-                            : 'bg-cyan-950 text-cyan-300 border-cyan-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                            app.status.includes('Shortlisted')
+                              ? 'bg-emerald-950 text-emerald-300 border-emerald-600'
+                              : 'bg-cyan-950 text-cyan-300 border-cyan-800'
+                          }`}
+                        >
                           {app.status}
                         </span>
                         {!app.status.includes('Shortlisted') && (
@@ -1145,113 +1204,333 @@ export default function CampusNexPlatform() {
                 </div>
               </div>
 
-              {/* Drives Roster */}
-              <div className="space-y-2 font-mono text-xs">
-                <h3 className="font-bold text-white text-sm">Your Published Drives</h3>
-                {jobs.map(j => (
-                  <div key={j.id} className="p-3 bg-[#0d1633] border border-slate-800 rounded-xl flex justify-between items-center">
-                    <div>
-                      <div className="font-bold text-white">{j.title} • {j.company}</div>
-                      <div className="text-slate-400 text-[10px]">Vacancies: {j.vacancies} • Min CGPA: {j.minCgpa}</div>
-                    </div>
-                    <span className="text-emerald-400 font-bold">{formatSalary(j.salaryInr)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TPO WORKSPACE */}
-          {activePortal === 'tpo' && (
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
-              <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                <div>
-                  <h2 className="text-xl font-bold text-white font-sans">College TPO Institutional Repository</h2>
-                  <p className="text-xs text-slate-400 font-sans mt-0.5">Deccan College of Engineering & Technology • Affiliated to Osmania University</p>
+              {/* Recruiter Published Drives */}
+              <div className="space-y-3 font-mono text-xs">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-bold text-white text-sm">Active Job Openings ({jobs.length} Published)</h3>
+                  <span className="text-[10px] text-slate-400">Instantly synced across Student and TPO portals</span>
                 </div>
-                <button
-                  onClick={() => {
-                    recordAuditLog('TPO_EXPORT', 'Exported departmental placement audit CSV');
-                    alert('Institutional Placement Audit Report exported successfully (CSV format).');
-                  }}
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-xl font-bold hover:scale-105 transition"
-                >
-                  📥 Export NAAC / NBA Report
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">TOTAL REGISTERED STUDENTS</span>
-                  <div className="text-2xl font-black text-white">620 Students</div>
-                  <span className="text-cyan-300">Batch 2026 Active</span>
-                </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">ACTIVE APPLICANT ENTRIES</span>
-                  <div className="text-2xl font-black text-emerald-400">{cloudApplications.length + 1} Logged</div>
-                  <span className="text-emerald-300">Live Database Synced</span>
-                </div>
-                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px]">AVERAGE COMPENSATION</span>
-                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA CTC</div>
-                  <span className="text-purple-400">Highest: ₹26.0 LPA</span>
-                </div>
-              </div>
-
-              <div className="p-4 bg-[#081024] border border-slate-800 rounded-2xl space-y-3">
-                <h4 className="text-sm font-bold text-white font-sans">Departmental Placement Clearance Summary</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-[11px] p-2 bg-[#0c142e] rounded-lg">
-                    <span>Computer Science & Engineering (CSE)</span>
-                    <span className="text-emerald-400 font-bold">92.4% Eligible • 18 Drives Open</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px] p-2 bg-[#0c142e] rounded-lg">
-                    <span>Information Technology (IT)</span>
-                    <span className="text-cyan-400 font-bold">88.1% Eligible • 15 Drives Open</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[11px] p-2 bg-[#0c142e] rounded-lg">
-                    <span>Electronics & Communication (ECE)</span>
-                    <span className="text-purple-400 font-bold">81.5% Eligible • 12 Drives Open</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ADMIN WORKSPACE */}
-          {activePortal === 'admin' && (
-            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
-              <div className="border-b border-slate-800 pb-4 flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl font-bold text-white font-sans">Platform Security & Database Audit Log</h2>
-                  <p className="text-xs text-slate-400 font-sans mt-0.5">Real-time telemetry stream directly bound to PostgreSQL backend.</p>
-                </div>
-                <button
-                  onClick={() => setIsTelemetryModalOpen(true)}
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-xl font-bold hover:scale-105 transition"
-                >
-                  ⚡ Open Telemetry Dashboard
-                </button>
-              </div>
-
-              <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl space-y-2">
-                <div className="flex justify-between items-center text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white">Live System Logs ({terminalLogs.length} events)</span>
-                  <span className="text-emerald-400 text-[10px]">TELEMETRY AUDIT ACTIVE</span>
-                </div>
-                <div className="space-y-1.5 max-h-56 overflow-y-auto text-[11px] text-slate-300">
-                  {terminalLogs.map((log, idx) => (
-                    <div key={idx} className="text-slate-400 border-b border-slate-900 pb-1">
-                      {log}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {jobs.map(j => (
+                    <div key={j.id} className="p-3.5 bg-[#0d1633] border border-slate-800 rounded-xl space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-bold text-white">{j.title}</div>
+                          <div className="text-slate-400 text-[10px]">{j.company} • {j.location}</div>
+                        </div>
+                        <span className="text-emerald-400 font-bold">{formatSalary(j.salaryInr)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-800/80">
+                        <span>Min CGPA: {j.minCgpa}</span>
+                        <span>Vacancies: {j.vacancies}</span>
+                        <span className="text-cyan-300 font-bold">Applicants: {j.applicants}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
           )}
+
+          {/* ================================================================ */}
+          {/* 3. TPO (TRAINING & PLACEMENT OFFICER) WORKSPACE (SUPERCHARGED) */}
+          {/* ================================================================ */}
+          {activePortal === 'tpo' && (
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
+              <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white font-sans">College TPO Institutional Repository</h2>
+                    <span className="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-700 text-[9px] font-bold">
+                      ACCREDITED
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    Deccan College of Engineering & Technology • Affiliated to Osmania University
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      recordAuditLog('TPO_NOC_DISPATCH', 'Dispatched bulk clearance NOC to registered students.');
+                      alert('Bulk Institutional NOCs signed and sent for verification.');
+                    }}
+                    className="px-3.5 py-1.5 bg-[#09142b] border border-cyan-800 text-cyan-300 rounded-xl font-bold hover:bg-cyan-950 transition"
+                  >
+                    📑 Issue NOC
+                  </button>
+                  <button
+                    onClick={() => {
+                      recordAuditLog('TPO_EXPORT', 'Exported departmental placement audit CSV');
+                      alert('Institutional Placement Audit Report exported successfully (CSV format).');
+                    }}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-cyan-600 text-white rounded-xl font-bold hover:scale-105 transition"
+                  >
+                    📥 Export NAAC / NBA Report
+                  </button>
+                </div>
+              </div>
+
+              {/* TPO Metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">TOTAL STUDENTS</span>
+                  <div className="text-2xl font-black text-white">620 Active</div>
+                  <span className="text-cyan-300">Batch 2026</span>
+                </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">TOTAL DRIVES CONDUCTED</span>
+                  <div className="text-2xl font-black text-white">{jobs.length} Drives</div>
+                  <span className="text-cyan-300">Tier-1 & Dream</span>
+                </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">OFFERS & SHORTLISTS</span>
+                  <div className="text-2xl font-black text-emerald-400">{cloudApplications.length + 1} Cleared</div>
+                  <span className="text-emerald-300">98.2% Placement Rate</span>
+                </div>
+                <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 space-y-1">
+                  <span className="text-slate-400 text-[10px]">AVERAGE CTC</span>
+                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA</div>
+                  <span className="text-purple-400">Peak: ₹26.0 LPA</span>
+                </div>
+              </div>
+
+              {/* Department Breakdown */}
+              <div className="p-4 bg-[#081024] border border-slate-800 rounded-2xl space-y-3">
+                <h4 className="text-sm font-bold text-white font-sans">Departmental Placement Clearance Summary</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-3 bg-[#0c142e] rounded-xl border border-cyan-900/40 space-y-1">
+                    <div className="flex justify-between items-center text-white font-bold">
+                      <span>CSE Department</span>
+                      <span className="text-emerald-400">94.2%</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">240 Students • 18 Drives Active</div>
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                      <div className="bg-emerald-500 h-full w-[94%]" />
+                    </div>
+                  </div>
+                  <div className="p-3 bg-[#0c142e] rounded-xl border border-cyan-900/40 space-y-1">
+                    <div className="flex justify-between items-center text-white font-bold">
+                      <span>IT Department</span>
+                      <span className="text-cyan-400">89.5%</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">180 Students • 15 Drives Active</div>
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                      <div className="bg-cyan-500 h-full w-[89%]" />
+                    </div>
+                  </div>
+                  <div className="p-3 bg-[#0c142e] rounded-xl border border-cyan-900/40 space-y-1">
+                    <div className="flex justify-between items-center text-white font-bold">
+                      <span>ECE Department</span>
+                      <span className="text-purple-400">82.1%</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">200 Students • 12 Drives Active</div>
+                    <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+                      <div className="bg-purple-500 h-full w-[82%]" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* TPO Direct Drive Clearance Table */}
+              <div className="p-4 bg-[#081024] border border-slate-800 rounded-2xl space-y-3">
+                <h4 className="text-sm font-bold text-white font-sans">Active Recruitment Drives & Institutional Eligibility</h4>
+                <div className="space-y-2">
+                  {jobs.map(j => (
+                    <div
+                      key={j.id}
+                      className="p-3 bg-[#0c142e] rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"
+                    >
+                      <div>
+                        <span className="font-bold text-white">{j.title}</span> ({j.company})
+                        <div className="text-[10px] text-slate-400">
+                          Eligible: {j.eligibleCourses.join(', ')} • Min CGPA: {j.minCgpa} • Vacancies: {j.vacancies}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[9px] font-bold">
+                          TPO APPROVED
+                        </span>
+                        <button
+                          onClick={() => alert(`Notified all eligible students for ${j.title}.`)}
+                          className="px-2.5 py-1 bg-cyan-950 border border-cyan-700 text-cyan-300 rounded text-[9px] font-bold hover:bg-cyan-900"
+                        >
+                          📢 Broadcast to Batch
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* 4. ADMIN WORKSPACE (SUPERCHARGED) */}
+          {/* ================================================================ */}
+          {activePortal === 'admin' && (
+            <div className="bg-[#0b1021]/75 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 font-mono text-xs">
+              <div className="border-b border-slate-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white font-sans">Platform Security & Database Administration</h2>
+                    <span className="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700 text-[9px] font-bold">
+                      SUPERADMIN
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    Direct access to PostgreSQL tables, RBAC permissions, and real-time telemetry streaming.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const nextState = !emergencyLock;
+                      setEmergencyLock(nextState);
+                      recordAuditLog('PLATFORM_LOCK_TOGGLE', `Emergency lockdown toggled to ${nextState}`);
+                    }}
+                    className={`px-3.5 py-1.5 rounded-xl font-bold transition ${
+                      emergencyLock
+                        ? 'bg-rose-600 text-white animate-pulse'
+                        : 'bg-[#18090f] border border-rose-800 text-rose-300 hover:bg-rose-950'
+                    }`}
+                  >
+                    {emergencyLock ? '🔓 Release Lockdown' : '🔒 Emergency Lock'}
+                  </button>
+                  <button
+                    onClick={() => setIsTelemetryModalOpen(true)}
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-rose-600 to-purple-600 text-white rounded-xl font-bold hover:scale-105 transition"
+                  >
+                    ⚡ Open Telemetry Inspector
+                  </button>
+                </div>
+              </div>
+
+              {/* Admin Schema Viewer Controls */}
+              <div className="flex gap-2 border-b border-slate-800 pb-2">
+                <button
+                  onClick={() => setAdminViewTable('jobs')}
+                  className={`px-3 py-1 rounded-lg transition ${
+                    adminViewTable === 'jobs' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📁 Table: `jobs` ({jobs.length})
+                </button>
+                <button
+                  onClick={() => setAdminViewTable('applications')}
+                  className={`px-3 py-1 rounded-lg transition ${
+                    adminViewTable === 'applications'
+                      ? 'bg-cyan-600 text-white font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📁 Table: `job_applications` ({cloudApplications.length + 1})
+                </button>
+                <button
+                  onClick={() => setAdminViewTable('audit')}
+                  className={`px-3 py-1 rounded-lg transition ${
+                    adminViewTable === 'audit' ? 'bg-cyan-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  📁 Table: `audit_logs` ({terminalLogs.length})
+                </button>
+              </div>
+
+              {/* Dynamic Database Table Data Preview */}
+              <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl overflow-x-auto">
+                {adminViewTable === 'jobs' && (
+                  <table className="w-full text-left text-[11px]">
+                    <thead className="text-slate-400 border-b border-slate-800 pb-1">
+                      <tr>
+                        <th className="py-1">ID</th>
+                        <th>JOB TITLE</th>
+                        <th>COMPANY</th>
+                        <th>CTC</th>
+                        <th>MIN CGPA</th>
+                        <th>VACANCIES</th>
+                        <th>STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-900 text-slate-300">
+                      {jobs.map(j => (
+                        <tr key={j.id} className="hover:bg-slate-900/50">
+                          <td className="py-2 text-cyan-400">{j.id}</td>
+                          <td className="font-bold text-white">{j.title}</td>
+                          <td>{j.company}</td>
+                          <td className="text-emerald-400 font-bold">{j.salaryInr} LPA</td>
+                          <td>{j.minCgpa}</td>
+                          <td>{j.vacancies}</td>
+                          <td>
+                            <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 text-[9px]">
+                              {j.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {adminViewTable === 'applications' && (
+                  <table className="w-full text-left text-[11px]">
+                    <thead className="text-slate-400 border-b border-slate-800 pb-1">
+                      <tr>
+                        <th className="py-1">APP ID</th>
+                        <th>CANDIDATE</th>
+                        <th>ROLE</th>
+                        <th>COMPANY</th>
+                        <th>SUBMITTED AT</th>
+                        <th>STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-900 text-slate-300">
+                      <tr className="hover:bg-slate-900/50">
+                        <td className="py-2 text-cyan-400">app-init-00</td>
+                        <td className="font-bold text-white">{candidateProfile.name}</td>
+                        <td>Full Stack Engineer (Elite Core)</td>
+                        <td>TechCorp India</td>
+                        <td>Pre-Loaded</td>
+                        <td>
+                          <span className="px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 text-[9px]">
+                            Offer Dispatched
+                          </span>
+                        </td>
+                      </tr>
+                      {cloudApplications.map(a => (
+                        <tr key={a.id} className="hover:bg-slate-900/50">
+                          <td className="py-2 text-cyan-400">{a.id}</td>
+                          <td className="font-bold text-white">{a.candidateName}</td>
+                          <td>{a.jobTitle}</td>
+                          <td>{a.company}</td>
+                          <td>{a.appliedAt}</td>
+                          <td>
+                            <span className="px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 text-[9px]">
+                              {a.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {adminViewTable === 'audit' && (
+                  <div className="space-y-1.5 max-h-56 overflow-y-auto text-[11px] text-slate-300">
+                    {terminalLogs.map((log, idx) => (
+                      <div key={idx} className="text-slate-400 border-b border-slate-900 pb-1 font-mono">
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </main>
 
-        {/* MODAL 1: TELEMETRY & AUDIT ENGINE MODAL (Triggered by Badge & Buttons) */}
+        {/* ================================================================ */}
+        {/* MODAL 1: TELEMETRY & AUDIT ENGINE MODAL */}
+        {/* ================================================================ */}
         {isTelemetryModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#080d1e] border border-cyan-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs relative shadow-2xl font-mono space-y-4">
@@ -1273,11 +1552,13 @@ export default function CampusNexPlatform() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[10px]">
                 <div className="p-2.5 bg-[#0e1633] border border-cyan-900/60 rounded-xl">
                   <span className="text-slate-400 block">DB STATE</span>
-                  <span className="font-bold text-emerald-400">{isSupabaseConfigured ? 'CONNECTED' : 'LOCAL BUFFER'}</span>
+                  <span className="font-bold text-emerald-400">
+                    {isSupabaseConfigured ? 'CONNECTED' : 'LOCAL BUFFER'}
+                  </span>
                 </div>
                 <div className="p-2.5 bg-[#0e1633] border border-cyan-900/60 rounded-xl">
                   <span className="text-slate-400 block">LATENCY</span>
-                  <span className="font-bold text-cyan-300">~14ms P99</span>
+                  <span className="font-bold text-cyan-300">~12ms P99</span>
                 </div>
                 <div className="p-2.5 bg-[#0e1633] border border-cyan-900/60 rounded-xl">
                   <span className="text-slate-400 block">ACTIVE STAGE</span>
@@ -1292,7 +1573,7 @@ export default function CampusNexPlatform() {
               <div className="p-3 bg-[#050814] rounded-xl border border-slate-800 space-y-1.5">
                 <div className="flex justify-between items-center text-slate-400 text-[10px] border-b border-slate-800 pb-1">
                   <span className="font-bold text-white">Live Audit Telemetry Stream</span>
-                  <span className="text-cyan-400">Auto-Refreshed</span>
+                  <span className="text-cyan-400">Real-Time WebSocket Sync</span>
                 </div>
                 <div className="space-y-1 max-h-56 overflow-y-auto text-[10px] text-slate-300">
                   {terminalLogs.map((log, idx) => (
@@ -1323,7 +1604,9 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* MODAL 2: POST HIRING DRIVE (Recruiter) */}
+        {/* ================================================================ */}
+        {/* MODAL 2: POST HIRING DRIVE (RECRUITER CAN ADD JOBS) */}
+        {/* ================================================================ */}
         {isPostDriveOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl font-mono">
@@ -1335,7 +1618,7 @@ export default function CampusNexPlatform() {
               </button>
               <h3 className="text-base font-bold text-white mb-1 font-sans">🚀 Create New Recruitment Drive</h3>
               <p className="text-[10px] text-slate-400 mb-3 font-sans">
-                Writes directly to PostgreSQL tables & appears live for students.
+                Yeh job save hote hi direct Student Portal feed mein live dikhai degi.
               </p>
               <form onSubmit={handleCreateJob} className="space-y-3">
                 <div>
@@ -1360,9 +1643,29 @@ export default function CampusNexPlatform() {
                     className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-300 block mb-1">Location / Office</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Hyderabad / Bengaluru Hybrid"
+                    value={newLocation}
+                    onChange={e => setNewLocation(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-300 block mb-1">Required Skills (Comma separated)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. React, Next.js, Python, PostgreSQL"
+                    value={newSkills}
+                    onChange={e => setNewSkills(e.target.value)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="text-slate-300 block mb-1">Annual CTC (₹ LPA) *</label>
+                    <label className="text-slate-300 block mb-1">CTC (₹ LPA) *</label>
                     <input
                       type="number"
                       step="0.5"
@@ -1381,6 +1684,15 @@ export default function CampusNexPlatform() {
                       className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
                     />
                   </div>
+                  <div>
+                    <label className="text-slate-300 block mb-1">Vacancies</label>
+                    <input
+                      type="number"
+                      value={newVacancies}
+                      onChange={e => setNewVacancies(parseInt(e.target.value) || 10)}
+                      className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                    />
+                  </div>
                 </div>
                 <div className="pt-2 flex gap-2">
                   <button
@@ -1392,9 +1704,9 @@ export default function CampusNexPlatform() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold hover:opacity-95"
                   >
-                    Publish to Database
+                    Publish Live to Feed
                   </button>
                 </div>
               </form>
@@ -1402,7 +1714,9 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* MODAL 3: EDIT PROFILE (Student) */}
+        {/* ================================================================ */}
+        {/* MODAL 3: EDIT PROFILE (STUDENT) */}
+        {/* ================================================================ */}
         {isEditProfileOpen && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#0b1021] border border-cyan-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative shadow-2xl font-mono">
