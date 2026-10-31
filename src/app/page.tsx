@@ -467,7 +467,6 @@ function MasterDynamicReactor() {
   );
 }
 
-// Master Component
 export default function CampusNexPlatform() {
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
   const [activePortal, setActivePortal] = useState<PortalRole>('student');
@@ -480,11 +479,25 @@ export default function CampusNexPlatform() {
   const [applicants, setApplicants] = useState<ApplicantRecord[]>(DEFAULT_APPLICANTS);
   const [students, setStudents] = useState<TpoStudentEntry[]>(DEFAULT_TPO_STUDENTS);
 
-  // Feature Toggles & Modals
+  // Modals & Feature Toggles
   const [blindHiringMode, setBlindHiringMode] = useState<boolean>(false);
   const [selectedDept, setSelectedDept] = useState<Department>('ALL');
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
+
+  // Phase 1 Restoration Modals
+  const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
+  const [selectedRoadmapJob, setSelectedRoadmapJob] = useState<Job | null>(null);
+  const [selectedRadarJob, setSelectedRadarJob] = useState<Job | null>(null);
+  const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
+
+  // New Drive Form Fields
+  const [newTitle, setNewTitle] = useState('');
+  const [newCompany, setNewCompany] = useState('');
+  const [newSalary, setNewSalary] = useState(24.0);
+  const [newCgpa, setNewCgpa] = useState(7.5);
+  const [newVacancies, setNewVacancies] = useState(15);
+  const [newSkills, setNewSkills] = useState('React, Node.js, PostgreSQL');
 
   // Video Suite State
   const [isVideoSuiteOpen, setIsVideoSuiteOpen] = useState<boolean>(false);
@@ -507,7 +520,7 @@ export default function CampusNexPlatform() {
   const [chatMessages, setChatMessages] = useState<{ sender: 'ai' | 'user'; text: string }[]>([
     {
       sender: 'ai',
-      text: 'CampusNex Copilot online. DCET Hyderabad tenant isolated with Row-Level Security. Ask me about recruitment statistics, packages, or database schemas.'
+      text: 'CampusNex Copilot 2.0 online. DCET Hyderabad tenant isolated with Row-Level Security. Ask me about recruitment statistics, packages, or database schemas.'
     }
   ]);
 
@@ -529,7 +542,7 @@ export default function CampusNexPlatform() {
   );
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_8_MASTER]: CampusNex AI Enterprise OS Production Build Active.',
+    '⚡ [PHASE_1_RESTORE]: Interactive modals, Post Drive form & Digital Offer Letter active.',
     '🔒 [RLS_POLICIES]: Institutional Tenant Isolation enabled for DCET Hyderabad.',
     isSupabaseConfigured
       ? '🟢 [SUPABASE_CONNECTED]: Cloud PostgreSQL cluster tables bound & verified.'
@@ -555,7 +568,6 @@ export default function CampusNexPlatform() {
     setIsAuthModalOpen(false);
   };
 
-  // 1-Click Factory Reset Switch
   const handleResetDemoData = () => {
     setJobs(DEFAULT_JOBS);
     setApplicants(DEFAULT_APPLICANTS);
@@ -574,7 +586,6 @@ export default function CampusNexPlatform() {
     alert('✅ Factory Reset Complete: All 4 portal data states restored.');
   };
 
-  // Video Suite
   const startCamera = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -607,7 +618,6 @@ export default function CampusNexPlatform() {
     setIsVideoSuiteOpen(false);
   };
 
-  // AI Speech War-Room Questions
   const mockQuestions = [
     {
       q: 'How would you architect a distributed Redis cache layer to prevent cache avalanche during campus placement rushes?',
@@ -689,6 +699,11 @@ export default function CampusNexPlatform() {
 
   // Student Apply
   const handleStudentApply = (jobId: string) => {
+    if (emergencyLock) {
+      alert('Action Denied: Platform is in Maintenance Lock by Administrator.');
+      return;
+    }
+
     const targetJob = jobs.find(j => j.id === jobId);
     if (!targetJob) return;
 
@@ -714,13 +729,53 @@ export default function CampusNexPlatform() {
     setApplicants(prev => [newApp, ...prev]);
   };
 
+  // Recruiter Create Drive Handler
+  const handleCreateNewDrive = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newCompany.trim()) return;
+
+    const parsedSkills = newSkills.split(',').map(s => s.trim()).filter(Boolean);
+
+    const newJob: Job = {
+      id: `job-${Date.now()}`,
+      title: newTitle.trim(),
+      company: newCompany.trim(),
+      location: 'Hyderabad / Bengaluru Hybrid',
+      salaryInr: Number(newSalary) || 20.0,
+      skills: parsedSkills.length ? parsedSkills : ['React', 'Node.js', 'PostgreSQL'],
+      matchScore: 95,
+      applicants: 0,
+      type: 'Apex 1% Exclusive',
+      matched: ['React', 'Node.js'],
+      missing: [],
+      minCgpa: Number(newCgpa) || 7.5,
+      vacancies: Number(newVacancies) || 10,
+      applicationDeadline: '30 Nov 2026',
+      status: 'Open',
+      dataSource: 'LIVE',
+      aiMatchExplanation: `Directly published by verified Recruiter for ${newCompany.trim()}. Full visibility active.`,
+      roadmapMilestones: [
+        { title: `${parsedSkills[0] || 'Core'} Architecture Verification`, duration: '6 Hours', focus: 'System integration & code quality' },
+        { title: 'Technical Screen Preparation', duration: '4 Hours', focus: 'Database transactions & API design' }
+      ]
+    };
+
+    setJobs([newJob, ...jobs]);
+    setIsPostDriveOpen(false);
+    setNewTitle('');
+    setNewCompany('');
+
+    const logEntry = `[${new Date().toLocaleTimeString()}] [DRIVE_PUBLISHED]: Recruiter published drive: ${newJob.title} (${newJob.company}).`;
+    setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
+  };
+
   // Recruiter Dispatch Offer
   const handleDispatchOffer = (applicantId: string) => {
     setApplicants(prev =>
       prev.map(a => (a.id === applicantId ? { ...a, status: 'Offer Released', offerDispatched: true } : a))
     );
     setCandidateProfile(prev => ({ ...prev, currentStageIndex: 8 }));
-    alert('Smart Digital Offer Letter released and persisted to PostgreSQL ledger.');
+    setIsOfferLetterOpen(true);
   };
 
   // NAAC CSV Export
@@ -902,7 +957,6 @@ export default function CampusNexPlatform() {
         {/* ================================================================ */}
         {currentView === 'landing' ? (
           <div>
-            {/* HERO SECTION */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-16">
               <div className="relative rounded-3xl border border-purple-900/60 bg-gradient-to-r from-[#090620]/90 via-[#07112b]/85 to-[#04081c]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(168,85,247,0.18)] p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="max-w-2xl space-y-4">
@@ -963,7 +1017,7 @@ export default function CampusNexPlatform() {
               </div>
             </section>
 
-            {/* 4 INDEPENDENT PORTALS CARDS */}
+            {/* 4 PORTALS CARDS */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 space-y-6">
               <div className="text-center max-w-xl mx-auto space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
@@ -1041,7 +1095,7 @@ export default function CampusNexPlatform() {
               </div>
             </section>
 
-            {/* ENTERPRISE FOOTER */}
+            {/* FOOTER */}
             <footer className="max-w-7xl mx-auto px-4 md:px-8 pt-12 mt-12 border-t border-slate-800/80 text-xs font-mono text-slate-400">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-8">
                 <div className="space-y-2">
@@ -1081,7 +1135,7 @@ export default function CampusNexPlatform() {
           </div>
         ) : (
           /* ================================================================ */
-          /* VIEW 2: AUTHENTICATED WORKSPACE DASHBOARDS */
+          /* VIEW 2: AUTHENTICATED WORKSPACES */
           /* ================================================================ */
           <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
             {/* 1. STUDENT WORKSPACE */}
@@ -1097,9 +1151,12 @@ export default function CampusNexPlatform() {
                         CGPA 8.85 (30%) + War-Room 95% (40%) + PoE Commits (26.4%)
                       </span>
                     </div>
-                    <span className="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-[10px]">
-                      Apex Tier-1 Certified
-                    </span>
+                    <button
+                      onClick={() => setIsOfferLetterOpen(true)}
+                      className="px-3 py-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-[10px] hover:bg-emerald-900 transition"
+                    >
+                      📜 View Offer Letter
+                    </button>
                   </div>
 
                   {/* 14-Stage Stepper */}
@@ -1166,25 +1223,37 @@ export default function CampusNexPlatform() {
                           </span>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
+                        <div className="pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
                           <span className="text-xs text-slate-500 font-mono">{job.applicants} Applicants</span>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
+                            <button
+                              onClick={() => setSelectedRadarJob(job)}
+                              className="px-2.5 py-1.5 bg-[#08122c] hover:bg-[#0c1a40] border border-cyan-800 text-cyan-300 rounded-xl text-xs font-mono font-bold"
+                            >
+                              🔍 Skill Gap
+                            </button>
+                            <button
+                              onClick={() => setSelectedRoadmapJob(job)}
+                              className="px-2.5 py-1.5 bg-[#09152a] hover:bg-[#0d1e3d] border border-emerald-700 text-emerald-300 rounded-xl text-xs font-mono font-bold"
+                            >
+                              🗺️ Roadmap
+                            </button>
                             <button
                               onClick={() => handleOpenVideo(job)}
-                              className="px-3 py-1.5 bg-[#0d1c38] hover:bg-[#122750] border border-cyan-700 text-cyan-300 font-bold rounded-xl text-xs font-mono"
+                              className="px-2.5 py-1.5 bg-[#0d1c38] hover:bg-[#122750] border border-cyan-700 text-cyan-300 font-bold rounded-xl text-xs font-mono"
                             >
                               📹 Video
                             </button>
                             <button
                               onClick={() => handleOpenWarRoom(job)}
-                              className="px-3 py-1.5 bg-purple-950 hover:bg-purple-900 border border-purple-600 text-purple-200 font-bold rounded-xl text-xs font-mono"
+                              className="px-2.5 py-1.5 bg-purple-950 hover:bg-purple-900 border border-purple-600 text-purple-200 font-bold rounded-xl text-xs font-mono"
                             >
                               🎙️ War-Room
                             </button>
                             <button
                               onClick={() => handleStudentApply(job.id)}
                               disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
-                              className={`px-4 py-1.5 rounded-xl font-bold font-mono text-xs transition ${
+                              className={`px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs transition ${
                                 job.status === 'Applied'
                                   ? 'bg-cyan-950 text-cyan-300 border border-cyan-700'
                                   : job.status === 'Offer Dispatched'
@@ -1231,6 +1300,15 @@ export default function CampusNexPlatform() {
                         <span className="text-slate-500">RESUME ATS:</span>
                         <span className="text-emerald-400 font-bold">{activeResume.atsScore}% Compatible</span>
                       </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">OFFER STATUS:</span>
+                        <button
+                          onClick={() => setIsOfferLetterOpen(true)}
+                          className="text-cyan-300 underline font-bold hover:text-white"
+                        >
+                          View Official Letter
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1240,19 +1318,27 @@ export default function CampusNexPlatform() {
             {/* 2. RECRUITER WORKSPACE */}
             {activePortal === 'recruiter' && (
               <div className="space-y-5">
-                <div className="bg-[#0b1021]/80 border border-purple-800/60 p-6 rounded-3xl flex justify-between items-center">
+                <div className="bg-[#0b1021]/80 border border-purple-800/60 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h2 className="text-xl font-bold text-white">Recruiter Autonomous Talent Radar</h2>
                     <p className="text-xs text-slate-400">Autonomous fitment scoring with real-time Blind Hiring DEI toggle</p>
                   </div>
-                  <button
-                    onClick={() => setBlindHiringMode(!blindHiringMode)}
-                    className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition ${
-                      blindHiringMode ? 'bg-emerald-600 text-white shadow-lg' : 'bg-[#0d1633] border border-cyan-800 text-cyan-300'
-                    }`}
-                  >
-                    <span>⚖️</span> {blindHiringMode ? 'Blind Mode: ACTIVE' : 'Enable Blind Mode'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBlindHiringMode(!blindHiringMode)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition ${
+                        blindHiringMode ? 'bg-emerald-600 text-white shadow-lg' : 'bg-[#0d1633] border border-cyan-800 text-cyan-300'
+                      }`}
+                    >
+                      <span>⚖️</span> {blindHiringMode ? 'Blind Mode: ACTIVE' : 'Enable Blind Mode'}
+                    </button>
+                    <button
+                      onClick={() => setIsPostDriveOpen(true)}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-xs font-bold font-mono shadow hover:scale-105 transition"
+                    >
+                      + Post Hiring Drive
+                    </button>
+                  </div>
                 </div>
 
                 {/* Candidate Queue */}
@@ -1312,7 +1398,6 @@ export default function CampusNexPlatform() {
                   </button>
                 </div>
 
-                {/* Branch Matrix */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-4 bg-[#081024] rounded-2xl border border-slate-800 text-center">
                     <span className="text-slate-400 text-[10px]">CSE PLACEMENT</span>
@@ -1332,7 +1417,6 @@ export default function CampusNexPlatform() {
                   </div>
                 </div>
 
-                {/* Student Roster Table */}
                 <div className="p-5 bg-[#08122c] border border-indigo-800/60 rounded-3xl space-y-3">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span className="font-bold text-white text-sm">Department Placement Roster</span>
@@ -1412,7 +1496,6 @@ export default function CampusNexPlatform() {
                   </pre>
                 </div>
 
-                {/* Audit Logs */}
                 <div className="p-4 bg-[#070b18] border border-slate-800 rounded-2xl space-y-1 max-h-36 overflow-y-auto text-slate-400 text-[10px]">
                   {terminalLogs.map((l, i) => (
                     <div key={i} className="border-b border-slate-900 pb-0.5">{l}</div>
@@ -1421,6 +1504,223 @@ export default function CampusNexPlatform() {
               </div>
             )}
           </main>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: POST HIRING DRIVE (RECRUITER) */}
+        {/* ================================================================ */}
+        {isPostDriveOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative font-mono space-y-3">
+              <button
+                onClick={() => setIsPostDriveOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+              <h3 className="text-base font-bold text-white font-sans">🚀 Post New Recruitment Drive</h3>
+              <p className="text-[10px] text-slate-400">Directly syncs to candidate feeds and PostgreSQL `job_drives`</p>
+
+              <form onSubmit={handleCreateNewDrive} className="space-y-3">
+                <input
+                  type="text"
+                  required
+                  placeholder="Job Role Title (e.g. AI Concurrency Engineer)"
+                  value={newTitle}
+                  onChange={e => setNewTitle(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="Company Name (e.g. Google Cloud / Anthropic)"
+                  value={newCompany}
+                  onChange={e => setNewCompany(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="number"
+                    step="0.5"
+                    placeholder="CTC (₹ LPA)"
+                    value={newSalary}
+                    onChange={e => setNewSalary(parseFloat(e.target.value) || 20.0)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="Min CGPA"
+                    value={newCgpa}
+                    onChange={e => setNewCgpa(parseFloat(e.target.value) || 7.5)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Vacancies"
+                    value={newVacancies}
+                    onChange={e => setNewVacancies(parseInt(e.target.value) || 10)}
+                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Required Skills (Comma separated)"
+                  value={newSkills}
+                  onChange={e => setNewSkills(e.target.value)}
+                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
+                />
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPostDriveOpen(false)}
+                    className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
+                  >
+                    Publish Drive
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: ACTIONABLE CAREER ROADMAP (STUDENT) */}
+        {/* ================================================================ */}
+        {selectedRoadmapJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 className="text-base font-bold text-white font-sans">
+                  Target Career Roadmap • {selectedRoadmapJob.company}
+                </h3>
+                <button onClick={() => setSelectedRoadmapJob(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-3 bg-[#08122c] border border-cyan-900 rounded-xl text-emerald-400 font-bold">
+                Fit Score: {selectedRoadmapJob.matchScore}% (Target: {selectedRoadmapJob.title})
+              </div>
+
+              <div className="space-y-2">
+                <span className="font-bold text-white text-xs block">Prescribed Skill-Gap Bridging Track:</span>
+                {selectedRoadmapJob.roadmapMilestones.map((ms, idx) => (
+                  <div key={idx} className="p-3 bg-[#0d1633] border border-slate-800 rounded-2xl flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-white">{idx + 1}. {ms.title}</div>
+                      <div className="text-[10px] text-slate-400">{ms.focus}</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold">
+                      ⏱️ {ms.duration}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  alert('Career modules added to your study schedule.');
+                  setSelectedRoadmapJob(null);
+                }}
+                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
+              >
+                Enroll in Track
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: EXPLAINABLE SKILL GAP RADAR */}
+        {selectedRadarJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 className="text-base font-bold text-white font-sans">Skill Gap Radar • {selectedRadarJob.company}</h3>
+                <button onClick={() => setSelectedRadarJob(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-3 bg-[#081024] rounded-xl text-emerald-400 font-bold">
+                Role Fitment: {selectedRadarJob.matchScore}%
+              </div>
+
+              <div className="p-3 bg-[#0d1633] rounded-xl space-y-1">
+                <div className="text-emerald-400 font-bold">✓ Verified Competencies: {selectedRadarJob.matched.join(', ')}</div>
+                {selectedRadarJob.missing.length > 0 ? (
+                  <div className="text-rose-400 font-bold">⚠️ Skill Gap: {selectedRadarJob.missing.join(', ')}</div>
+                ) : (
+                  <div className="text-emerald-300">✓ 100% Core Requirements Matched</div>
+                )}
+                <p className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-sans">
+                  {selectedRadarJob.aiMatchExplanation}
+                </p>
+              </div>
+
+              <button onClick={() => setSelectedRadarJob(null)} className="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl">
+                Close Radar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: DIGITAL ENCRYPTED OFFER LETTER */}
+        {isOfferLetterOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <button
+                onClick={() => setIsOfferLetterOpen(false)}
+                className="absolute top-4 right-4 text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+
+              <div className="border-b border-slate-800 pb-2">
+                <span className="text-[10px] text-emerald-400 font-bold">DIGITAL OFFER LETTER • VERIFIED ON-CHAIN</span>
+                <h3 className="text-lg font-bold text-white font-sans mt-0.5">Formal Employment Offer</h3>
+              </div>
+
+              <div className="p-4 bg-[#070d1e] rounded-2xl border border-slate-800 space-y-2 text-slate-300">
+                <p>Dear <strong className="text-white">{candidateProfile.name}</strong>,</p>
+                <p className="text-[11px] leading-relaxed">
+                  We are pleased to extend an employment offer for the position of <strong>Full Stack Engineer (Elite Core)</strong> at <strong>TechCorp India</strong>.
+                </p>
+                <div className="grid grid-cols-2 gap-2 p-2.5 bg-[#0e1738] rounded-xl text-[10px] mt-2">
+                  <div>
+                    <span className="text-slate-400 block">ANNUAL CTC:</span>
+                    <span className="text-emerald-400 font-bold text-sm">₹22.0 LPA</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">JOINING DATE:</span>
+                    <span className="text-cyan-300 font-bold text-sm">01 July 2027</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">LOCATION:</span>
+                    <span className="text-white">Hyderabad / Tokyo Hybrid</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block">SEAL:</span>
+                    <span className="text-purple-300 font-bold">0x8942-APEX-VERIFIED</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  alert('Official Offer Letter PDF generated and saved to your device.');
+                  setIsOfferLetterOpen(false);
+                }}
+                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
+              >
+                📥 Download Signed PDF
+              </button>
+            </div>
+          </div>
         )}
 
         {/* MODAL: RESET DEMO DATA CONFIRMATION */}
@@ -1546,7 +1846,7 @@ export default function CampusNexPlatform() {
           <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-[#060a1a]/95 backdrop-blur-2xl border-l border-purple-500/60 p-4 flex flex-col font-mono text-xs shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-800 pb-2">
               <h3 className="font-bold text-white text-sm font-sans flex items-center gap-1.5">
-                <span>🤖</span> CampusNex Copilot
+                <span>🤖</span> CampusNex Copilot 2.0
               </h3>
               <button onClick={() => setIsCopilotOpen(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
@@ -1585,7 +1885,7 @@ export default function CampusNexPlatform() {
                   <div className="font-bold text-white">🎓 Student Workspace</div>
                   <div className="text-[10px] text-slate-400">Candidate APEX-01 (B.Tech CSE)</div>
                 </button>
-                <button onClick={() => handleLaunchRoleDashboard('recruiter')} className="w-full p-3 rounded-xl border border-purple-700/60 bg-[#120f2e] text-left hover:border-purple-400 transition" >
+                <button onClick={() => handleLaunchRoleDashboard('recruiter')} className="w-full p-3 rounded-xl border border-purple-700/60 bg-[#120f2e] text-left hover:border-purple-400 transition">
                   <div className="font-bold text-white">💼 Recruiter Workspace</div>
                   <div className="text-[10px] text-slate-400">Autonomous Talent Screening & Blind DEI</div>
                 </button>
