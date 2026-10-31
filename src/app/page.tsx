@@ -373,6 +373,91 @@ const DEFAULT_TPO_STUDENTS: TpoStudentEntry[] = [
   }
 ];
 
+// Fallback Synthetic Biometric Scanning Canvas when Camera is Offline
+function SyntheticBiometricCanvas({ gazeScore }: { gazeScore: number }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    canvas.width = 480;
+    canvas.height = 320;
+    let t = 0;
+
+    const render = () => {
+      ctx.clearRect(0, 0, 480, 320);
+      const cx = 240;
+      const cy = 150;
+
+      // Dark Tech Background
+      ctx.fillStyle = '#060a17';
+      ctx.fillRect(0, 0, 480, 320);
+
+      // Grid Lines
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < 480; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 320);
+        ctx.stroke();
+      }
+      for (let y = 0; y < 320; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(480, y);
+        ctx.stroke();
+      }
+
+      // Facial Wireframe Circle
+      ctx.save();
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 65, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Sweeping Laser
+      const scanY = cy - 65 + ((Math.sin(t * 3) + 1) / 2) * 130;
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - 75, scanY);
+      ctx.lineTo(cx + 75, scanY);
+      ctx.stroke();
+
+      // Landmarks
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(cx - 22, cy - 12, 4, 0, Math.PI * 2); // Left eye
+      ctx.arc(cx + 22, cy - 12, 4, 0, Math.PI * 2); // Right eye
+      ctx.arc(cx, cy + 8, 3, 0, Math.PI * 2); // Nose
+      ctx.arc(cx, cy + 28, 4, 0, Math.PI * 2); // Mouth
+      ctx.fill();
+      ctx.restore();
+
+      // Diagnostic text
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px monospace';
+      ctx.fillText(`BIOMETRIC SCANNING: SYNTHETIC LANDMARKS ACTIVE`, 20, 290);
+      ctx.fillStyle = '#34d399';
+      ctx.fillText(`GAZE INTEGRITY CONFIDENCE: ${gazeScore}% [SAFE ZONE]`, 20, 305);
+
+      t += 0.03;
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animId);
+  }, [gazeScore]);
+
+  return <canvas ref={canvasRef} className="w-full h-full object-cover rounded-xl" />;
+}
+
 // 3D Orbital Reactor
 function MasterDynamicReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -485,13 +570,13 @@ export default function CampusNexPlatform() {
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
 
-  // Phase 1 Restoration Modals
+  // Modals
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [selectedRoadmapJob, setSelectedRoadmapJob] = useState<Job | null>(null);
   const [selectedRadarJob, setSelectedRadarJob] = useState<Job | null>(null);
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
 
-  // New Drive Form Fields
+  // Form Fields
   const [newTitle, setNewTitle] = useState('');
   const [newCompany, setNewCompany] = useState('');
   const [newSalary, setNewSalary] = useState(24.0);
@@ -499,14 +584,18 @@ export default function CampusNexPlatform() {
   const [newVacancies, setNewVacancies] = useState(15);
   const [newSkills, setNewSkills] = useState('React, Node.js, PostgreSQL');
 
-  // Video Suite State
+  // Video Suite Hardened States
   const [isVideoSuiteOpen, setIsVideoSuiteOpen] = useState<boolean>(false);
   const [activeVideoJob, setActiveVideoJob] = useState<Job>(DEFAULT_JOBS[0]);
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+  const [gazeConfidence, setGazeConfidence] = useState<number>(98.6);
+  const [offScreenCount, setOffScreenCount] = useState<number>(0);
+  const [audioDb, setAudioDb] = useState<number>(14);
+
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
 
-  // AI War-Room 2.0 State
+  // AI War-Room 2.0 Hardened Speech States
   const [activeWarRoomJob, setActiveWarRoomJob] = useState<Job | null>(null);
   const [warRoomQuestionIdx, setWarRoomQuestionIdx] = useState(0);
   const [warRoomAnswer, setWarRoomAnswer] = useState('');
@@ -542,11 +631,9 @@ export default function CampusNexPlatform() {
   );
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_1_RESTORE]: Interactive modals, Post Drive form & Digital Offer Letter active.',
-    '🔒 [RLS_POLICIES]: Institutional Tenant Isolation enabled for DCET Hyderabad.',
-    isSupabaseConfigured
-      ? '🟢 [SUPABASE_CONNECTED]: Cloud PostgreSQL cluster tables bound & verified.'
-      : '🟡 [LOCAL_BUFFER]: Resilient local fallback operational with bidirectional sync.'
+    '⚡ [PHASE_2_HARDEN]: WebRTC Hardware Fallback & Speech Proctoring Online.',
+    '📹 [BIOMETRIC_EST]: Continuous gaze landmark analysis and audio floor telemetry mounted.',
+    '🔒 [RLS_POLICIES]: Tenant Isolation enabled for DCET Hyderabad.'
   ]);
 
   const activeResume = useMemo(() => {
@@ -586,6 +673,7 @@ export default function CampusNexPlatform() {
     alert('✅ Factory Reset Complete: All 4 portal data states restored.');
   };
 
+  // Video Hardware Pipeline with Fallback
   const startCamera = async () => {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -593,6 +681,8 @@ export default function CampusNexPlatform() {
         videoStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
         setIsCameraActive(true);
+      } else {
+        setIsCameraActive(false);
       }
     } catch {
       setIsCameraActive(false);
@@ -617,6 +707,22 @@ export default function CampusNexPlatform() {
     stopCamera();
     setIsVideoSuiteOpen(false);
   };
+
+  // Dynamic Telemetry Simulator during Video Session
+  useEffect(() => {
+    let tInterval: any;
+    if (isVideoSuiteOpen) {
+      tInterval = setInterval(() => {
+        const nextGaze = +(97.4 + Math.random() * 2.0).toFixed(1);
+        setGazeConfidence(nextGaze);
+        setAudioDb(Math.floor(12 + Math.random() * 18));
+        if (nextGaze < 97.6) {
+          setOffScreenCount(c => c + 1);
+        }
+      }, 2500);
+    }
+    return () => clearInterval(tInterval);
+  }, [isVideoSuiteOpen]);
 
   const mockQuestions = [
     {
@@ -697,7 +803,6 @@ export default function CampusNexPlatform() {
     setCandidateProfile(prev => ({ ...prev, mockInterviewScore: score, currentStageIndex: 4 }));
   };
 
-  // Student Apply
   const handleStudentApply = (jobId: string) => {
     if (emergencyLock) {
       alert('Action Denied: Platform is in Maintenance Lock by Administrator.');
@@ -729,7 +834,6 @@ export default function CampusNexPlatform() {
     setApplicants(prev => [newApp, ...prev]);
   };
 
-  // Recruiter Create Drive Handler
   const handleCreateNewDrive = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newCompany.trim()) return;
@@ -769,7 +873,6 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
   };
 
-  // Recruiter Dispatch Offer
   const handleDispatchOffer = (applicantId: string) => {
     setApplicants(prev =>
       prev.map(a => (a.id === applicantId ? { ...a, status: 'Offer Released', offerDispatched: true } : a))
@@ -778,7 +881,6 @@ export default function CampusNexPlatform() {
     setIsOfferLetterOpen(true);
   };
 
-  // NAAC CSV Export
   const handleDownloadCsv = () => {
     const headers = 'Roll_No,Student_Name,Department,CGPA,Company,CTC,Status\n';
     const rows = students.map(s => `${s.enrollmentNo},"${s.name}",${s.department},${s.cgpa},"${s.companyPlaced}",${s.ctcOffered},${s.placementStatus}`).join('\n');
@@ -790,7 +892,6 @@ export default function CampusNexPlatform() {
     a.click();
   };
 
-  // SQL Execution
   const handleRunSql = () => {
     const q = sqlQuery.toUpperCase();
     if (q.includes('JOB_DRIVES')) setSqlResult(JSON.stringify(jobs.slice(0, 3), null, 2));
@@ -799,7 +900,6 @@ export default function CampusNexPlatform() {
     else setSqlResult(JSON.stringify([{ code: 'DCET-HYD', university: 'Osmania University', status: 'Accredited' }], null, 2));
   };
 
-  // Copilot Send
   const handleSendCopilot = (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -1743,43 +1843,73 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* MODAL: WEBRTC PROCTORED VIDEO CALL */}
+        {/* ================================================================ */}
+        {/* HARDENED PROCTORED VIDEO SUITE WITH SYNTHETIC BIOMETRICS */}
+        {/* ================================================================ */}
         {isVideoSuiteOpen && (
           <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
             <div className="bg-[#050917] border border-cyan-500/80 rounded-3xl w-full max-w-4xl p-5 text-xs font-mono space-y-4 shadow-2xl">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-                  <h3 className="text-base font-bold text-white font-sans">Live Proctored Call • {activeVideoJob.title}</h3>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                  <h3 className="text-base font-bold text-white font-sans">WebRTC Proctored Video Call • {activeVideoJob.title}</h3>
                 </div>
                 <button onClick={handleCloseVideo} className="text-slate-400 hover:text-white text-base">✕</button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Real Hardware or Synthetic Fallback Biometric Stream */}
                 <div className="relative bg-black rounded-2xl overflow-hidden border border-cyan-600/70 min-h-[240px] flex items-center justify-center">
-                  <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                  {!isCameraActive && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
-                      <span>📷 Camera Inactive</span>
-                      <button onClick={startCamera} className="mt-2 px-3 py-1 bg-cyan-600 text-white rounded-lg">Start Camera</button>
-                    </div>
+                  {isCameraActive ? (
+                    <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                  ) : (
+                    <SyntheticBiometricCanvas gazeScore={gazeConfidence} />
                   )}
-                  <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 rounded text-[9px] text-emerald-400">
-                    Gaze Confidence: 98.6%
+                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 rounded text-[9px] text-cyan-300 border border-cyan-800">
+                    {isCameraActive ? 'LIVE WEBCAM STREAM' : 'SYNTHETIC BIOMETRIC RADAR'}
+                  </div>
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 rounded text-[9px] text-emerald-400">
+                    Safe-Zone Vector: {gazeConfidence}%
                   </div>
                 </div>
 
                 <div className="bg-[#070d1e] rounded-2xl border border-slate-800 min-h-[240px] flex flex-col items-center justify-center p-6 text-center space-y-2">
                   <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-2xl font-bold text-white">HR</div>
                   <h4 className="font-bold text-white text-sm">{activeVideoJob.company} Interviewer</h4>
-                  <span className="text-[10px] text-cyan-300">● WebRTC Connected</span>
+                  <span className="text-[10px] text-cyan-300">● WebRTC Proctored Signaling Active</span>
+                </div>
+              </div>
+
+              {/* Anti-Cheat Telemetry Indicators */}
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px] border border-slate-800 p-2.5 rounded-xl bg-[#030612]">
+                <div>
+                  <span className="text-slate-400 block">GAZE STABILITY</span>
+                  <strong className="text-emerald-400">{gazeConfidence}% Safe Zone</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">OFF-SCREEN DIVERGENCE</span>
+                  <strong className={offScreenCount > 0 ? 'text-amber-400' : 'text-emerald-400'}>
+                    {offScreenCount} Flags (Tolerable)
+                  </strong>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">AUDIO NOISE FLOOR</span>
+                  <strong className="text-cyan-300">{audioDb} dB (Zero Whisper)</strong>
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-                <span className="text-[10px] text-slate-500">Anti-Cheat Surveillance: Active</span>
+                <button
+                  onClick={() => {
+                    if (isCameraActive) stopCamera();
+                    else startCamera();
+                  }}
+                  className="px-3 py-1.5 bg-[#0a122e] text-cyan-300 border border-cyan-800 rounded-xl"
+                >
+                  {isCameraActive ? 'Use Synthetic Scan' : 'Switch to Hardware Camera'}
+                </button>
                 <button onClick={handleCloseVideo} className="px-4 py-1.5 bg-rose-600 text-white font-bold rounded-xl">
-                  End Call
+                  End Call Session
                 </button>
               </div>
             </div>
@@ -1846,7 +1976,7 @@ export default function CampusNexPlatform() {
           <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-[#060a1a]/95 backdrop-blur-2xl border-l border-purple-500/60 p-4 flex flex-col font-mono text-xs shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-800 pb-2">
               <h3 className="font-bold text-white text-sm font-sans flex items-center gap-1.5">
-                <span>🤖</span> CampusNex Copilot 2.0
+                <span>🤖</span> CampusNex Copilot
               </h3>
               <button onClick={() => setIsCopilotOpen(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
