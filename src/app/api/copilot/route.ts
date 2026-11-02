@@ -14,43 +14,35 @@ export async function POST(req: Request) {
     const systemPrompt = `You are CampusNex Copilot, an expert AI career architect and campus recruitment intelligence assistant for DCET Hyderabad.
 Answer naturally, helpfully, concisely, and with authentic technical depth like ChatGPT or Gemini.`;
 
-    // Resilient model fallback array for v1beta / v1 endpoints
-    const modelCandidates = [
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent',
-      'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent'
-    ];
-
-    let lastError: any = null;
+    // 1. First attempt with the latest Google standard models
+    const directModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     let replyText = '';
 
-    for (const endpoint of modelCandidates) {
+    for (const model of directModels) {
       try {
-        const res = await fetch(`${endpoint}?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `${systemPrompt}\n\nQuestion: ${message}` }]
-              }
-            ]
-          })
-        });
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: `${systemPrompt}\n\nQuestion: ${message}` }]
+                }
+              ]
+            })
+          }
+        );
 
         const data = await res.json();
-
         if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
           replyText = data.candidates[0].content.parts[0].text;
-          break; // Successful generation
+          break;
         }
-
-        if (data.error) {
-          lastError = data.error;
-        }
-      } catch (err: any) {
-        lastError = err;
+      } catch {
+        // continue to next model
       }
     }
 
@@ -58,8 +50,48 @@ Answer naturally, helpfully, concisely, and with authentic technical depth like 
       return NextResponse.json({ reply: replyText });
     }
 
+    // 2. Dynamic Discovery Fallback: Fetch available models directly for this API key
+    const listRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+    );
+    const listData = await listRes.json();
+
+    if (listData?.models && Array.isArray(listData.models)) {
+      const supportedModel = listData.models.find((m: any) =>
+        m.supportedGenerationMethods?.includes('generateContent')
+      );
+
+      if (supportedModel?.name) {
+        const modelPath = supportedModel.name; // e.g. "models/gemini-..."
+        const genRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [{ text: `${systemPrompt}\n\nQuestion: ${message}` }]
+                }
+              ]
+            })
+          }
+        );
+        const genData = await genRes.json();
+        const discoveredReply = genData?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (discoveredReply) {
+          return NextResponse.json({ reply: discoveredReply });
+        }
+      }
+    }
+
     return NextResponse.json({
-      reply: `⚠️ Model Error: ${lastError?.message || 'Could not reach Gemini model endpoint.'}`
+      reply: `⚠️ Available models on your key: ${
+        listData?.models?.map((m: any) => m.name.replace('models/', '')).join(', ') ||
+        listData?.error?.message ||
+        'None found'
+      }`
     });
   } catch (error: any) {
     return NextResponse.json(
