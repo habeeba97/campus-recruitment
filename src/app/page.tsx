@@ -91,6 +91,14 @@ interface StressCurveball {
   options: { label: string; correct: boolean; explanation: string }[];
 }
 
+interface AntiRescindCommitment {
+  commitmentHash: string;
+  corporateBond: string;
+  severanceCoverageMonths: number;
+  lockStatus: 'Immutable Locked' | 'Institutional Guarantee Active';
+  signerCorporateId: string;
+}
+
 interface Job {
   id: string;
   title: string;
@@ -101,9 +109,7 @@ interface Job {
   skills: string[];
   matchScore: number;
   applicants: number;
-  type: string;
-  matched: string[];
-  missing: string[];
+  type: 'Apex 1% Exclusive' | 'Dream Drive' | 'Apex 1% Super Dream' | 'Core Engineering';
   minCgpa: number;
   vacancies: number;
   applicationDeadline: string;
@@ -112,6 +118,7 @@ interface Job {
   aiMatchExplanation: string;
   autopsy: RejectionAutopsy;
   curveball: StressCurveball;
+  antiRescind: AntiRescindCommitment;
   roadmapMilestones: { title: string; duration: string; focus: string }[];
 }
 
@@ -141,6 +148,11 @@ interface CandidateProfile {
   clearance: string;
   poeHash: string;
   verifiedCommits: string;
+  codeOriginalityScore: number;
+  hasSecuredDreamOffer: boolean;
+  activeOfferRole: string;
+  activeOfferCompany: string;
+  activeOfferCtc: number;
   currentStageIndex: number;
   mockInterviewScore: number;
   stressComposureScore: number;
@@ -218,8 +230,13 @@ const DEFAULT_PROFILE: CandidateProfile = {
   activeResumeId: 'res-01',
   preferredRole: 'Backend Systems & Concurrency Engineer',
   clearance: 'Tier-1 Apex (Top 0.8%)',
-  poeHash: '#0x8942-APEX',
-  verifiedCommits: '120+ Commits',
+  poeHash: '#0x8942-APEX-SEAL',
+  verifiedCommits: '120+ Verified Commits',
+  codeOriginalityScore: 98.4,
+  hasSecuredDreamOffer: true,
+  activeOfferRole: 'Full Stack Engineer (Elite Core)',
+  activeOfferCompany: 'TechCorp India',
+  activeOfferCtc: 22.0,
   currentStageIndex: 8,
   mockInterviewScore: 95,
   stressComposureScore: 96.5
@@ -266,6 +283,13 @@ const DEFAULT_JOBS: Job[] = [
         { label: 'Restart the primary PostgreSQL container immediately', correct: false, explanation: 'Destructive: Drops all ongoing in-flight candidate checkout transactions.' },
         { label: 'Increase max_connections parameter to 10,000 without pooler', correct: false, explanation: 'Causes severe memory thrashing and OS kernel OOM killer shutdown.' }
       ]
+    },
+    antiRescind: {
+      commitmentHash: '0x8942-TECHCORP-OFFER-COMMIT-2026',
+      corporateBond: 'TechCorp India Corporate Legal Indemnity #TC-IND-091',
+      severanceCoverageMonths: 6,
+      lockStatus: 'Immutable Locked',
+      signerCorporateId: 'TECHCORP-HR-APEX-DIRECTOR'
     },
     roadmapMilestones: [
       { title: 'Tailwind CSS JIT & Design Tokens', duration: '4 Hours', focus: 'Utility styling & responsive design' },
@@ -314,6 +338,13 @@ const DEFAULT_JOBS: Job[] = [
         { label: 'Run raw SELECT SUM query on live production OLTP table every 10 seconds', correct: false, explanation: 'Locks transaction rows and crashes write throughput.' }
       ]
     },
+    antiRescind: {
+      commitmentHash: '0x3819-DATAMETRICS-COMMIT-2026',
+      corporateBond: 'DataMetrics AI Global Venture Guarantee',
+      severanceCoverageMonths: 3,
+      lockStatus: 'Institutional Guarantee Active',
+      signerCorporateId: 'DATAMETRICS-OPERATIONS-HQ'
+    },
     roadmapMilestones: [
       { title: 'Python Data Manipulation', duration: '8 Hours', focus: 'Vectorized series & Parquet schemas' },
       { title: 'FastAPI Microservice Engine', duration: '6 Hours', focus: 'Async Python endpoints on Docker' }
@@ -360,6 +391,13 @@ const DEFAULT_JOBS: Job[] = [
         { label: 'Reject minority writes ($2 < 3$ quorum) & trigger term reelection on majority', correct: true, explanation: 'Standard Raft safety invariant prevents uncommitted split state.' },
         { label: 'Accept writes on both sides and manually merge conflicts later', correct: false, explanation: 'Violates linearizable distributed consistency and corrupts balances.' }
       ]
+    },
+    antiRescind: {
+      commitmentHash: '0x9921-CLOUDSCALE-APEX-GUARANTEE-2026',
+      corporateBond: 'CloudScale Enterprise Escrow Deposit #CS-PUNE-104',
+      severanceCoverageMonths: 6,
+      lockStatus: 'Immutable Locked',
+      signerCorporateId: 'CLOUDSCALE-PRINCIPAL-ARCHITECT'
     },
     roadmapMilestones: [
       { title: 'Golang Concurrency & Goroutines', duration: '12 Hours', focus: 'Channels, Mutex, and Memory Allocation' },
@@ -675,17 +713,19 @@ export default function CampusNexPlatform() {
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
 
-  // Phase A Modals
+  // Phase A & B Modals
   const [selectedAutopsyJob, setSelectedAutopsyJob] = useState<Job | null>(null);
   const [selectedCtcJob, setSelectedCtcJob] = useState<Job | null>(null);
   const [isAtsDiagnosticOpen, setIsAtsDiagnosticOpen] = useState<boolean>(false);
-
-  // Phase B States: Stress Curveball & Speech Composure
   const [isCurveballActive, setIsCurveballActive] = useState<boolean>(false);
   const [curveballTimeLeft, setCurveballTimeLeft] = useState<number>(45);
   const [selectedCurveballOpt, setSelectedCurveballOpt] = useState<number | null>(null);
   const [composureIndex, setComposureIndex] = useState<number>(96.5);
   const [fillerWordsCount, setFillerWordsCount] = useState<number>(0);
+
+  // Phase C Modals: Anti-Rescind Trust Ledger & Code Origin
+  const [selectedCommitmentJob, setSelectedCommitmentJob] = useState<Job | null>(null);
+  const [isCodeOriginModalOpen, setIsCodeOriginModalOpen] = useState<boolean>(false);
 
   // Common Modals
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
@@ -726,7 +766,7 @@ export default function CampusNexPlatform() {
   const [chatMessages, setChatMessages] = useState<{ sender: 'ai' | 'user'; text: string }[]>([
     {
       sender: 'ai',
-      text: 'CampusNex Phase B Online: Dynamic Stress Curveball, Production Outage Simulators & Composure Radars active. How can I assist?'
+      text: 'CampusNex Phase C Master Active: Fair-Share 1-Dream-Offer Protocol, Cryptographic Anti-Rescind Ledger & GitHub Code Origin verified. How can I assist?'
     }
   ]);
 
@@ -741,7 +781,7 @@ export default function CampusNexPlatform() {
           code: 'DCET-HYD',
           name: 'Deccan College of Engineering & Technology',
           city: 'Hyderabad',
-          accreditation: 'NAAC A+ / NBA'
+          accreditation: 'NAAC A+ / NBA Tier-1'
         }
       ],
       null,
@@ -750,9 +790,9 @@ export default function CampusNexPlatform() {
   );
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_B_ONLINE]: Stress-Interview Outage Curveball & Composure Radar active.',
-    '🚨 [CURVEBALL_ENGINE]: Mid-interview real-time SEV-1 production failure simulators mounted.',
-    '🎙️ [SPEECH_CADENCE]: Audio cadence & filler-word lexical density evaluator operational.'
+    '⚡ [PHASE_C_ONLINE]: Fair-Share Protocol & Anti-Rescind Trust Ledger mounted.',
+    '🛡️ [FAIR_SHARE_GATE]: 1-Dream-Offer hoarding barrier activated for candidate APEX-01.',
+    '📜 [CRYPTO_ESCROW]: Corporate Anti-Rescind legal indemnity bond signed by TechCorp & CloudScale.'
   ]);
 
   const activeResume = useMemo(() => {
@@ -875,7 +915,6 @@ export default function CampusNexPlatform() {
     speakQuestion(mockQuestions[0].q);
   };
 
-  // Phase B: Trigger Disaster Curveball mid-interview
   const handleTriggerCurveball = () => {
     if (!activeWarRoomJob) return;
     setIsCurveballActive(true);
@@ -887,7 +926,6 @@ export default function CampusNexPlatform() {
     setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
   };
 
-  // Curveball countdown
   useEffect(() => {
     let cTimer: any;
     if (isCurveballActive && curveballTimeLeft > 0 && selectedCurveballOpt === null) {
@@ -895,13 +933,11 @@ export default function CampusNexPlatform() {
         setCurveballTimeLeft(t => t - 1);
       }, 1000);
     } else if (isCurveballActive && curveballTimeLeft === 0 && selectedCurveballOpt === null) {
-      // Time expired penalty
       setComposureIndex(prev => +(prev - 8.5).toFixed(1));
     }
     return () => clearInterval(cTimer);
   }, [isCurveballActive, curveballTimeLeft, selectedCurveballOpt]);
 
-  // Speech Recognition with Filler Word & Cadence Tracking
   const toggleMic = () => {
     if (typeof window === 'undefined') return;
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -927,7 +963,6 @@ export default function CampusNexPlatform() {
           const phrase = e.results[i][0].transcript;
           t += phrase;
 
-          // Lexical filler scan
           const fillers = ['um', 'like', 'uh', 'basically', 'you know'];
           fillers.forEach(f => {
             if (phrase.toLowerCase().includes(f)) {
@@ -969,6 +1004,7 @@ export default function CampusNexPlatform() {
     }));
   };
 
+  // Phase C: Fair-Share Protocol Checked Application
   const handleStudentApply = (jobId: string) => {
     if (emergencyLock) {
       alert('Action Denied: Platform is in Maintenance Lock by Administrator.');
@@ -977,6 +1013,12 @@ export default function CampusNexPlatform() {
 
     const targetJob = jobs.find(j => j.id === jobId);
     if (!targetJob) return;
+
+    // Fair-share check: If student already holds ₹22 LPA offer, they can only apply to Super Dream (> ₹22 LPA)
+    if (candidateProfile.hasSecuredDreamOffer && targetJob.salaryInr <= candidateProfile.activeOfferCtc) {
+      alert(`🛡️ Fair-Share Protocol Active: You already hold a verified Tier-1 offer of ₹${candidateProfile.activeOfferCtc} LPA at ${candidateProfile.activeOfferCompany}. Basic and Dream openings under ₹${candidateProfile.activeOfferCtc} LPA are reserved for other batchmates to prevent offer hoarding. Only Super-Dream drives (> ₹${candidateProfile.activeOfferCtc} LPA) are open.`);
+      return;
+    }
 
     setJobs(prev => prev.map(j => (j.id === jobId ? { ...j, status: 'Applied', applicants: j.applicants + 1 } : j)));
     setCandidateProfile(prev => ({ ...prev, currentStageIndex: 3 }));
@@ -1025,7 +1067,7 @@ export default function CampusNexPlatform() {
       skills: parsedSkills.length ? parsedSkills : ['React', 'Node.js', 'PostgreSQL'],
       matchScore: 95,
       applicants: 0,
-      type: 'Apex 1% Exclusive',
+      type: (Number(newSalary) || 20.0) >= 25 ? 'Apex 1% Super Dream' : 'Apex 1% Exclusive',
       matched: ['React', 'Node.js'],
       missing: [],
       minCgpa: Number(newCgpa) || 7.5,
@@ -1051,6 +1093,13 @@ export default function CampusNexPlatform() {
           { label: 'Reboot all servers simultaneously', correct: false, explanation: 'Causes a complete 502 outage.' }
         ]
       },
+      antiRescind: {
+        commitmentHash: `0x${Math.floor(1000 + Math.random() * 9000)}-${newCompany.toUpperCase().slice(0, 4)}-COMMIT-2026`,
+        corporateBond: `${newCompany.trim()} Corporate Placement Guarantee`,
+        severanceCoverageMonths: 6,
+        lockStatus: 'Immutable Locked',
+        signerCorporateId: `${newCompany.toUpperCase().slice(0, 4)}-DIRECTOR`
+      },
       roadmapMilestones: [
         { title: `${parsedSkills[0] || 'Core'} Architecture Verification`, duration: '6 Hours', focus: 'System integration & code quality' },
         { title: 'Technical Screen Preparation', duration: '4 Hours', focus: 'Database transactions & API design' }
@@ -1070,7 +1119,11 @@ export default function CampusNexPlatform() {
     setApplicants(prev =>
       prev.map(a => (a.id === applicantId ? { ...a, status: 'Offer Released', offerDispatched: true } : a))
     );
-    setCandidateProfile(prev => ({ ...prev, currentStageIndex: 8 }));
+    setCandidateProfile(prev => ({
+      ...prev,
+      currentStageIndex: 8,
+      hasSecuredDreamOffer: true
+    }));
     setIsOfferLetterOpen(true);
 
     const logEntry = `[${new Date().toLocaleTimeString()}] [OFFER_DISPATCH]: Encrypted Smart Offer released to applicant ID: ${applicantId}.`;
@@ -1100,6 +1153,7 @@ export default function CampusNexPlatform() {
         company: j.company,
         ctc_lpa: j.salaryInr,
         in_hand_monthly: `₹${j.salaryDissection.monthlyInHandInr.toLocaleString()}`,
+        anti_rescind_hash: j.antiRescind.commitmentHash,
         status: j.status
       }));
     } else if (q.includes('APPLICATIONS')) {
@@ -1130,6 +1184,7 @@ export default function CampusNexPlatform() {
           city: 'Hyderabad',
           state: 'Telangana',
           accreditation: 'NAAC A+ / NBA Tier-1',
+          fair_share_policy: 'Active (1-Student-1-Dream-Offer)',
           rls_isolation: 'Enforced'
         }
       ];
@@ -1154,10 +1209,12 @@ export default function CampusNexPlatform() {
     setTimeout(() => {
       let ans = 'CampusNex Copilot monitoring cluster telemetry. All systems green.';
       const l = txt.toLowerCase();
-      if (l.includes('curveball') || l.includes('outage') || l.includes('stress') || l.includes('disaster')) {
-        ans = 'The Stress Curveball engine simulates real-world production incidents (DB connection exhaustion, cache stampede) mid-interview with a 45s recovery countdown to test engineer composure.';
-      } else if (l.includes('composure') || l.includes('filler') || l.includes('cadence')) {
-        ans = 'Speech Cadence telemetry actively detects lexical filler words (um, like, basically) and measures candidate calmness under countdown timers.';
+      if (l.includes('fair share') || l.includes('hoarding') || l.includes('dream offer')) {
+        ans = 'The Fair-Share Protocol ensures equity by locking applicants who already secured a Tier-1 Dream Offer (₹22 LPA) from applying to equivalent/lower drives, reserving slots for other students while unlocking only Super-Dream tiers (> ₹25 LPA).';
+      } else if (l.includes('anti-rescind') || l.includes('rescind') || l.includes('commitment') || l.includes('cancel')) {
+        ans = 'The Anti-Rescind Trust Ledger stamps each digital offer with an immutable corporate guarantee hash backed by a 6-month legally binding severance agreement with the institution.';
+      } else if (l.includes('code origin') || l.includes('github') || l.includes('originality')) {
+        ans = 'Code Origin verification inspects candidate repositories to ensure 98.4% unique implementation, catching copy-pasted and AI-generated template portfolios.';
       } else if (l.includes('autopsy') || l.includes('rejection')) {
         ans = 'Rejection Autopsies provide concrete forensic skill-void insights so students know exactly what microservice project to build next.';
       } else if (l.includes('package') || l.includes('salary') || l.includes('ctc')) {
@@ -1190,8 +1247,8 @@ export default function CampusNexPlatform() {
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-purple-300 font-semibold">TENANT: DCET HYDERABAD</span>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-cyan-400 font-bold">
-              {currentView === 'landing' ? 'PUBLIC ENTERPRISE PORTAL' : `ACTIVE WORKSPACE: ${activePortal.toUpperCase()}`}
+            <span className="text-emerald-400 font-bold">
+              FAIR-SHARE & ANTI-RESCIND ACTIVE
             </span>
             {emergencyLock && (
               <span className="bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded font-bold animate-pulse">
@@ -1202,20 +1259,20 @@ export default function CampusNexPlatform() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsAtsDiagnosticOpen(true)}
-              className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+              onClick={() => setIsCodeOriginModalOpen(true)}
+              className="bg-purple-950/80 hover:bg-purple-900 border border-purple-600 text-purple-200 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
-              <span>🔬</span> ATS SYNTAX METER
+              <span>🐙</span> CODE ORIGIN: {candidateProfile.codeOriginalityScore}%
             </button>
             <button
               onClick={() => setIsResetConfirmOpen(true)}
-              className="bg-rose-950/80 hover:bg-rose-900 border border-rose-600 text-rose-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+              className="bg-rose-950/80 hover:bg-rose-900 border border-rose-600 text-rose-300 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
               <span>🔄</span> RESET DEMO DATA
             </button>
             <button
               onClick={() => setIsCopilotOpen(true)}
-              className="bg-purple-950/80 hover:bg-purple-900 border border-purple-600 text-purple-200 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+              className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600 text-cyan-200 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
             >
               <span>🤖</span> COPILOT
             </button>
@@ -1248,12 +1305,12 @@ export default function CampusNexPlatform() {
                 <span className="text-2xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                   CampusNex AI
                 </span>
-                <span className="text-[10px] bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE B ACTIVE
+                <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                  ENTERPRISE OS
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Live Production Curveball & Speech Composure War-Room'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Fair-Share Protocol & Cryptographic Trust Platform'}
               </p>
             </div>
           </div>
@@ -1313,30 +1370,30 @@ export default function CampusNexPlatform() {
               <div className="relative rounded-3xl border border-purple-900/60 bg-gradient-to-r from-[#090620]/90 via-[#07112b]/85 to-[#04081c]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(168,85,247,0.18)] p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="max-w-2xl space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-600/70 text-cyan-300 text-xs font-mono font-bold">
-                    <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-                    LIVE PRODUCTION CURVEBALLS & COMPOSURE RADAR
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    FAIR-SHARE PROTOCOL & ANTI-RESCIND COMMITMENT LEDGER
                   </div>
 
                   <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight">
-                    Beyond LeetCode: Real Production <span className="bg-gradient-to-r from-purple-400 via-pink-300 to-cyan-400 bg-clip-text text-transparent">Disaster Simulators</span>
+                    Zero Offer Hoarding, Anti-Rescind Trust & <span className="bg-gradient-to-r from-emerald-400 via-cyan-300 to-indigo-400 bg-clip-text text-transparent">Verified Code Origin</span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
-                    Testing engineering readiness under pressure. Mid-interview SEV-1 production failure scenarios, lexical filler-word speech cadence tracking, and transparent compensation breakdowns.
+                    Ending campus placement hoarding and sudden offer cancellations. Students who secure a Tier-1 Dream offer unlock opportunities for batchmates, while corporate offers are sealed cryptographically with 6-month severance guarantees.
                   </p>
 
                   <div className="flex flex-wrap gap-3 pt-3">
                     <button
                       onClick={() => handleLaunchRoleDashboard('student')}
-                      className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:scale-105 transition flex items-center gap-2"
+                      className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-cyan-600 to-indigo-600 text-white font-bold text-sm shadow-[0_0_25px_rgba(16,185,129,0.3)] hover:scale-105 transition flex items-center gap-2"
                     >
-                      <span>⚡</span> Enter Stress War-Room
+                      <span>⚡</span> Enter Fair-Share Workspace
                     </button>
                     <button
-                      onClick={() => setIsCopilotOpen(true)}
+                      onClick={() => setIsCodeOriginModalOpen(true)}
                       className="px-6 py-3 rounded-2xl bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold text-sm hover:bg-cyan-950 transition"
                     >
-                      Ask AI Copilot →
+                      Inspect GitHub Code Origin →
                     </button>
                   </div>
                 </div>
@@ -1351,20 +1408,20 @@ export default function CampusNexPlatform() {
             <section className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-white">45s</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">Disaster Mitigation Window</div>
+                  <div className="text-2xl font-black text-emerald-400">100%</div>
+                  <div className="text-[11px] text-emerald-300 mt-1">Anti-Rescind Guarantee</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-purple-400">96.5%</div>
-                  <div className="text-[11px] text-purple-300 mt-1">Engineer Composure Index</div>
+                  <div className="text-2xl font-black text-cyan-300">0%</div>
+                  <div className="text-[11px] text-cyan-400 mt-1">Offer Hoarding (Fair-Share)</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-emerald-400">0%</div>
-                  <div className="text-[11px] text-emerald-300 mt-1">LeetCode Memorization Bias</div>
+                  <div className="text-2xl font-black text-purple-300">98.4%</div>
+                  <div className="text-[11px] text-purple-400 mt-1">Code Origin Authenticity</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-white">100%</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">SEV-1 Production Realism</div>
+                  <div className="text-2xl font-black text-white">6 Months</div>
+                  <div className="text-[11px] text-cyan-300 mt-1">Severance Escrow Bond</div>
                 </div>
               </div>
             </section>
@@ -1378,29 +1435,34 @@ export default function CampusNexPlatform() {
             {activePortal === 'student' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-5">
-                  {/* Probability & Composure Radar Banner */}
-                  <div className="bg-gradient-to-r from-[#071926]/90 to-[#07132a]/90 border border-purple-500/50 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono">
+                  {/* Fair Share Protocol Callout Banner */}
+                  <div className="bg-gradient-to-r from-[#071926]/90 via-[#07142a]/90 to-[#0c0f2b]/90 border border-emerald-500/60 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono shadow-xl">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">ENGINEERING COMPOSURE & READINESS SCORE:</span>
-                      <span className="text-lg font-bold text-purple-300">
-                        Stress Composure: {candidateProfile.stressComposureScore}% • Clearance: 96.4%
-                      </span>
-                      <span className="text-slate-400 text-[10px] block mt-0.5">
-                        Filler Word Frequency: <strong>Low (1.2%)</strong> • Production Incident Recovery: <strong>Verified</strong>
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">
+                          FAIR-SHARE 1-DREAM-OFFER PROTOCOL ACTIVE
+                        </span>
+                      </div>
+                      <p className="text-white font-bold text-sm mt-0.5">
+                        Secured: {candidateProfile.activeOfferRole} ({candidateProfile.activeOfferCompany} • ₹{candidateProfile.activeOfferCtc} LPA)
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        Equivalent/lower drives locked to prevent offer hoarding. Only Super-Dream drives (&gt; ₹22 LPA) are accessible.
+                      </p>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setSelectedCtcJob(jobs[0])}
                         className="px-3 py-1.5 bg-[#0e1f3d] text-cyan-300 border border-cyan-700 rounded-xl font-bold text-[10px] hover:bg-cyan-900 transition"
                       >
-                        💰 CTC Dissector
+                        💰 Salary
                       </button>
                       <button
                         onClick={() => setIsOfferLetterOpen(true)}
                         className="px-3 py-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-[10px] hover:bg-emerald-900 transition"
                       >
-                        📜 Offer Letter
+                        📜 Offer Seal
                       </button>
                     </div>
                   </div>
@@ -1437,103 +1499,116 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Drives List */}
+                  {/* Drives List with Anti-Rescind & Fair Share Locks */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center font-mono">
-                      <h4 className="font-bold text-white text-sm">Active Placement Drives ({jobs.length})</h4>
-                      <span className="text-[10px] text-slate-400">SEV-1 Production Disaster Scenarios Ready</span>
+                      <h4 className="font-bold text-white text-sm">Campus Drives & Anti-Rescind Guarantees ({jobs.length})</h4>
+                      <span className="text-[10px] text-slate-400">Cryptographically Sealed Commitments</span>
                     </div>
 
-                    {jobs.map(job => (
-                      <div key={job.id} className="p-5 bg-[#0b1021]/80 border border-slate-800 rounded-3xl space-y-3">
-                        <div className="flex justify-between items-start flex-wrap gap-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-white text-base">{job.title}</h3>
-                              <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-mono font-bold">
-                                [{job.dataSource}]
+                    {jobs.map(job => {
+                      const isLockedByFairShare = candidateProfile.hasSecuredDreamOffer && job.salaryInr <= candidateProfile.activeOfferCtc && job.status !== 'Offer Dispatched';
+
+                      return (
+                        <div key={job.id} className="p-5 bg-[#0b1021]/80 border border-slate-800 rounded-3xl space-y-3">
+                          <div className="flex justify-between items-start flex-wrap gap-2">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-white text-base">{job.title}</h3>
+                                <span className={`text-[9px] px-2 py-0.5 rounded font-mono font-bold border ${
+                                  job.type.includes('Super Dream')
+                                    ? 'bg-purple-950 text-purple-300 border-purple-700'
+                                    : 'bg-emerald-950 text-emerald-300 border-emerald-700'
+                                }`}>
+                                  [{job.type}]
+                                </span>
+                              </div>
+                              <div className="text-xs text-slate-400 mt-1">
+                                {job.company} • {job.location} • <strong className="text-emerald-400">{formatSalary(job.salaryInr)}</strong>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => setSelectedCommitmentJob(job)}
+                                className="px-2.5 py-1 bg-[#09152a] hover:bg-[#0e2142] border border-emerald-700 text-emerald-300 rounded-xl text-[10px] font-mono font-bold flex items-center gap-1"
+                              >
+                                <span>🔒</span> Anti-Rescind Bond
+                              </button>
+                              <span className="px-3 py-1 bg-purple-950 text-purple-300 border border-purple-600 rounded-xl text-xs font-mono font-bold">
+                                {job.status}
                               </span>
                             </div>
-                            <div className="text-xs text-slate-400 mt-1">
-                              {job.company} • {job.location} • <strong className="text-emerald-400">{formatSalary(job.salaryInr)}</strong>
+                          </div>
+
+                          {/* Skill Match & Outage Simulator Tag */}
+                          <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-2xl text-[11px] font-mono text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                              <span className="text-cyan-300 font-bold">Fit: {job.matchScore}%</span>
+                              <span className="text-slate-400 ml-2">Matched: <strong className="text-emerald-400">{job.matched.join(', ')}</strong></span>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setSelectedCtcJob(job)}
+                                className="px-2 py-0.5 bg-[#0e1f3d] text-cyan-300 border border-cyan-800 rounded text-[10px]"
+                              >
+                                Net: ₹{job.salaryDissection.monthlyInHandInr.toLocaleString()}/mo
+                              </button>
+                              <button
+                                onClick={() => setSelectedAutopsyJob(job)}
+                                className="px-2 py-0.5 bg-[#1a0e28] text-purple-300 border border-purple-700 rounded text-[10px]"
+                              >
+                                Autopsy
+                              </button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => setSelectedCtcJob(job)}
-                              className="px-2.5 py-1 bg-[#09152a] hover:bg-[#0e2142] border border-cyan-800 text-cyan-300 rounded-xl text-[10px] font-mono font-bold"
-                            >
-                              ₹ In-Hand: ₹{job.salaryDissection.monthlyInHandInr.toLocaleString()}/mo
-                            </button>
-                            <span className="px-3 py-1 bg-purple-950 text-purple-300 border border-purple-600 rounded-xl text-xs font-mono font-bold">
-                              {job.status}
-                            </span>
-                          </div>
-                        </div>
 
-                        {/* Skill Match & Outage Simulator Tag */}
-                        <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-2xl text-[11px] font-mono text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                          <div>
-                            <span className="text-cyan-300 font-bold">Fit: {job.matchScore}%</span>
-                            <span className="text-slate-400 ml-2">Matched: <strong className="text-emerald-400">{job.matched.join(', ')}</strong></span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-rose-400 text-[10px] bg-rose-950/60 border border-rose-800/80 px-2 py-0.5 rounded font-bold">
-                              🚨 {job.curveball.incidentType}
-                            </span>
-                            <button
-                              onClick={() => setSelectedAutopsyJob(job)}
-                              className="px-2.5 py-1 bg-[#1a0e28] hover:bg-[#27153d] border border-purple-600 text-purple-300 rounded-xl text-[10px] font-bold"
-                            >
-                              🔬 Autopsy
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
-                          <span className="text-xs text-slate-500 font-mono">{job.applicants} Applicants</span>
-                          <div className="flex gap-2 flex-wrap">
-                            <button
-                              onClick={() => setSelectedRadarJob(job)}
-                              className="px-2.5 py-1.5 bg-[#08122c] hover:bg-[#0c1a40] border border-cyan-800 text-cyan-300 rounded-xl text-xs font-mono font-bold"
-                            >
-                              🔍 Skill Gap
-                            </button>
-                            <button
-                              onClick={() => setSelectedRoadmapJob(job)}
-                              className="px-2.5 py-1.5 bg-[#09152a] hover:bg-[#0d1e3d] border border-emerald-700 text-emerald-300 rounded-xl text-xs font-mono font-bold"
-                            >
-                              🗺️ Roadmap
-                            </button>
-                            <button
-                              onClick={() => handleOpenVideo(job)}
-                              className="px-2.5 py-1.5 bg-[#0d1c38] hover:bg-[#122750] border border-cyan-700 text-cyan-300 font-bold rounded-xl text-xs font-mono"
-                            >
-                              📹 Video
-                            </button>
-                            <button
-                              onClick={() => handleOpenWarRoom(job)}
-                              className="px-2.5 py-1.5 bg-gradient-to-r from-purple-900 to-rose-900 hover:from-purple-800 border border-purple-500 text-purple-200 font-bold rounded-xl text-xs font-mono shadow flex items-center gap-1"
-                            >
-                              <span>🎙️</span> AI War-Room 2.0
-                            </button>
-                            <button
-                              onClick={() => handleStudentApply(job.id)}
-                              disabled={job.status === 'Applied' || job.status === 'Offer Dispatched'}
-                              className={`px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs transition ${
-                                job.status === 'Applied'
-                                  ? 'bg-cyan-950 text-cyan-300 border border-cyan-700'
+                          <div className="pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
+                            <span className="text-xs text-slate-500 font-mono">{job.applicants} Applicants</span>
+                            <div className="flex gap-2 flex-wrap">
+                              <button
+                                onClick={() => setSelectedRoadmapJob(job)}
+                                className="px-2.5 py-1.5 bg-[#09152a] hover:bg-[#0d1e3d] border border-emerald-700 text-emerald-300 rounded-xl text-xs font-mono font-bold"
+                              >
+                                🗺️ Roadmap
+                              </button>
+                              <button
+                                onClick={() => handleOpenVideo(job)}
+                                className="px-2.5 py-1.5 bg-[#0d1c38] hover:bg-[#122750] border border-cyan-700 text-cyan-300 font-bold rounded-xl text-xs font-mono"
+                              >
+                                📹 Video
+                              </button>
+                              <button
+                                onClick={() => handleOpenWarRoom(job)}
+                                className="px-2.5 py-1.5 bg-gradient-to-r from-purple-900 to-rose-900 hover:from-purple-800 border border-purple-500 text-purple-200 font-bold rounded-xl text-xs font-mono shadow flex items-center gap-1"
+                              >
+                                <span>🎙️</span> War-Room
+                              </button>
+                              <button
+                                onClick={() => handleStudentApply(job.id)}
+                                disabled={job.status === 'Applied' || job.status === 'Offer Dispatched' || isLockedByFairShare}
+                                className={`px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs transition ${
+                                  isLockedByFairShare
+                                    ? 'bg-slate-900 text-slate-500 border border-slate-800 cursor-not-allowed'
+                                    : job.status === 'Applied'
+                                    ? 'bg-cyan-950 text-cyan-300 border border-cyan-700'
+                                    : job.status === 'Offer Dispatched'
+                                    ? 'bg-purple-950 text-purple-300 border border-purple-700'
+                                    : 'bg-gradient-to-r from-emerald-600 to-cyan-600 text-white hover:scale-105'
+                                }`}
+                              >
+                                {isLockedByFairShare
+                                  ? '🔒 Fair-Share Protected'
+                                  : job.status === 'Applied'
+                                  ? 'Applied'
                                   : job.status === 'Offer Dispatched'
-                                  ? 'bg-purple-950 text-purple-300 border border-purple-700'
-                                  : 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white'
-                              }`}
-                            >
-                              {job.status === 'Applied' ? 'Applied' : job.status === 'Offer Dispatched' ? 'Offer Received' : 'Apply Now'}
-                            </button>
+                                  ? 'Offer Active'
+                                  : 'Apply Now'}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1560,29 +1635,25 @@ export default function CampusNexPlatform() {
                         <span className="text-emerald-400 font-bold">{candidateProfile.cgpa}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500">WAR-ROOM SCORE:</span>
-                        <span className="text-purple-300 font-bold">{candidateProfile.mockInterviewScore}% Cleared</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">STRESS COMPOSURE:</span>
-                        <span className="text-emerald-400 font-bold">{candidateProfile.stressComposureScore}% Index</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500">RESUME ATS:</span>
+                        <span className="text-slate-500">GITHUB ORIGINALITY:</span>
                         <button
-                          onClick={() => setIsAtsDiagnosticOpen(true)}
-                          className="text-emerald-400 font-bold underline hover:text-white"
+                          onClick={() => setIsCodeOriginModalOpen(true)}
+                          className="text-purple-300 font-bold underline hover:text-white"
                         >
-                          {activeResume.atsScore}% Diagnostic View
+                          {candidateProfile.codeOriginalityScore}% Verified
                         </button>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500">OFFER STATUS:</span>
+                        <span className="text-slate-500">FAIR-SHARE LOCK:</span>
+                        <span className="text-emerald-400 font-bold">Tier-1 Secured (₹22L)</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">OFFER COMMIT:</span>
                         <button
                           onClick={() => setIsOfferLetterOpen(true)}
                           className="text-cyan-300 underline font-bold hover:text-white"
                         >
-                          View Official Letter
+                          Anti-Rescind Seal Active
                         </button>
                       </div>
                     </div>
@@ -1644,7 +1715,7 @@ export default function CampusNexPlatform() {
                               onClick={() => handleDispatchOffer(app.id)}
                               className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[9px] font-bold shadow"
                             >
-                              Dispatch Offer
+                              Dispatch Anti-Rescind Offer
                             </button>
                           )}
                         </div>
@@ -1820,8 +1891,110 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ================================================================ */}
-        {/* MODAL: AI WAR-ROOM 2.0 WITH HARDENED PRODUCTION CURVEBALL */}
+        {/* MODAL: ANTI-RESCIND COMMITMENT LEDGER (PHASE C) */}
         {/* ================================================================ */}
+        {selectedCommitmentJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#080d1e] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">CRYPTOGRAPHIC TRUST PROTOCOL</span>
+                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
+                    Anti-Rescind Corporate Commitment • {selectedCommitmentJob.company}
+                  </h3>
+                </div>
+                <button onClick={() => setSelectedCommitmentJob(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-3 bg-[#051c1b] border border-emerald-700/60 rounded-xl space-y-1 text-slate-300">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">LEGAL ESCROW STATUS:</span>
+                  <span className="text-emerald-300 font-bold">{selectedCommitmentJob.antiRescind.lockStatus}</span>
+                </div>
+                <p className="text-[11px] font-sans leading-relaxed">
+                  Backed by <strong>{selectedCommitmentJob.antiRescind.corporateBond}</strong> deposited with Deccan College of Engineering & Technology.
+                </p>
+              </div>
+
+              <div className="space-y-1.5 text-[11px]">
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">SEVERANCE BOND:</span>
+                  <strong className="text-emerald-400">{selectedCommitmentJob.antiRescind.severanceCoverageMonths} Months Guaranteed Pay</strong>
+                </div>
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">CORPORATE SIGNER ID:</span>
+                  <strong className="text-cyan-300">{selectedCommitmentJob.antiRescind.signerCorporateId}</strong>
+                </div>
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">IMMUTABLE COMMIT HASH:</span>
+                  <code className="text-purple-300 text-[10px]">{selectedCommitmentJob.antiRescind.commitmentHash}</code>
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-[#060a17] rounded-xl border border-slate-800 text-[10px] text-slate-400 font-sans">
+                🛡️ <strong>Zero Cancellation Guarantee:</strong> Under institutional terms, company cannot rescind this offer without paying 6-month full salary escrow damages to the candidate.
+              </div>
+
+              <button
+                onClick={() => setSelectedCommitmentJob(null)}
+                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
+              >
+                Close Commitment Ledger
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: VERIFIED GITHUB CODE ORIGIN INSPECTOR (PHASE C) */}
+        {/* ================================================================ */}
+        {isCodeOriginModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">STATIC REPOSITORY FORENSICS</span>
+                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
+                    GitHub Code Origin & Authenticity Inspector
+                  </h3>
+                </div>
+                <button onClick={() => setIsCodeOriginModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-4 bg-[#140b26] border border-purple-700/60 rounded-2xl text-center space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest block">CODEBASE ORIGINALITY INDEX</span>
+                <div className="text-3xl font-black text-purple-300">
+                  {candidateProfile.codeOriginalityScore}% Non-Template Origin
+                </div>
+                <span className="text-[10px] text-emerald-400">Zero plagiarism detected across 120+ commits</span>
+              </div>
+
+              <div className="space-y-1.5 text-[11px]">
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">PRIMARY REPO:</span>
+                  <strong className="text-white">habeeba97/campus-recruitment</strong>
+                </div>
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">CONCURRENCY CAS ENGINE:</span>
+                  <strong className="text-emerald-400">Verified Unique (Raft Logic)</strong>
+                </div>
+                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
+                  <span className="text-slate-400">PROOF-OF-EXECUTION HASH:</span>
+                  <code className="text-cyan-300">{candidateProfile.poeHash}</code>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsCodeOriginModalOpen(false)}
+                className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl"
+              >
+                Close Origin Inspector
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: AI WAR-ROOM 2.0 */}
         {activeWarRoomJob && (
           <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
             <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs font-mono space-y-4 shadow-2xl relative">
@@ -1845,7 +2018,6 @@ export default function CampusNexPlatform() {
                 </button>
               </div>
 
-              {/* CURVEBALL OUTAGE BANNER */}
               {isCurveballActive && (
                 <div className="p-4 bg-gradient-to-r from-rose-950 via-[#260714] to-rose-950 border border-rose-500/80 rounded-2xl space-y-2 animate-pulse shadow-[0_0_25px_rgba(244,63,94,0.3)]">
                   <div className="flex justify-between items-center text-rose-300 font-bold">
@@ -1900,7 +2072,6 @@ export default function CampusNexPlatform() {
                     "{mockQuestions[warRoomQuestionIdx].q}"
                   </div>
 
-                  {/* Speech & Composure Metrics Ticker */}
                   <div className="grid grid-cols-3 gap-2 text-center text-[10px] p-2 bg-[#060a18] rounded-xl border border-slate-800">
                     <div>
                       <span className="text-slate-400 block">PRESSURE TIMER</span>
@@ -1923,7 +2094,7 @@ export default function CampusNexPlatform() {
                       onClick={handleTriggerCurveball}
                       className="px-3 py-1 bg-rose-950 hover:bg-rose-900 border border-rose-600 text-rose-300 rounded-xl text-[10px] font-bold transition flex items-center gap-1"
                     >
-                      <span>🚨</span> Inject Production Outage Curveball
+                      <span>🚨</span> Inject Outage Curveball
                     </button>
 
                     <button
@@ -2464,7 +2635,7 @@ export default function CampusNexPlatform() {
             <form onSubmit={handleSendCopilot} className="flex gap-2 border-t border-slate-800 pt-2">
               <input
                 type="text"
-                placeholder="Ask about stress curveballs, composure score..."
+                placeholder="Ask about fair-share protocol, anti-rescind bonds..."
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 className="flex-1 bg-[#0d1633] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs"
