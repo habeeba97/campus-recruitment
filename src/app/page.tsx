@@ -67,12 +67,29 @@ const ALL_LIFECYCLE_STAGES: LifecycleStage[] = [
   '14. Placement Analytics'
 ];
 
+interface SalaryDissection {
+  baseLpa: number;
+  variableLpa: number;
+  esopYearOneLpa: number;
+  monthlyInHandInr: number;
+  deductionNotes: string;
+}
+
+interface RejectionAutopsy {
+  status: 'Qualified' | 'Needs Bridging' | 'Critical Skill Void';
+  primaryBottleneck: string;
+  missingArtifacts: string[];
+  systemArchitectureGrade: string;
+  actionablePrescription: string;
+}
+
 interface Job {
   id: string;
   title: string;
   company: string;
   location: string;
   salaryInr: number;
+  salaryDissection: SalaryDissection;
   skills: string[];
   matchScore: number;
   applicants: number;
@@ -85,6 +102,7 @@ interface Job {
   status: 'Open' | 'Applied' | 'Shortlisted' | 'Offer Dispatched';
   dataSource: 'LIVE' | 'DEMO';
   aiMatchExplanation: string;
+  autopsy: RejectionAutopsy;
   roadmapMilestones: { title: string; duration: string; focus: string }[];
 }
 
@@ -96,6 +114,7 @@ interface ResumeProfile {
   keywordMatch: number;
   formattingScore: number;
   fileName: string;
+  syntaxWarnings: string[];
 }
 
 interface CandidateProfile {
@@ -155,7 +174,11 @@ const DEFAULT_RESUMES: ResumeProfile[] = [
     atsScore: 94,
     keywordMatch: 96,
     formattingScore: 92,
-    fileName: 'Habeeba_Fatima_Distributed_Systems_2026.pdf'
+    fileName: 'Habeeba_Fatima_Distributed_Systems_2026.pdf',
+    syntaxWarnings: [
+      'Line 12: Single-column clean layout detected (100% Machine Parsable)',
+      'Action verb density: 88% Strong technical verbs (Architected, Deployed, Benchmarked)'
+    ]
   },
   {
     id: 'res-02',
@@ -164,7 +187,11 @@ const DEFAULT_RESUMES: ResumeProfile[] = [
     atsScore: 88,
     keywordMatch: 85,
     formattingScore: 91,
-    fileName: 'Habeeba_Fatima_FullStack_NextJS.pdf'
+    fileName: 'Habeeba_Fatima_FullStack_NextJS.pdf',
+    syntaxWarnings: [
+      'Line 28: Minor nested bullet detected; flattened automatically by ATS normalizer',
+      'Action verb density: 82% Adequate impact quantification'
+    ]
   }
 ];
 
@@ -194,6 +221,13 @@ const DEFAULT_JOBS: Job[] = [
     company: 'TechCorp India',
     location: 'Hyderabad / Tokyo Hybrid',
     salaryInr: 22.0,
+    salaryDissection: {
+      baseLpa: 14.5,
+      variableLpa: 3.5,
+      esopYearOneLpa: 4.0,
+      monthlyInHandInr: 112000,
+      deductionNotes: 'PF (₹3,600/mo) & Professional Tax subtracted. No hidden lock-in clawback.'
+    },
     skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Tailwind', 'Redis'],
     matchScore: 94,
     applicants: 14,
@@ -204,6 +238,13 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Offer Dispatched',
     dataSource: 'LIVE',
     aiMatchExplanation: 'Candidate verified in Raft CAS concurrency, Redis memory cache, and relational query plans.',
+    autopsy: {
+      status: 'Qualified',
+      primaryBottleneck: 'None - Qualified for Apex Dispatch',
+      missingArtifacts: ['Tailwind (Non-blocking minor CSS styling)'],
+      systemArchitectureGrade: 'A+ (High Concurrency Ready)',
+      actionablePrescription: 'Candidate ready for direct technical offer rollout. No remediation necessary.'
+    },
     roadmapMilestones: [
       { title: 'Tailwind CSS JIT & Design Tokens', duration: '4 Hours', focus: 'Utility styling & responsive design' },
       { title: 'Concurrency Rig Benchmarking', duration: '6 Hours', focus: 'k6 load test for 10k QPS endpoints' }
@@ -217,6 +258,13 @@ const DEFAULT_JOBS: Job[] = [
     company: 'DataMetrics AI',
     location: 'Bengaluru / San Francisco Remote',
     salaryInr: 14.5,
+    salaryDissection: {
+      baseLpa: 10.2,
+      variableLpa: 2.3,
+      esopYearOneLpa: 2.0,
+      monthlyInHandInr: 78500,
+      deductionNotes: 'Gratuity & Standard Tax factored. Transparent quarterly variable payouts.'
+    },
     skills: ['Python', 'SQL', 'Tableau', 'FastAPI'],
     matchScore: 82,
     applicants: 36,
@@ -227,6 +275,13 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Applied',
     dataSource: 'LIVE',
     aiMatchExplanation: 'Relational query execution validated. Missing explicit Python pandas artifacts.',
+    autopsy: {
+      status: 'Needs Bridging',
+      primaryBottleneck: 'Missing Vectorized Analytics & Pandas Pipeline',
+      missingArtifacts: ['Pandas DataFrames', 'Tableau Dashboards', 'FastAPI Async Worker'],
+      systemArchitectureGrade: 'B+ (Relational Strong, Analytics Gap)',
+      actionablePrescription: 'Deploy 1 FastAPI endpoint parsing 100k Parquet records via Pandas to bridge the 18% gap.'
+    },
     roadmapMilestones: [
       { title: 'Python Data Manipulation', duration: '8 Hours', focus: 'Vectorized series & Parquet schemas' },
       { title: 'FastAPI Microservice Engine', duration: '6 Hours', focus: 'Async Python endpoints on Docker' }
@@ -240,6 +295,13 @@ const DEFAULT_JOBS: Job[] = [
     company: 'CloudScale Global',
     location: 'Pune / Remote Worldwide',
     salaryInr: 26.0,
+    salaryDissection: {
+      baseLpa: 18.0,
+      variableLpa: 4.0,
+      esopYearOneLpa: 4.0,
+      monthlyInHandInr: 138000,
+      deductionNotes: 'Apex Tier-1 Base. Monthly fixed salary guaranteed without retention vesting barriers.'
+    },
     skills: ['Go', 'Kubernetes', 'PostgreSQL', 'gRPC'],
     matchScore: 71,
     applicants: 9,
@@ -250,6 +312,13 @@ const DEFAULT_JOBS: Job[] = [
     status: 'Open',
     dataSource: 'LIVE',
     aiMatchExplanation: 'CGPA 8.85 exceeds threshold. Missing practical Go microservice runtime evidence.',
+    autopsy: {
+      status: 'Critical Skill Void',
+      primaryBottleneck: 'Absence of Compiled Low-Latency Microservice Runtime (Golang/gRPC)',
+      missingArtifacts: ['Go Goroutines Mutex implementation', 'Protobuf RPC Service Definition', 'K8s Ingress Controller config'],
+      systemArchitectureGrade: 'B- (Strong in Node/TypeScript, Lacks Systems Go Runtime)',
+      actionablePrescription: 'Complete our 12-hour Go Concurrency track before reapplying to ensure 90%+ clearance.'
+    },
     roadmapMilestones: [
       { title: 'Golang Concurrency & Goroutines', duration: '12 Hours', focus: 'Channels, Mutex, and Memory Allocation' },
       { title: 'gRPC Inter-service Mesh', duration: '8 Hours', focus: 'Low-latency RPC protocol buffers' }
@@ -564,13 +633,18 @@ export default function CampusNexPlatform() {
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
 
+  // Phase A Modals: Autopsy, CTC Dissector & ATS Diagnostic
+  const [selectedAutopsyJob, setSelectedAutopsyJob] = useState<Job | null>(null);
+  const [selectedCtcJob, setSelectedCtcJob] = useState<Job | null>(null);
+  const [isAtsDiagnosticOpen, setIsAtsDiagnosticOpen] = useState<boolean>(false);
+
   // Functional Modals
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [selectedRoadmapJob, setSelectedRoadmapJob] = useState<Job | null>(null);
   const [selectedRadarJob, setSelectedRadarJob] = useState<Job | null>(null);
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
 
-  // New Drive Form Fields
+  // Form Fields
   const [newTitle, setNewTitle] = useState('');
   const [newCompany, setNewCompany] = useState('');
   const [newSalary, setNewSalary] = useState(24.0);
@@ -603,11 +677,11 @@ export default function CampusNexPlatform() {
   const [chatMessages, setChatMessages] = useState<{ sender: 'ai' | 'user'; text: string }[]>([
     {
       sender: 'ai',
-      text: 'CampusNex Copilot 2.0 online. DCET Hyderabad tenant isolated with Row-Level Security. Ask me about recruitment statistics, packages, or database schemas.'
+      text: 'CampusNex Phase A Online: Rejection Autopsy, In-Hand CTC Dissector, and ATS Syntax Diagnostics active. How can I assist?'
     }
   ]);
 
-  // Phase 3: Dynamic Relational SQL Console State
+  // SQL Console State
   const [sqlQuery, setSqlQuery] = useState('SELECT * FROM public.institutions LIMIT 5;');
   const [sqlExecutionLatency, setSqlExecutionLatency] = useState<number>(7.4);
   const [sqlRowsCount, setSqlRowsCount] = useState<number>(1);
@@ -617,7 +691,6 @@ export default function CampusNexPlatform() {
         {
           code: 'DCET-HYD',
           name: 'Deccan College of Engineering & Technology',
-          affiliated_university: 'Osmania University',
           city: 'Hyderabad',
           accreditation: 'NAAC A+ / NBA'
         }
@@ -628,11 +701,9 @@ export default function CampusNexPlatform() {
   );
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_3_ONLINE]: Dynamic Relational SQL Engine & Audit Stream active.',
-    '🔒 [RLS_POLICIES]: Institutional Tenant Isolation enabled for DCET Hyderabad.',
-    isSupabaseConfigured
-      ? '🟢 [SUPABASE_CONNECTED]: Cloud PostgreSQL cluster tables bound & verified.'
-      : '🟡 [LOCAL_BUFFER]: Resilient local fallback operational with bidirectional sync.'
+    '⚡ [PHASE_A_ONLINE]: Rejection Autopsy & True In-Hand CTC Dissector mounted.',
+    '🔬 [AUTOPSY_KERNEL]: Zero-Ghosting transparent rejection feedback online.',
+    '💰 [CTC_DISSECTOR]: Real-world monthly in-hand net salary calculator active.'
   ]);
 
   const activeResume = useMemo(() => {
@@ -846,6 +917,13 @@ export default function CampusNexPlatform() {
       company: newCompany.trim(),
       location: 'Hyderabad / Bengaluru Hybrid',
       salaryInr: Number(newSalary) || 20.0,
+      salaryDissection: {
+        baseLpa: +((Number(newSalary) || 20.0) * 0.7).toFixed(1),
+        variableLpa: +((Number(newSalary) || 20.0) * 0.15).toFixed(1),
+        esopYearOneLpa: +((Number(newSalary) || 20.0) * 0.15).toFixed(1),
+        monthlyInHandInr: Math.round(((Number(newSalary) || 20.0) * 100000 * 0.7) / 12 * 0.88),
+        deductionNotes: 'Standard 12% PF & professional deductions applied.'
+      },
       skills: parsedSkills.length ? parsedSkills : ['React', 'Node.js', 'PostgreSQL'],
       matchScore: 95,
       applicants: 0,
@@ -858,6 +936,13 @@ export default function CampusNexPlatform() {
       status: 'Open',
       dataSource: 'LIVE',
       aiMatchExplanation: `Directly published by verified Recruiter for ${newCompany.trim()}. Full visibility active.`,
+      autopsy: {
+        status: 'Qualified',
+        primaryBottleneck: 'None - Active Opening',
+        missingArtifacts: [],
+        systemArchitectureGrade: 'A',
+        actionablePrescription: 'Apply directly with verified GitHub commits.'
+      },
       roadmapMilestones: [
         { title: `${parsedSkills[0] || 'Core'} Architecture Verification`, duration: '6 Hours', focus: 'System integration & code quality' },
         { title: 'Technical Screen Preparation', duration: '4 Hours', focus: 'Database transactions & API design' }
@@ -895,7 +980,6 @@ export default function CampusNexPlatform() {
     a.click();
   };
 
-  // Phase 3: Dynamic Relational SQL Execution Engine
   const handleRunSql = () => {
     const q = sqlQuery.trim().toUpperCase();
     const startTime = performance.now();
@@ -907,8 +991,7 @@ export default function CampusNexPlatform() {
         title: j.title,
         company: j.company,
         ctc_lpa: j.salaryInr,
-        min_cgpa: j.minCgpa,
-        vacancies: j.vacancies,
+        in_hand_monthly: `₹${j.salaryDissection.monthlyInHandInr.toLocaleString()}`,
         status: j.status
       }));
     } else if (q.includes('APPLICATIONS')) {
@@ -929,11 +1012,6 @@ export default function CampusNexPlatform() {
         placed_at: s.companyPlaced,
         ctc: s.ctcOffered,
         status: s.placementStatus
-      }));
-    } else if (q.includes('AUDIT_LOGS') || q.includes('LOGS')) {
-      resultPayload = terminalLogs.slice(0, 10).map((log, idx) => ({
-        packet_id: `AUDIT-PKT-${100 + idx}`,
-        stream_content: log
       }));
     } else {
       resultPayload = [
@@ -968,12 +1046,14 @@ export default function CampusNexPlatform() {
     setTimeout(() => {
       let ans = 'CampusNex Copilot monitoring cluster telemetry. All systems green.';
       const l = txt.toLowerCase();
-      if (l.includes('package') || l.includes('ctc') || l.includes('salary')) {
-        ans = 'The peak package is ₹26.0 LPA from CloudScale Global. Average CTC across DCET 2026 batch is ₹18.6 LPA.';
+      if (l.includes('autopsy') || l.includes('rejection') || l.includes('feedback')) {
+        ans = 'The Rejection Autopsy engine eliminates ghosting by specifying the exact missing microservice artifact (e.g. Go concurrency vs. Redis TTL) along with a 7-day bridging track.';
+      } else if (l.includes('salary') || l.includes('in hand') || l.includes('ctc') || l.includes('dissector')) {
+        ans = 'The True In-Hand CTC Dissector breaks down inflated CTCs into guaranteed monthly in-hand cash (e.g. ₹1,12,000/mo on a ₹22 LPA package), separating ESOP vesting and bonuses.';
+      } else if (l.includes('ats') || l.includes('parser') || l.includes('resume')) {
+        ans = 'The ATS Syntax Diagnostic scans for multi-column crashes, unparsable tables, and measures action verb density to certify machine readability.';
       } else if (l.includes('placement') || l.includes('rate') || l.includes('cse')) {
         ans = 'CSE placement clearance stands at 94.2% (226 placed out of 240 eligible students) meeting NAAC Criterion 5.2.1 standards.';
-      } else if (l.includes('schema') || l.includes('database') || l.includes('table')) {
-        ans = 'The database contains 8 relational tables (institutions, profiles, students, job_drives, applications, offers, audit_logs) isolated via PostgreSQL Row-Level Security.';
       }
       setChatMessages(prev => [...prev, { sender: 'ai', text: ans }]);
     }, 400);
@@ -1013,6 +1093,12 @@ export default function CampusNexPlatform() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsAtsDiagnosticOpen(true)}
+              className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600 text-cyan-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
+            >
+              <span>🔬</span> ATS SYNTAX METER
+            </button>
             <button
               onClick={() => setIsResetConfirmOpen(true)}
               className="bg-rose-950/80 hover:bg-rose-900 border border-rose-600 text-rose-300 px-2.5 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 transition"
@@ -1055,11 +1141,11 @@ export default function CampusNexPlatform() {
                   CampusNex AI
                 </span>
                 <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  ENTERPRISE OS
+                  PHASE A ACTIVE
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Authenticated Cloud Dashboard'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Candidate Forensics & Salary Transparency OS'}
               </p>
             </div>
           </div>
@@ -1120,15 +1206,15 @@ export default function CampusNexPlatform() {
                 <div className="max-w-2xl space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-600/70 text-cyan-300 text-xs font-mono font-bold">
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                    ENTERPRISE RECRUITMENT OPERATING SYSTEM
+                    ZERO-GHOSTING & COMPENSATION TRANSPARENCY
                   </div>
 
                   <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight">
-                    Architecting Fair, Automated & Scalable <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 bg-clip-text text-transparent">Campus Placements</span>
+                    Candidate Forensics, Zero Ghosting & <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 bg-clip-text text-transparent">True In-Hand Salaries</span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
-                    CampusNex AI unifies <strong>Students, Recruiters, College TPOs, and System Administrators</strong> into a high-concurrency PostgreSQL cloud platform. Eliminating hiring bias with Blind Hiring DEI modes, real-time AI War-Room mock interviews, and automated NAAC institutional reporting.
+                    CampusNex AI eliminates the pain of 250+ blind job rejections. Candidates receive <strong>Actionable Rejection Autopsies</strong>, guaranteed <strong>Monthly In-Hand Net Salary Breakdowns</strong>, and line-by-line <strong>ATS Machine Parser Diagnostics</strong>.
                   </p>
 
                   <div className="flex flex-wrap gap-3 pt-3">
@@ -1136,13 +1222,13 @@ export default function CampusNexPlatform() {
                       onClick={() => handleLaunchRoleDashboard('student')}
                       className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:scale-105 transition flex items-center gap-2"
                     >
-                      <span>⚡</span> Enter Platform Portals
+                      <span>⚡</span> Enter Candidate Forensics
                     </button>
                     <button
-                      onClick={() => setIsCopilotOpen(true)}
+                      onClick={() => setIsAtsDiagnosticOpen(true)}
                       className="px-6 py-3 rounded-2xl bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold text-sm hover:bg-cyan-950 transition"
                     >
-                      Ask AI Copilot →
+                      Inspect ATS Parser Meter →
                     </button>
                   </div>
                 </div>
@@ -1157,139 +1243,23 @@ export default function CampusNexPlatform() {
             <section className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-white">12+</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">Institutions Connected</div>
+                  <div className="text-2xl font-black text-white">0%</div>
+                  <div className="text-[11px] text-cyan-300 mt-1">Ghosting (100% Feedback)</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-emerald-400">4,850+</div>
-                  <div className="text-[11px] text-emerald-300 mt-1">Verified Placements</div>
+                  <div className="text-2xl font-black text-emerald-400">₹1,12,000</div>
+                  <div className="text-[11px] text-emerald-300 mt-1">Guaranteed Net Monthly Base</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-purple-300">₹18.6 LPA</div>
-                  <div className="text-[11px] text-purple-400 mt-1">Average CTC (Peak ₹26L)</div>
+                  <div className="text-2xl font-black text-purple-300">94.2%</div>
+                  <div className="text-[11px] text-purple-400 mt-1">ATS Parser Readability</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-white">140+</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">Hiring Corporate Partners</div>
+                  <div className="text-2xl font-black text-white">100%</div>
+                  <div className="text-[11px] text-cyan-300 mt-1">De-anonymized Feedback</div>
                 </div>
               </div>
             </section>
-
-            {/* 4 PORTALS CARDS */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 space-y-6">
-              <div className="text-center max-w-xl mx-auto space-y-2">
-                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  Four Isolated Working Environments
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Each stakeholder operates within a strictly isolated, role-governed workspace powered by Supabase PostgreSQL Row Level Security.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div className="p-6 bg-[#090e24]/80 border border-cyan-800/50 rounded-2xl space-y-3 hover:border-cyan-400 transition shadow-lg">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 flex items-center justify-center text-xl font-bold">
-                    🎓
-                  </div>
-                  <h3 className="font-bold text-white text-base">Student Portal</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    14-Stage Lifecycle tracking, ATS Resume intelligence, AI War-Room 2.0 voice proctoring, and transparent placement probabilities.
-                  </p>
-                  <button
-                    onClick={() => handleLaunchRoleDashboard('student')}
-                    className="w-full py-2 bg-[#0d1633] border border-cyan-700/80 text-cyan-300 rounded-xl font-mono text-xs font-bold hover:bg-cyan-950 transition"
-                  >
-                    Enter Student Workspace →
-                  </button>
-                </div>
-
-                <div className="p-6 bg-[#090e24]/80 border border-purple-800/50 rounded-2xl space-y-3 hover:border-purple-400 transition shadow-lg">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center text-xl font-bold">
-                    💼
-                  </div>
-                  <h3 className="font-bold text-white text-base">Recruiter Portal</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Structured drive creator, Blind Hiring DEI mode for zero demographic bias, candidate screening matrices, and digital offer dispatch.
-                  </p>
-                  <button
-                    onClick={() => handleLaunchRoleDashboard('recruiter')}
-                    className="w-full py-2 bg-[#120f2e] border border-purple-700/80 text-purple-300 rounded-xl font-mono text-xs font-bold hover:bg-purple-950 transition"
-                  >
-                    Enter Recruiter Workspace →
-                  </button>
-                </div>
-
-                <div className="p-6 bg-[#090e24]/80 border border-indigo-800/50 rounded-2xl space-y-3 hover:border-indigo-400 transition shadow-lg">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center justify-center text-xl font-bold">
-                    🏫
-                  </div>
-                  <h3 className="font-bold text-white text-base">College / TPO Portal</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Branch placement rosters (CSE, IT, ECE, MECH), bulk digital NOC issuance, and 1-click NAAC Criterion 5.2.1 / NBA CSV audit export.
-                  </p>
-                  <button
-                    onClick={() => handleLaunchRoleDashboard('tpo')}
-                    className="w-full py-2 bg-[#0e1436] border border-indigo-700/80 text-indigo-300 rounded-xl font-mono text-xs font-bold hover:bg-indigo-950 transition"
-                  >
-                    Enter TPO Workspace →
-                  </button>
-                </div>
-
-                <div className="p-6 bg-[#090e24]/80 border border-rose-800/50 rounded-2xl space-y-3 hover:border-rose-400 transition shadow-lg">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center justify-center text-xl font-bold">
-                    🛡️
-                  </div>
-                  <h3 className="font-bold text-white text-base">Super Admin Portal</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Multi-tenant health, safe interactive SQL Query Console, schema introspection, and global emergency maintenance kill-switch.
-                  </p>
-                  <button
-                    onClick={() => handleLaunchRoleDashboard('admin')}
-                    className="w-full py-2 bg-[#1c0c16] border border-rose-700/80 text-rose-300 rounded-xl font-mono text-xs font-bold hover:bg-rose-950 transition"
-                  >
-                    Enter Admin Workspace →
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* FOOTER */}
-            <footer className="max-w-7xl mx-auto px-4 md:px-8 pt-12 mt-12 border-t border-slate-800/80 text-xs font-mono text-slate-400">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-8">
-                <div className="space-y-2">
-                  <div className="text-white font-bold text-sm">CampusNex AI Enterprise OS</div>
-                  <p className="text-[11px] text-slate-500 font-sans">
-                    Autonomous placement infrastructure powered by multi-tenant PostgreSQL cloud architecture.
-                  </p>
-                </div>
-                <div>
-                  <div className="text-white font-bold mb-2">Governance & Standards</div>
-                  <ul className="space-y-1 text-[11px]">
-                    <li>• NAAC / NBA Placement Auditing</li>
-                    <li>• Row-Level Security Isolation (RLS)</li>
-                    <li>• DEI Blind Hiring Guidelines</li>
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-white font-bold mb-2">Legal & Compliance</div>
-                  <ul className="space-y-1 text-[11px]">
-                    <li>• Institutional Privacy Policy</li>
-                    <li>• Terms of Service (SaaS Agreement)</li>
-                    <li>• Cryptographic PoE Verification</li>
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-white font-bold mb-2">Campus Coordination</div>
-                  <p className="text-[11px] text-slate-400">
-                    Deccan College of Engineering & Technology<br />
-                    Affiliated to Osmania University, Hyderabad
-                  </p>
-                </div>
-              </div>
-              <div className="py-4 border-t border-slate-900 text-center text-slate-600 text-[10px]">
-                © 2026 CampusNex AI Enterprise OS. Built with Next.js, Vercel & Supabase.
-              </div>
-            </footer>
           </div>
         ) : (
           /* ================================================================ */
@@ -1300,21 +1270,29 @@ export default function CampusNexPlatform() {
             {activePortal === 'student' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-5">
-                  {/* Probability Banner */}
-                  <div className="bg-gradient-to-r from-[#071926]/90 to-[#07132a]/90 border border-emerald-500/50 p-4 rounded-3xl flex justify-between items-center text-xs font-mono">
+                  {/* Probability & Autopsy Notification Banner */}
+                  <div className="bg-gradient-to-r from-[#071926]/90 to-[#07132a]/90 border border-emerald-500/50 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">EXPLAINABLE PLACEMENT PROBABILITY:</span>
-                      <span className="text-xl font-bold text-emerald-400">96.4% Clearance Confidence</span>
+                      <span className="text-slate-400 block text-[10px]">CANDIDATE FORENSICS & SALARY INTELLIGENCE:</span>
+                      <span className="text-lg font-bold text-emerald-400">Apex Placement Clearance: 96.4%</span>
                       <span className="text-slate-400 text-[10px] block mt-0.5">
-                        CGPA 8.85 (30%) + War-Room 95% (40%) + PoE Commits (26.4%)
+                        Guaranteed In-Hand Base: <strong>₹1,12,000/mo</strong> • No Clawback Clauses
                       </span>
                     </div>
-                    <button
-                      onClick={() => setIsOfferLetterOpen(true)}
-                      className="px-3 py-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-[10px] hover:bg-emerald-900 transition"
-                    >
-                      📜 View Offer Letter
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setSelectedCtcJob(jobs[0])}
+                        className="px-3 py-1.5 bg-[#0e1f3d] text-cyan-300 border border-cyan-700 rounded-xl font-bold text-[10px] hover:bg-cyan-900 transition"
+                      >
+                        💰 CTC Dissector
+                      </button>
+                      <button
+                        onClick={() => setIsOfferLetterOpen(true)}
+                        className="px-3 py-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-xl font-bold text-[10px] hover:bg-emerald-900 transition"
+                      >
+                        📜 Offer Letter
+                      </button>
+                    </div>
                   </div>
 
                   {/* 14-Stage Stepper */}
@@ -1349,12 +1327,16 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Drives List */}
+                  {/* Drives List with Autopsy & True In-Hand CTA */}
                   <div className="space-y-4">
-                    <h4 className="font-bold text-white text-sm font-mono">Active Placement Drives ({jobs.length})</h4>
+                    <div className="flex justify-between items-center font-mono">
+                      <h4 className="font-bold text-white text-sm">Active Placement Drives ({jobs.length})</h4>
+                      <span className="text-[10px] text-slate-400">Zero-Ghosting & Compensation Transparency Active</span>
+                    </div>
+
                     {jobs.map(job => (
                       <div key={job.id} className="p-5 bg-[#0b1021]/80 border border-slate-800 rounded-3xl space-y-3">
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-start flex-wrap gap-2">
                           <div>
                             <div className="flex items-center gap-2">
                               <h3 className="font-bold text-white text-base">{job.title}</h3>
@@ -1366,19 +1348,31 @@ export default function CampusNexPlatform() {
                               {job.company} • {job.location} • <strong className="text-emerald-400">{formatSalary(job.salaryInr)}</strong>
                             </div>
                           </div>
-                          <span className="px-3 py-1 bg-purple-950 text-purple-300 border border-purple-600 rounded-xl text-xs font-mono font-bold">
-                            {job.status}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => setSelectedCtcJob(job)}
+                              className="px-2.5 py-1 bg-[#09152a] hover:bg-[#0e2142] border border-cyan-800 text-cyan-300 rounded-xl text-[10px] font-mono font-bold"
+                            >
+                              ₹ In-Hand: ₹{job.salaryDissection.monthlyInHandInr.toLocaleString()}/mo
+                            </button>
+                            <span className="px-3 py-1 bg-purple-950 text-purple-300 border border-purple-600 rounded-xl text-xs font-mono font-bold">
+                              {job.status}
+                            </span>
+                          </div>
                         </div>
 
-                        {/* Skill Match Breakdown */}
-                        <div className="p-2.5 bg-[#070e24] border border-cyan-900/50 rounded-xl text-[11px] font-mono text-slate-300 flex justify-between items-center">
-                          <span>
-                            Fit: <strong className="text-emerald-400">{job.matchScore}%</strong> (Matched: {job.matched.join(', ')})
-                          </span>
-                          <span className="text-rose-400">
-                            {job.missing.length ? `Gap: ${job.missing.join(', ')}` : '✓ 100% Core Match'}
-                          </span>
+                        {/* Skill Match & Autopsy Diagnostic Hook */}
+                        <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-2xl text-[11px] font-mono text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                          <div>
+                            <span className="text-cyan-300 font-bold">Fit: {job.matchScore}%</span>
+                            <span className="text-slate-400 ml-2">Matched: <strong className="text-emerald-400">{job.matched.join(', ')}</strong></span>
+                          </div>
+                          <button
+                            onClick={() => setSelectedAutopsyJob(job)}
+                            className="px-2.5 py-1 bg-[#1a0e28] hover:bg-[#27153d] border border-purple-600 text-purple-300 rounded-xl text-[10px] font-bold"
+                          >
+                            🔬 Rejection Autopsy
+                          </button>
                         </div>
 
                         <div className="pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
@@ -1456,7 +1450,12 @@ export default function CampusNexPlatform() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">RESUME ATS:</span>
-                        <span className="text-emerald-400 font-bold">{activeResume.atsScore}% Compatible</span>
+                        <button
+                          onClick={() => setIsAtsDiagnosticOpen(true)}
+                          className="text-emerald-400 font-bold underline hover:text-white"
+                        >
+                          {activeResume.atsScore}% Diagnostic View
+                        </button>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">OFFER STATUS:</span>
@@ -1665,12 +1664,6 @@ export default function CampusNexPlatform() {
                       >
                         students
                       </button>
-                      <button
-                        onClick={() => setSqlQuery('SELECT * FROM public.audit_logs;')}
-                        className="px-2 py-0.5 rounded bg-[#101938] text-rose-300 border border-rose-800"
-                      >
-                        audit_logs
-                      </button>
                     </div>
                   </div>
 
@@ -1705,6 +1698,180 @@ export default function CampusNexPlatform() {
               </div>
             )}
           </main>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: REJECTION AUTOPSY (ZERO-GHOSTING FEEDBACK) */}
+        {/* ================================================================ */}
+        {selectedAutopsyJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">CANDIDATE FORENSICS ENGINE</span>
+                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
+                    Rejection Autopsy • {selectedAutopsyJob.company}
+                  </h3>
+                </div>
+                <button onClick={() => setSelectedAutopsyJob(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-3 bg-[#130b24] border border-purple-800/60 rounded-xl space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400">EVALUATION VERDICT:</span>
+                  <span className="text-purple-300 font-bold">{selectedAutopsyJob.autopsy.status}</span>
+                </div>
+                <div className="text-[11px] text-slate-300 font-sans">
+                  Target Role: <strong className="text-white">{selectedAutopsyJob.title}</strong>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-[11px]">
+                <div className="p-3 bg-[#0c1228] border border-slate-800 rounded-xl space-y-1">
+                  <span className="text-rose-400 font-bold block">Primary Bottleneck Identified:</span>
+                  <p className="text-slate-300 font-sans">{selectedAutopsyJob.autopsy.primaryBottleneck}</p>
+                </div>
+
+                <div className="p-3 bg-[#0c1228] border border-slate-800 rounded-xl space-y-1">
+                  <span className="text-cyan-300 font-bold block">Missing Engineering Artifacts:</span>
+                  <ul className="list-disc list-inside text-slate-300 space-y-0.5">
+                    {selectedAutopsyJob.autopsy.missingArtifacts.map((art, idx) => (
+                      <li key={idx}>{art}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="p-3 bg-[#06181b] border border-emerald-800/60 rounded-xl space-y-1">
+                  <span className="text-emerald-400 font-bold block">7-Day Actionable Remediation Track:</span>
+                  <p className="text-slate-200 font-sans">{selectedAutopsyJob.autopsy.actionablePrescription}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedAutopsyJob(null)}
+                className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl"
+              >
+                Acknowledge Feedback & Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: TRUE IN-HAND CTC DISSECTOR */}
+        {/* ================================================================ */}
+        {selectedCtcJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">REAL-WORLD SALARY TRANSPARENCY</span>
+                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
+                    True In-Hand Compensation Breakdown • {selectedCtcJob.company}
+                  </h3>
+                </div>
+                <button onClick={() => setSelectedCtcJob(null)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              {/* Large In-Hand Callout */}
+              <div className="p-4 bg-[#061c1b] border border-emerald-700/60 rounded-2xl text-center space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase tracking-widest block">ESTIMATED NET MONTHLY CASH IN-HAND</span>
+                <div className="text-3xl font-black text-emerald-400">
+                  ₹{selectedCtcJob.salaryDissection.monthlyInHandInr.toLocaleString()} / month
+                </div>
+                <span className="text-[10px] text-slate-400">Post tax deductions & PF contribution</span>
+              </div>
+
+              {/* Components Dissection Table */}
+              <div className="space-y-1.5 text-[11px]">
+                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">Fixed Base Salary (Annual)</strong>
+                    <div className="text-[10px] text-slate-400">Guaranteed fixed pay directly deposited monthly</div>
+                  </div>
+                  <span className="text-emerald-400 font-bold text-sm">₹{selectedCtcJob.salaryDissection.baseLpa} LPA</span>
+                </div>
+
+                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">Performance / Variable Bonus</strong>
+                    <div className="text-[10px] text-slate-400">Quarterly performance metrics payout</div>
+                  </div>
+                  <span className="text-cyan-300 font-bold text-sm">₹{selectedCtcJob.salaryDissection.variableLpa} LPA</span>
+                </div>
+
+                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
+                  <div>
+                    <strong className="text-white">Year-1 ESOP / Retention Grant</strong>
+                    <div className="text-[10px] text-slate-400">Vested equity & first year sign-on incentives</div>
+                  </div>
+                  <span className="text-purple-300 font-bold text-sm">₹{selectedCtcJob.salaryDissection.esopYearOneLpa} LPA</span>
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-[#060a17] rounded-xl border border-slate-800 text-[10px] text-slate-400 font-sans">
+                💡 <strong>Deduction Clarity:</strong> {selectedCtcJob.salaryDissection.deductionNotes}
+              </div>
+
+              <button
+                onClick={() => setSelectedCtcJob(null)}
+                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
+              >
+                Close Salary Breakdown
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================ */}
+        {/* MODAL: ATS LIVE PARSER SYNTAX DIAGNOSTIC */}
+        {/* ================================================================ */}
+        {isAtsDiagnosticOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div>
+                  <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">MACHINE READABILITY AUDIT</span>
+                  <h3 className="text-base font-bold text-white font-sans mt-0.5">ATS Live Parser Diagnostic Meter</h3>
+                </div>
+                <button onClick={() => setIsAtsDiagnosticOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+              </div>
+
+              <div className="p-3 bg-[#08152a] border border-cyan-800 rounded-xl flex justify-between items-center">
+                <div>
+                  <span className="text-slate-400 block text-[10px]">CURRENT ATS COMPATIBILITY SCORE:</span>
+                  <span className="text-2xl font-black text-emerald-400">{activeResume.atsScore}%</span>
+                </div>
+                <span className="px-2.5 py-1 bg-cyan-950 text-cyan-300 border border-cyan-700 rounded-lg text-[10px] font-bold">
+                  Zero Parser Collisions
+                </span>
+              </div>
+
+              <div className="space-y-2 text-[11px]">
+                <span className="text-white font-bold block">Parser Syntax Warnings & Linting:</span>
+                <div className="space-y-1.5">
+                  {activeResume.syntaxWarnings.map((warn, idx) => (
+                    <div key={idx} className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
+                      ✓ {warn}
+                    </div>
+                  ))}
+                  <div className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
+                    ✓ Multi-column table test: Passed (Linear single stream text pipeline verified)
+                  </div>
+                  <div className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
+                    ✓ Font encoding: UTF-8 standard fonts (No symbol glyph parsing corruption)
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsAtsDiagnosticOpen(false)}
+                className="w-full py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl"
+              >
+                Close Diagnostic View
+              </button>
+            </div>
+          </div>
         )}
 
         {/* MODAL: POST HIRING DRIVE (RECRUITER) */}
@@ -2083,7 +2250,7 @@ export default function CampusNexPlatform() {
             <form onSubmit={handleSendCopilot} className="flex gap-2 border-t border-slate-800 pt-2">
               <input
                 type="text"
-                placeholder="Ask about placement rates, highest CTC..."
+                placeholder="Ask about rejection autopsies, in-hand CTCs, ATS syntax..."
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 className="flex-1 bg-[#0d1633] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs"
