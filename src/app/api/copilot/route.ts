@@ -11,91 +11,47 @@ export async function POST(req: Request) {
       });
     }
 
-    const systemPrompt = `You are CampusNex Copilot, an expert AI career architect and campus recruitment intelligence assistant for DCET Hyderabad.
-Answer naturally, helpfully, concisely, and with authentic technical depth like ChatGPT or Gemini.`;
+    const systemPrompt = `You are CampusNex Copilot, an expert, conversational, intelligent AI career architect and placement strategist for DCET Hyderabad.
+Platform Context:
+- Institution: Deccan College of Engineering & Technology (Affiliated to Osmania University)
+- Student Profile: Verified APEX-01 (B.Tech CSE, CGPA 8.85, 0 backlogs)
+- Current Offer: TechCorp India (₹22 LPA Apex Offer secured)
+- Features: Fair-Share Protocol, Cryptographic Anti-Rescind Ledger, Stress Interview Outage War-Rooms, Rejection Autopsies.
 
-    // 1. First attempt with the latest Google standard models
-    const directModels = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
-    let replyText = '';
+Answer naturally, smartly, concisely, and with authentic technical depth like ChatGPT or Gemini. If asked technical questions, provide clear engineering insights.`;
 
-    for (const model of directModels) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: `${systemPrompt}\n\nQuestion: ${message}` }]
-                }
-              ]
-            })
-          }
-        );
-
-        const data = await res.json();
-        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-          replyText = data.candidates[0].content.parts[0].text;
-          break;
-        }
-      } catch {
-        // continue to next model
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\nUser Question: ${message}` }]
+            }
+          ]
+        })
       }
-    }
-
-    if (replyText) {
-      return NextResponse.json({ reply: replyText });
-    }
-
-    // 2. Dynamic Discovery Fallback: Fetch available models directly for this API key
-    const listRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
     );
-    const listData = await listRes.json();
 
-    if (listData?.models && Array.isArray(listData.models)) {
-      const supportedModel = listData.models.find((m: any) =>
-        m.supportedGenerationMethods?.includes('generateContent')
-      );
+    const data = await response.json();
 
-      if (supportedModel?.name) {
-        const modelPath = supportedModel.name; // e.g. "models/gemini-..."
-        const genRes = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: `${systemPrompt}\n\nQuestion: ${message}` }]
-                }
-              ]
-            })
-          }
-        );
-        const genData = await genRes.json();
-        const discoveredReply = genData?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (discoveredReply) {
-          return NextResponse.json({ reply: discoveredReply });
-        }
-      }
+    if (data.error) {
+      return NextResponse.json({
+        reply: `⚠️ Gemini Error: ${data.error.message}`
+      });
     }
 
-    return NextResponse.json({
-      reply: `⚠️ Available models on your key: ${
-        listData?.models?.map((m: any) => m.name.replace('models/', '')).join(', ') ||
-        listData?.error?.message ||
-        'None found'
-      }`
-    });
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Apologies, I could not generate an answer right now.";
+
+    return NextResponse.json({ reply });
   } catch (error: any) {
     return NextResponse.json(
-      { reply: `⚠️ Server Route Exception: ${error?.message || 'Unknown network error'}` },
+      { reply: `⚠️ Server Error: ${error?.message || 'Connection failure'}` },
       { status: 500 }
     );
   }
