@@ -83,6 +83,14 @@ interface RejectionAutopsy {
   actionablePrescription: string;
 }
 
+interface StressCurveball {
+  scenario: string;
+  incidentType: 'DB Connection Exhaustion' | 'Cache Stampede Storm' | 'Raft Partition Desync';
+  timeAllowedSec: number;
+  idealSolution: string;
+  options: { label: string; correct: boolean; explanation: string }[];
+}
+
 interface Job {
   id: string;
   title: string;
@@ -103,6 +111,7 @@ interface Job {
   dataSource: 'LIVE' | 'DEMO';
   aiMatchExplanation: string;
   autopsy: RejectionAutopsy;
+  curveball: StressCurveball;
   roadmapMilestones: { title: string; duration: string; focus: string }[];
 }
 
@@ -134,6 +143,7 @@ interface CandidateProfile {
   verifiedCommits: string;
   currentStageIndex: number;
   mockInterviewScore: number;
+  stressComposureScore: number;
 }
 
 interface ApplicantRecord {
@@ -211,7 +221,8 @@ const DEFAULT_PROFILE: CandidateProfile = {
   poeHash: '#0x8942-APEX',
   verifiedCommits: '120+ Commits',
   currentStageIndex: 8,
-  mockInterviewScore: 95
+  mockInterviewScore: 95,
+  stressComposureScore: 96.5
 };
 
 const DEFAULT_JOBS: Job[] = [
@@ -244,6 +255,17 @@ const DEFAULT_JOBS: Job[] = [
       missingArtifacts: ['Tailwind (Non-blocking minor CSS styling)'],
       systemArchitectureGrade: 'A+ (High Concurrency Ready)',
       actionablePrescription: 'Candidate ready for direct technical offer rollout. No remediation necessary.'
+    },
+    curveball: {
+      scenario: 'PRODUCTION SEV-1: PostgreSQL Primary node connection pool exhausted during 40,000 QPS flash placement drive. P99 Latency spikes to 3,200ms.',
+      incidentType: 'DB Connection Exhaustion',
+      timeAllowedSec: 45,
+      idealSolution: 'Apply PgBouncer transaction pooling immediately and reroute all analytical read queries to read-replicas with a circuit breaker on hot tables.',
+      options: [
+        { label: 'Reroute reads to read-replicas + Enable PgBouncer transaction-mode pooling', correct: true, explanation: 'Safely relieves primary connection pressure within seconds.' },
+        { label: 'Restart the primary PostgreSQL container immediately', correct: false, explanation: 'Destructive: Drops all ongoing in-flight candidate checkout transactions.' },
+        { label: 'Increase max_connections parameter to 10,000 without pooler', correct: false, explanation: 'Causes severe memory thrashing and OS kernel OOM killer shutdown.' }
+      ]
     },
     roadmapMilestones: [
       { title: 'Tailwind CSS JIT & Design Tokens', duration: '4 Hours', focus: 'Utility styling & responsive design' },
@@ -282,6 +304,16 @@ const DEFAULT_JOBS: Job[] = [
       systemArchitectureGrade: 'B+ (Relational Strong, Analytics Gap)',
       actionablePrescription: 'Deploy 1 FastAPI endpoint parsing 100k Parquet records via Pandas to bridge the 18% gap.'
     },
+    curveball: {
+      scenario: 'OUTAGE: High-cardinality aggregation query locks analytics dashboard on 50M rows causing 504 Gateway Timeouts.',
+      incidentType: 'Cache Stampede Storm',
+      timeAllowedSec: 45,
+      idealSolution: 'Pre-compute rollups via materialized views refreshed concurrently and cache summaries in Redis.',
+      options: [
+        { label: 'Materialized Views with CONCURRENT refresh + Redis summary caching', correct: true, explanation: 'Prevents locking live analytical pipelines.' },
+        { label: 'Run raw SELECT SUM query on live production OLTP table every 10 seconds', correct: false, explanation: 'Locks transaction rows and crashes write throughput.' }
+      ]
+    },
     roadmapMilestones: [
       { title: 'Python Data Manipulation', duration: '8 Hours', focus: 'Vectorized series & Parquet schemas' },
       { title: 'FastAPI Microservice Engine', duration: '6 Hours', focus: 'Async Python endpoints on Docker' }
@@ -318,6 +350,16 @@ const DEFAULT_JOBS: Job[] = [
       missingArtifacts: ['Go Goroutines Mutex implementation', 'Protobuf RPC Service Definition', 'K8s Ingress Controller config'],
       systemArchitectureGrade: 'B- (Strong in Node/TypeScript, Lacks Systems Go Runtime)',
       actionablePrescription: 'Complete our 12-hour Go Concurrency track before reapplying to ensure 90%+ clearance.'
+    },
+    curveball: {
+      scenario: 'SPLIT-BRAIN ANOMALY: Network partition isolates 2 nodes in a 5-node Raft consensus cluster. Leader loses heartbeat.',
+      incidentType: 'Raft Partition Desync',
+      timeAllowedSec: 45,
+      idealSolution: 'Minority partition rejects write quorums ($2 < 3$ threshold), while majority partition elects a new term leader.',
+      options: [
+        { label: 'Reject minority writes ($2 < 3$ quorum) & trigger term reelection on majority', correct: true, explanation: 'Standard Raft safety invariant prevents uncommitted split state.' },
+        { label: 'Accept writes on both sides and manually merge conflicts later', correct: false, explanation: 'Violates linearizable distributed consistency and corrupts balances.' }
+      ]
     },
     roadmapMilestones: [
       { title: 'Golang Concurrency & Goroutines', duration: '12 Hours', focus: 'Channels, Mutex, and Memory Allocation' },
@@ -633,12 +675,19 @@ export default function CampusNexPlatform() {
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
 
-  // Phase A Modals: Autopsy, CTC Dissector & ATS Diagnostic
+  // Phase A Modals
   const [selectedAutopsyJob, setSelectedAutopsyJob] = useState<Job | null>(null);
   const [selectedCtcJob, setSelectedCtcJob] = useState<Job | null>(null);
   const [isAtsDiagnosticOpen, setIsAtsDiagnosticOpen] = useState<boolean>(false);
 
-  // Functional Modals
+  // Phase B States: Stress Curveball & Speech Composure
+  const [isCurveballActive, setIsCurveballActive] = useState<boolean>(false);
+  const [curveballTimeLeft, setCurveballTimeLeft] = useState<number>(45);
+  const [selectedCurveballOpt, setSelectedCurveballOpt] = useState<number | null>(null);
+  const [composureIndex, setComposureIndex] = useState<number>(96.5);
+  const [fillerWordsCount, setFillerWordsCount] = useState<number>(0);
+
+  // Common Modals
   const [isPostDriveOpen, setIsPostDriveOpen] = useState(false);
   const [selectedRoadmapJob, setSelectedRoadmapJob] = useState<Job | null>(null);
   const [selectedRadarJob, setSelectedRadarJob] = useState<Job | null>(null);
@@ -677,7 +726,7 @@ export default function CampusNexPlatform() {
   const [chatMessages, setChatMessages] = useState<{ sender: 'ai' | 'user'; text: string }[]>([
     {
       sender: 'ai',
-      text: 'CampusNex Phase A Online: Rejection Autopsy, In-Hand CTC Dissector, and ATS Syntax Diagnostics active. How can I assist?'
+      text: 'CampusNex Phase B Online: Dynamic Stress Curveball, Production Outage Simulators & Composure Radars active. How can I assist?'
     }
   ]);
 
@@ -701,9 +750,9 @@ export default function CampusNexPlatform() {
   );
 
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    '⚡ [PHASE_A_ONLINE]: Rejection Autopsy & True In-Hand CTC Dissector mounted.',
-    '🔬 [AUTOPSY_KERNEL]: Zero-Ghosting transparent rejection feedback online.',
-    '💰 [CTC_DISSECTOR]: Real-world monthly in-hand net salary calculator active.'
+    '⚡ [PHASE_B_ONLINE]: Stress-Interview Outage Curveball & Composure Radar active.',
+    '🚨 [CURVEBALL_ENGINE]: Mid-interview real-time SEV-1 production failure simulators mounted.',
+    '🎙️ [SPEECH_CADENCE]: Audio cadence & filler-word lexical density evaluator operational.'
   ]);
 
   const activeResume = useMemo(() => {
@@ -733,6 +782,7 @@ export default function CampusNexPlatform() {
     setBlindHiringMode(false);
     setEmergencyLock(false);
     setIsResetConfirmOpen(false);
+    setIsCurveballActive(false);
 
     try {
       localStorage.clear();
@@ -818,9 +868,40 @@ export default function CampusNexPlatform() {
     setWarRoomAnswer('');
     setWarRoomScore(null);
     setCountdown(60);
+    setIsCurveballActive(false);
+    setSelectedCurveballOpt(null);
+    setFillerWordsCount(0);
+    setComposureIndex(96.5);
     speakQuestion(mockQuestions[0].q);
   };
 
+  // Phase B: Trigger Disaster Curveball mid-interview
+  const handleTriggerCurveball = () => {
+    if (!activeWarRoomJob) return;
+    setIsCurveballActive(true);
+    setCurveballTimeLeft(activeWarRoomJob.curveball.timeAllowedSec);
+    setSelectedCurveballOpt(null);
+    speakQuestion(`Attention! Critical production outage alert! ${activeWarRoomJob.curveball.scenario}`);
+
+    const logEntry = `[${new Date().toLocaleTimeString()}] [STRESS_CURVEBALL]: Injected SEV-1 Disaster scenario: ${activeWarRoomJob.curveball.incidentType}.`;
+    setTerminalLogs(logs => [logEntry, ...logs.slice(0, 49)]);
+  };
+
+  // Curveball countdown
+  useEffect(() => {
+    let cTimer: any;
+    if (isCurveballActive && curveballTimeLeft > 0 && selectedCurveballOpt === null) {
+      cTimer = setInterval(() => {
+        setCurveballTimeLeft(t => t - 1);
+      }, 1000);
+    } else if (isCurveballActive && curveballTimeLeft === 0 && selectedCurveballOpt === null) {
+      // Time expired penalty
+      setComposureIndex(prev => +(prev - 8.5).toFixed(1));
+    }
+    return () => clearInterval(cTimer);
+  }, [isCurveballActive, curveballTimeLeft, selectedCurveballOpt]);
+
+  // Speech Recognition with Filler Word & Cadence Tracking
   const toggleMic = () => {
     if (typeof window === 'undefined') return;
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -842,7 +923,19 @@ export default function CampusNexPlatform() {
       rec.onstart = () => setIsMicRecording(true);
       rec.onresult = (e: any) => {
         let t = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const phrase = e.results[i][0].transcript;
+          t += phrase;
+
+          // Lexical filler scan
+          const fillers = ['um', 'like', 'uh', 'basically', 'you know'];
+          fillers.forEach(f => {
+            if (phrase.toLowerCase().includes(f)) {
+              setFillerWordsCount(c => c + 1);
+              setComposureIndex(prev => Math.max(82, +(prev - 0.4).toFixed(1)));
+            }
+          });
+        }
         setWarRoomAnswer(prev => prev + ' ' + t);
       };
       rec.onerror = () => setIsMicRecording(false);
@@ -855,20 +948,25 @@ export default function CampusNexPlatform() {
 
   useEffect(() => {
     let timer: any;
-    if (activeWarRoomJob && warRoomScore === null && countdown > 0) {
+    if (activeWarRoomJob && warRoomScore === null && countdown > 0 && !isCurveballActive) {
       timer = setInterval(() => setCountdown(c => c - 1), 1000);
     } else if (countdown === 0 && activeWarRoomJob && warRoomScore === null) {
       handleSubmitWarRoom();
     }
     return () => clearInterval(timer);
-  }, [activeWarRoomJob, countdown, warRoomScore]);
+  }, [activeWarRoomJob, countdown, warRoomScore, isCurveballActive]);
 
   const handleSubmitWarRoom = () => {
     const curQ = mockQuestions[warRoomQuestionIdx];
     const matchCount = curQ.keywords.filter(k => warRoomAnswer.toLowerCase().includes(k)).length;
     const score = Math.min(98, Math.max(91, 89 + matchCount * 2));
     setWarRoomScore(score);
-    setCandidateProfile(prev => ({ ...prev, mockInterviewScore: score, currentStageIndex: 4 }));
+    setCandidateProfile(prev => ({
+      ...prev,
+      mockInterviewScore: score,
+      stressComposureScore: composureIndex,
+      currentStageIndex: 4
+    }));
   };
 
   const handleStudentApply = (jobId: string) => {
@@ -942,6 +1040,16 @@ export default function CampusNexPlatform() {
         missingArtifacts: [],
         systemArchitectureGrade: 'A',
         actionablePrescription: 'Apply directly with verified GitHub commits.'
+      },
+      curveball: {
+        scenario: 'High throughput traffic surge creates socket exhaustion on API gateway.',
+        incidentType: 'DB Connection Exhaustion',
+        timeAllowedSec: 45,
+        idealSolution: 'Implement TCP connection reuse and scale gateway replicas horizontally.',
+        options: [
+          { label: 'Enable TCP keep-alive reuse + horizontal autoscaling', correct: true, explanation: 'Relieves socket exhaustion immediately.' },
+          { label: 'Reboot all servers simultaneously', correct: false, explanation: 'Causes a complete 502 outage.' }
+        ]
       },
       roadmapMilestones: [
         { title: `${parsedSkills[0] || 'Core'} Architecture Verification`, duration: '6 Hours', focus: 'System integration & code quality' },
@@ -1046,14 +1154,14 @@ export default function CampusNexPlatform() {
     setTimeout(() => {
       let ans = 'CampusNex Copilot monitoring cluster telemetry. All systems green.';
       const l = txt.toLowerCase();
-      if (l.includes('autopsy') || l.includes('rejection') || l.includes('feedback')) {
-        ans = 'The Rejection Autopsy engine eliminates ghosting by specifying the exact missing microservice artifact (e.g. Go concurrency vs. Redis TTL) along with a 7-day bridging track.';
-      } else if (l.includes('salary') || l.includes('in hand') || l.includes('ctc') || l.includes('dissector')) {
-        ans = 'The True In-Hand CTC Dissector breaks down inflated CTCs into guaranteed monthly in-hand cash (e.g. ₹1,12,000/mo on a ₹22 LPA package), separating ESOP vesting and bonuses.';
-      } else if (l.includes('ats') || l.includes('parser') || l.includes('resume')) {
-        ans = 'The ATS Syntax Diagnostic scans for multi-column crashes, unparsable tables, and measures action verb density to certify machine readability.';
-      } else if (l.includes('placement') || l.includes('rate') || l.includes('cse')) {
-        ans = 'CSE placement clearance stands at 94.2% (226 placed out of 240 eligible students) meeting NAAC Criterion 5.2.1 standards.';
+      if (l.includes('curveball') || l.includes('outage') || l.includes('stress') || l.includes('disaster')) {
+        ans = 'The Stress Curveball engine simulates real-world production incidents (DB connection exhaustion, cache stampede) mid-interview with a 45s recovery countdown to test engineer composure.';
+      } else if (l.includes('composure') || l.includes('filler') || l.includes('cadence')) {
+        ans = 'Speech Cadence telemetry actively detects lexical filler words (um, like, basically) and measures candidate calmness under countdown timers.';
+      } else if (l.includes('autopsy') || l.includes('rejection')) {
+        ans = 'Rejection Autopsies provide concrete forensic skill-void insights so students know exactly what microservice project to build next.';
+      } else if (l.includes('package') || l.includes('salary') || l.includes('ctc')) {
+        ans = 'Peak package is ₹26.0 LPA from CloudScale Global. Average CTC across DCET 2026 batch is ₹18.6 LPA with guaranteed in-hand breakdowns.';
       }
       setChatMessages(prev => [...prev, { sender: 'ai', text: ans }]);
     }, 400);
@@ -1140,12 +1248,12 @@ export default function CampusNexPlatform() {
                 <span className="text-2xl font-black bg-gradient-to-r from-cyan-300 via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                   CampusNex AI
                 </span>
-                <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
-                  PHASE A ACTIVE
+                <span className="text-[10px] bg-purple-500/15 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-mono font-bold tracking-wider">
+                  PHASE B ACTIVE
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono">
-                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Candidate Forensics & Salary Transparency OS'}
+                {currentView === 'landing' ? 'Public Enterprise Portal' : 'Live Production Curveball & Speech Composure War-Room'}
               </p>
             </div>
           </div>
@@ -1205,16 +1313,16 @@ export default function CampusNexPlatform() {
               <div className="relative rounded-3xl border border-purple-900/60 bg-gradient-to-r from-[#090620]/90 via-[#07112b]/85 to-[#04081c]/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(168,85,247,0.18)] p-8 lg:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
                 <div className="max-w-2xl space-y-4">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-600/70 text-cyan-300 text-xs font-mono font-bold">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                    ZERO-GHOSTING & COMPENSATION TRANSPARENCY
+                    <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                    LIVE PRODUCTION CURVEBALLS & COMPOSURE RADAR
                   </div>
 
                   <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight tracking-tight">
-                    Candidate Forensics, Zero Ghosting & <span className="bg-gradient-to-r from-cyan-400 via-indigo-300 to-pink-400 bg-clip-text text-transparent">True In-Hand Salaries</span>
+                    Beyond LeetCode: Real Production <span className="bg-gradient-to-r from-purple-400 via-pink-300 to-cyan-400 bg-clip-text text-transparent">Disaster Simulators</span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-sans">
-                    CampusNex AI eliminates the pain of 250+ blind job rejections. Candidates receive <strong>Actionable Rejection Autopsies</strong>, guaranteed <strong>Monthly In-Hand Net Salary Breakdowns</strong>, and line-by-line <strong>ATS Machine Parser Diagnostics</strong>.
+                    Testing engineering readiness under pressure. Mid-interview SEV-1 production failure scenarios, lexical filler-word speech cadence tracking, and transparent compensation breakdowns.
                   </p>
 
                   <div className="flex flex-wrap gap-3 pt-3">
@@ -1222,13 +1330,13 @@ export default function CampusNexPlatform() {
                       onClick={() => handleLaunchRoleDashboard('student')}
                       className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 text-white font-bold text-sm shadow-[0_0_25px_rgba(6,182,212,0.3)] hover:scale-105 transition flex items-center gap-2"
                     >
-                      <span>⚡</span> Enter Candidate Forensics
+                      <span>⚡</span> Enter Stress War-Room
                     </button>
                     <button
-                      onClick={() => setIsAtsDiagnosticOpen(true)}
+                      onClick={() => setIsCopilotOpen(true)}
                       className="px-6 py-3 rounded-2xl bg-[#09122c] border border-cyan-800 text-cyan-300 font-bold text-sm hover:bg-cyan-950 transition"
                     >
-                      Inspect ATS Parser Meter →
+                      Ask AI Copilot →
                     </button>
                   </div>
                 </div>
@@ -1243,20 +1351,20 @@ export default function CampusNexPlatform() {
             <section className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-white">0%</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">Ghosting (100% Feedback)</div>
+                  <div className="text-2xl font-black text-white">45s</div>
+                  <div className="text-[11px] text-cyan-300 mt-1">Disaster Mitigation Window</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-emerald-400">₹1,12,000</div>
-                  <div className="text-[11px] text-emerald-300 mt-1">Guaranteed Net Monthly Base</div>
+                  <div className="text-2xl font-black text-purple-400">96.5%</div>
+                  <div className="text-[11px] text-purple-300 mt-1">Engineer Composure Index</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
-                  <div className="text-2xl font-black text-purple-300">94.2%</div>
-                  <div className="text-[11px] text-purple-400 mt-1">ATS Parser Readability</div>
+                  <div className="text-2xl font-black text-emerald-400">0%</div>
+                  <div className="text-[11px] text-emerald-300 mt-1">LeetCode Memorization Bias</div>
                 </div>
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
                   <div className="text-2xl font-black text-white">100%</div>
-                  <div className="text-[11px] text-cyan-300 mt-1">De-anonymized Feedback</div>
+                  <div className="text-[11px] text-cyan-300 mt-1">SEV-1 Production Realism</div>
                 </div>
               </div>
             </section>
@@ -1270,13 +1378,15 @@ export default function CampusNexPlatform() {
             {activePortal === 'student' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-5">
-                  {/* Probability & Autopsy Notification Banner */}
-                  <div className="bg-gradient-to-r from-[#071926]/90 to-[#07132a]/90 border border-emerald-500/50 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono">
+                  {/* Probability & Composure Radar Banner */}
+                  <div className="bg-gradient-to-r from-[#071926]/90 to-[#07132a]/90 border border-purple-500/50 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">CANDIDATE FORENSICS & SALARY INTELLIGENCE:</span>
-                      <span className="text-lg font-bold text-emerald-400">Apex Placement Clearance: 96.4%</span>
+                      <span className="text-slate-400 block text-[10px]">ENGINEERING COMPOSURE & READINESS SCORE:</span>
+                      <span className="text-lg font-bold text-purple-300">
+                        Stress Composure: {candidateProfile.stressComposureScore}% • Clearance: 96.4%
+                      </span>
                       <span className="text-slate-400 text-[10px] block mt-0.5">
-                        Guaranteed In-Hand Base: <strong>₹1,12,000/mo</strong> • No Clawback Clauses
+                        Filler Word Frequency: <strong>Low (1.2%)</strong> • Production Incident Recovery: <strong>Verified</strong>
                       </span>
                     </div>
                     <div className="flex gap-2">
@@ -1327,11 +1437,11 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Drives List with Autopsy & True In-Hand CTA */}
+                  {/* Drives List */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center font-mono">
                       <h4 className="font-bold text-white text-sm">Active Placement Drives ({jobs.length})</h4>
-                      <span className="text-[10px] text-slate-400">Zero-Ghosting & Compensation Transparency Active</span>
+                      <span className="text-[10px] text-slate-400">SEV-1 Production Disaster Scenarios Ready</span>
                     </div>
 
                     {jobs.map(job => (
@@ -1361,18 +1471,23 @@ export default function CampusNexPlatform() {
                           </div>
                         </div>
 
-                        {/* Skill Match & Autopsy Diagnostic Hook */}
+                        {/* Skill Match & Outage Simulator Tag */}
                         <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-2xl text-[11px] font-mono text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                           <div>
                             <span className="text-cyan-300 font-bold">Fit: {job.matchScore}%</span>
                             <span className="text-slate-400 ml-2">Matched: <strong className="text-emerald-400">{job.matched.join(', ')}</strong></span>
                           </div>
-                          <button
-                            onClick={() => setSelectedAutopsyJob(job)}
-                            className="px-2.5 py-1 bg-[#1a0e28] hover:bg-[#27153d] border border-purple-600 text-purple-300 rounded-xl text-[10px] font-bold"
-                          >
-                            🔬 Rejection Autopsy
-                          </button>
+                          <div className="flex gap-2">
+                            <span className="text-rose-400 text-[10px] bg-rose-950/60 border border-rose-800/80 px-2 py-0.5 rounded font-bold">
+                              🚨 {job.curveball.incidentType}
+                            </span>
+                            <button
+                              onClick={() => setSelectedAutopsyJob(job)}
+                              className="px-2.5 py-1 bg-[#1a0e28] hover:bg-[#27153d] border border-purple-600 text-purple-300 rounded-xl text-[10px] font-bold"
+                            >
+                              🔬 Autopsy
+                            </button>
+                          </div>
                         </div>
 
                         <div className="pt-2 border-t border-slate-800 flex justify-between items-center flex-wrap gap-2">
@@ -1398,9 +1513,9 @@ export default function CampusNexPlatform() {
                             </button>
                             <button
                               onClick={() => handleOpenWarRoom(job)}
-                              className="px-2.5 py-1.5 bg-purple-950 hover:bg-purple-900 border border-purple-600 text-purple-200 font-bold rounded-xl text-xs font-mono"
+                              className="px-2.5 py-1.5 bg-gradient-to-r from-purple-900 to-rose-900 hover:from-purple-800 border border-purple-500 text-purple-200 font-bold rounded-xl text-xs font-mono shadow flex items-center gap-1"
                             >
-                              🎙️ War-Room
+                              <span>🎙️</span> AI War-Room 2.0
                             </button>
                             <button
                               onClick={() => handleStudentApply(job.id)}
@@ -1445,8 +1560,12 @@ export default function CampusNexPlatform() {
                         <span className="text-emerald-400 font-bold">{candidateProfile.cgpa}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-500">WAR-ROOM:</span>
+                        <span className="text-slate-500">WAR-ROOM SCORE:</span>
                         <span className="text-purple-300 font-bold">{candidateProfile.mockInterviewScore}% Cleared</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">STRESS COMPOSURE:</span>
+                        <span className="text-emerald-400 font-bold">{candidateProfile.stressComposureScore}% Index</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">RESUME ATS:</span>
@@ -1701,8 +1820,164 @@ export default function CampusNexPlatform() {
         )}
 
         {/* ================================================================ */}
-        {/* MODAL: REJECTION AUTOPSY (ZERO-GHOSTING FEEDBACK) */}
+        {/* MODAL: AI WAR-ROOM 2.0 WITH HARDENED PRODUCTION CURVEBALL */}
         {/* ================================================================ */}
+        {activeWarRoomJob && (
+          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+            <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-2xl p-6 text-xs font-mono space-y-4 shadow-2xl relative">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🎙️</span>
+                  <h3 className="text-base font-bold text-white font-sans">
+                    AI War-Room 2.0 • {activeWarRoomJob.title}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                      window.speechSynthesis.cancel();
+                    }
+                    setActiveWarRoomJob(null);
+                  }}
+                  className="text-slate-400 hover:text-white"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* CURVEBALL OUTAGE BANNER */}
+              {isCurveballActive && (
+                <div className="p-4 bg-gradient-to-r from-rose-950 via-[#260714] to-rose-950 border border-rose-500/80 rounded-2xl space-y-2 animate-pulse shadow-[0_0_25px_rgba(244,63,94,0.3)]">
+                  <div className="flex justify-between items-center text-rose-300 font-bold">
+                    <span className="flex items-center gap-2 text-sm font-sans">
+                      🚨 PRODUCTION SEV-1 OUTAGE SIMULATOR TRIGGERED!
+                    </span>
+                    <span className="text-xs bg-rose-900/80 border border-rose-500 px-2 py-0.5 rounded text-white">
+                      Time Left: {curveballTimeLeft}s
+                    </span>
+                  </div>
+                  <p className="text-white text-xs font-sans leading-relaxed">
+                    "{activeWarRoomJob.curveball.scenario}"
+                  </p>
+
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[10px] text-rose-300 block">Select Production Recovery Protocol:</span>
+                    {activeWarRoomJob.curveball.options.map((opt, oIdx) => (
+                      <button
+                        key={oIdx}
+                        onClick={() => {
+                          setSelectedCurveballOpt(oIdx);
+                          if (opt.correct) {
+                            setComposureIndex(prev => Math.min(99.5, +(prev + 3.0).toFixed(1)));
+                          } else {
+                            setComposureIndex(prev => Math.max(80, +(prev - 5.0).toFixed(1)));
+                          }
+                        }}
+                        className={`w-full text-left p-2.5 rounded-xl border text-[11px] transition ${
+                          selectedCurveballOpt === oIdx
+                            ? opt.correct
+                              ? 'bg-emerald-950 border-emerald-500 text-emerald-300 font-bold'
+                              : 'bg-rose-950 border-rose-500 text-rose-300 font-bold'
+                            : 'bg-[#100713] border-slate-800 text-slate-300 hover:border-rose-700'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedCurveballOpt !== null && (
+                    <div className="p-2 bg-[#050b18] rounded-xl text-[10px] text-cyan-300">
+                      💡 {activeWarRoomJob.curveball.options[selectedCurveballOpt].explanation}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {warRoomScore === null ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-[#0e1633] rounded-xl text-white font-sans text-xs">
+                    "{mockQuestions[warRoomQuestionIdx].q}"
+                  </div>
+
+                  {/* Speech & Composure Metrics Ticker */}
+                  <div className="grid grid-cols-3 gap-2 text-center text-[10px] p-2 bg-[#060a18] rounded-xl border border-slate-800">
+                    <div>
+                      <span className="text-slate-400 block">PRESSURE TIMER</span>
+                      <strong className="text-cyan-300">{countdown}s Remaining</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">FILLER WORDS DETECTED</span>
+                      <strong className={fillerWordsCount > 2 ? 'text-amber-400' : 'text-emerald-400'}>
+                        {fillerWordsCount} (Cadence Normal)
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">ENGINEERING COMPOSURE</span>
+                      <strong className="text-purple-300">{composureIndex}%</strong>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <button
+                      onClick={handleTriggerCurveball}
+                      className="px-3 py-1 bg-rose-950 hover:bg-rose-900 border border-rose-600 text-rose-300 rounded-xl text-[10px] font-bold transition flex items-center gap-1"
+                    >
+                      <span>🚨</span> Inject Production Outage Curveball
+                    </button>
+
+                    <button
+                      onClick={toggleMic}
+                      className={`px-3 py-1 rounded-xl text-[10px] font-bold ${isMicRecording ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#121c3d] text-cyan-300'}`}
+                    >
+                      {isMicRecording ? '🔴 Listening Dictation...' : '🎙️ Mic Speech-to-Text'}
+                    </button>
+                  </div>
+
+                  <textarea
+                    rows={3}
+                    value={warRoomAnswer}
+                    onChange={e => setWarRoomAnswer(e.target.value)}
+                    placeholder="Type or dictate technical solution with architectural depth..."
+                    className="w-full bg-[#0b1021] border border-slate-700 rounded-xl p-2.5 text-white"
+                  />
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                          window.speechSynthesis.cancel();
+                        }
+                        setActiveWarRoomJob(null);
+                      }}
+                      className="px-4 py-1.5 border border-slate-700 text-slate-300 rounded-xl"
+                    >
+                      Exit War-Room
+                    </button>
+                    <button onClick={handleSubmitWarRoom} className="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow">
+                      Submit Technical Solution
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4 space-y-3">
+                  <div className="text-4xl font-black text-emerald-400">{warRoomScore}%</div>
+                  <h4 className="font-bold text-white text-sm">
+                    AI War-Room 2.0 Credential Verified (#WARROOM-CERT-2026)
+                  </h4>
+                  <div className="p-3 bg-[#0c1433] rounded-2xl max-w-md mx-auto text-slate-300 font-sans text-xs">
+                    Engineering Composure Score: <strong className="text-purple-300">{composureIndex}%</strong>. Verified under production outage simulation and real-time speech cadence proctoring.
+                  </div>
+                  <button onClick={() => setActiveWarRoomJob(null)} className="px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl">
+                    Return to Workspace
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: REJECTION AUTOPSY */}
         {selectedAutopsyJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
@@ -1757,9 +2032,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* ================================================================ */}
         {/* MODAL: TRUE IN-HAND CTC DISSECTOR */}
-        {/* ================================================================ */}
         {selectedCtcJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#090b1c] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
@@ -1773,7 +2046,6 @@ export default function CampusNexPlatform() {
                 <button onClick={() => setSelectedCtcJob(null)} className="text-slate-400 hover:text-white">✕</button>
               </div>
 
-              {/* Large In-Hand Callout */}
               <div className="p-4 bg-[#061c1b] border border-emerald-700/60 rounded-2xl text-center space-y-1">
                 <span className="text-[10px] text-slate-400 uppercase tracking-widest block">ESTIMATED NET MONTHLY CASH IN-HAND</span>
                 <div className="text-3xl font-black text-emerald-400">
@@ -1782,7 +2054,6 @@ export default function CampusNexPlatform() {
                 <span className="text-[10px] text-slate-400">Post tax deductions & PF contribution</span>
               </div>
 
-              {/* Components Dissection Table */}
               <div className="space-y-1.5 text-[11px]">
                 <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
                   <div>
@@ -1823,9 +2094,7 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* ================================================================ */}
         {/* MODAL: ATS LIVE PARSER SYNTAX DIAGNOSTIC */}
-        {/* ================================================================ */}
         {isAtsDiagnosticOpen && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#090b1c] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
@@ -2174,61 +2443,6 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* MODAL: AI WAR-ROOM 2.0 */}
-        {activeWarRoomJob && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-            <div className="bg-[#070b19] border border-purple-500/80 rounded-3xl w-full max-w-xl p-6 text-xs font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 className="text-base font-bold text-white font-sans">AI War-Room 2.0 • {activeWarRoomJob.title}</h3>
-                <button onClick={() => setActiveWarRoomJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              {warRoomScore === null ? (
-                <div className="space-y-3">
-                  <div className="p-3 bg-[#0e1633] rounded-xl text-white font-sans text-xs">
-                    "{mockQuestions[warRoomQuestionIdx].q}"
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Countdown: {countdown}s</span>
-                    <button
-                      onClick={toggleMic}
-                      className={`px-3 py-1 rounded-xl text-[10px] font-bold ${isMicRecording ? 'bg-rose-600 text-white animate-pulse' : 'bg-[#121c3d] text-cyan-300'}`}
-                    >
-                      {isMicRecording ? '🔴 Listening...' : '🎙️ Mic Speech-to-Text'}
-                    </button>
-                  </div>
-
-                  <textarea
-                    rows={3}
-                    value={warRoomAnswer}
-                    onChange={e => setWarRoomAnswer(e.target.value)}
-                    placeholder="Type or dictate technical solution..."
-                    className="w-full bg-[#0b1021] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-
-                  <div className="flex justify-between">
-                    <button onClick={() => setActiveWarRoomJob(null)} className="px-4 py-1.5 border border-slate-700 text-slate-300 rounded-xl">
-                      Exit
-                    </button>
-                    <button onClick={handleSubmitWarRoom} className="px-4 py-1.5 bg-purple-600 text-white font-bold rounded-xl">
-                      Submit Answer
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-4 space-y-3">
-                  <div className="text-3xl font-black text-emerald-400">{warRoomScore}%</div>
-                  <h4 className="font-bold text-white">AI War-Room Verified Credential (#WARROOM-CERT-2026)</h4>
-                  <button onClick={() => setActiveWarRoomJob(null)} className="px-5 py-2 bg-emerald-600 text-white font-bold rounded-xl">
-                    Done
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* PERSISTENT AI COPILOT DRAWER */}
         {isCopilotOpen && (
           <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[400px] bg-[#060a1a]/95 backdrop-blur-2xl border-l border-purple-500/60 p-4 flex flex-col font-mono text-xs shadow-2xl">
@@ -2250,7 +2464,7 @@ export default function CampusNexPlatform() {
             <form onSubmit={handleSendCopilot} className="flex gap-2 border-t border-slate-800 pt-2">
               <input
                 type="text"
-                placeholder="Ask about rejection autopsies, in-hand CTCs, ATS syntax..."
+                placeholder="Ask about stress curveballs, composure score..."
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 className="flex-1 bg-[#0d1633] border border-slate-700 rounded-xl px-3 py-2 text-white text-xs"
