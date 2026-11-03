@@ -1188,7 +1188,6 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
   };
 
-  // Ultra-safe Copilot Sender with 10s timeout cutoff
   const handleSendCopilot = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || isCopilotLoading) return;
@@ -1897,8 +1896,14 @@ export default function CampusNexPlatform() {
                 </div>
               ))}
               {isCopilotLoading && (
-                <div className="p-2.5 bg-[#0d1633] text-cyan-300 rounded-xl mr-6 border border-slate-800 animate-pulse">
-                  🤖 Copilot is thinking...
+                <div className="p-2.5 bg-[#08122c] text-cyan-300 rounded-xl mr-6 border border-cyan-800/60 shadow-lg flex items-center gap-2 font-mono text-[11px]">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                  <span>⚡ Synthesizing Placement Intelligence</span>
+                  <span className="flex gap-0.5 ml-1">
+                    <span className="animate-bounce delay-100">.</span>
+                    <span className="animate-bounce delay-200">.</span>
+                    <span className="animate-bounce delay-300">.</span>
+                  </span>
                 </div>
               )}
             </div>
