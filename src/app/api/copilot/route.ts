@@ -7,22 +7,28 @@ export async function POST(req: Request) {
 
     if (!apiKey) {
       return NextResponse.json({
-        reply: "⚠️ GEMINI_API_KEY environment variable is not configured."
+        reply: "⚠️ GEMINI_API_KEY environment variable is not configured on Vercel."
       });
     }
 
-    const systemPrompt = `You are CampusNex Copilot, an expert AI career architect for DCET Hyderabad.
-Answer naturally, concisely, helpfully, and fast like ChatGPT. Keep answers focused.`;
+    const systemPrompt = `You are CampusNex Copilot, an AI career assistant and recruitment intelligence specialist for DCET Hyderabad.
+Answer concisely, helpfully, and with authentic technical clarity.`;
 
-    // Fast active models list from your key
-    const targetModels = ['gemini-2.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    // Prioritized stable models available on your account
+    const modelsToTry = [
+      'gemini-flash-latest',
+      'gemini-3.8-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash'
+    ];
+
     let replyText = '';
     let lastError = '';
 
-    for (const model of targetModels) {
+    for (const model of modelsToTry) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 9000); // 9 second max wait
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
 
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -38,7 +44,7 @@ Answer naturally, concisely, helpfully, and fast like ChatGPT. Keep answers focu
                 }
               ],
               generationConfig: {
-                maxOutputTokens: 600,
+                maxOutputTokens: 500,
                 temperature: 0.7
               }
             })
@@ -50,14 +56,17 @@ Answer naturally, concisely, helpfully, and fast like ChatGPT. Keep answers focu
 
         if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
           replyText = data.candidates[0].content.parts[0].text;
-          break; // Mil gaya answer, loop stop
+          break; // Mil gaya answer, loop exit
         }
 
         if (data?.error?.message) {
           lastError = data.error.message;
+          // Agar high demand ya unavailable hai, toh continue karke agla model try karega
+          continue;
         }
       } catch (err: any) {
-        lastError = err?.name === 'AbortError' ? 'Request timed out' : err?.message;
+        lastError = err?.name === 'AbortError' ? 'Timeout' : err?.message;
+        continue;
       }
     }
 
@@ -66,7 +75,7 @@ Answer naturally, concisely, helpfully, and fast like ChatGPT. Keep answers focu
     }
 
     return NextResponse.json({
-      reply: `⚠️ Response delay: ${lastError || 'Unable to fetch quick response. Please try asking again.'}`
+      reply: `⚠️ Response issue: ${lastError || 'Temporary server load. Please send message again.'}`
     });
   } catch (error: any) {
     return NextResponse.json(
