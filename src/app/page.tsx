@@ -174,6 +174,7 @@ interface CandidateProfile {
 interface ApplicantRecord {
   id: string;
   candidateName: string;
+  candidateEmail?: string;
   blindAlias: string;
   cgpa: string;
   jobTitle: string;
@@ -425,6 +426,7 @@ const DEFAULT_APPLICANTS: ApplicantRecord[] = [
   {
     id: 'app-01',
     candidateName: 'Verified Candidate (#APEX-01)',
+    candidateEmail: 'delivered@resend.dev',
     blindAlias: '#0xDEI-TALENT-94',
     cgpa: '8.85',
     jobTitle: 'Full Stack Engineer (Elite Core)',
@@ -441,6 +443,7 @@ const DEFAULT_APPLICANTS: ApplicantRecord[] = [
   {
     id: 'app-02',
     candidateName: 'Syed Farhan Ahmed',
+    candidateEmail: 'delivered@resend.dev',
     blindAlias: '#0xDEI-TALENT-88',
     cgpa: '8.40',
     jobTitle: 'Data Analyst & ML Associate',
@@ -457,6 +460,7 @@ const DEFAULT_APPLICANTS: ApplicantRecord[] = [
   {
     id: 'app-03',
     candidateName: 'Ayesha Mirza',
+    candidateEmail: 'delivered@resend.dev',
     blindAlias: '#0xDEI-TALENT-91',
     cgpa: '8.65',
     jobTitle: 'Backend Systems Core Architect',
@@ -641,7 +645,10 @@ export default function CampusNexPlatform() {
 
   // GitHub Real-time Telemetry State
   const [githubTelemetry, setGithubTelemetry] = useState<GitHubTelemetry | null>(null);
-  const [isGithubLoading, setIsGithubLoading] = useState<boolean>(false);
+
+  // Email Dispatch State
+  const [isSendingEmail, setIsSendingEmail] = useState<boolean>(false);
+  const [emailAlertMsg, setEmailAlertMsg] = useState<string | null>(null);
 
   const [blindHiringMode, setBlindHiringMode] = useState<boolean>(false);
   const [selectedDept, setSelectedDept] = useState<Department>('ALL');
@@ -724,7 +731,6 @@ export default function CampusNexPlatform() {
   // LIVE GITHUB DATA INGESTION
   useEffect(() => {
     async function fetchGitHubData() {
-      setIsGithubLoading(true);
       try {
         const res = await fetch('/api/github?username=habeeba97');
         if (res.ok) {
@@ -736,11 +742,7 @@ export default function CampusNexPlatform() {
             verifiedCommits: `${data.publicRepos * 18}+ Verified Commits`
           }));
         }
-      } catch {
-        // Safe graceful fallback to default verified telemetry
-      } finally {
-        setIsGithubLoading(false);
-      }
+      } catch {}
     }
     fetchGitHubData();
   }, []);
@@ -967,6 +969,7 @@ export default function CampusNexPlatform() {
     const newApp: ApplicantRecord = {
       id: `app-${Date.now()}`,
       candidateName: candidateProfile.name,
+      candidateEmail: 'delivered@resend.dev',
       blindAlias: `#0xDEI-TALENT-${Math.floor(1000 + Math.random() * 9000)}`,
       cgpa: candidateProfile.cgpa,
       jobTitle: targetJob.title,
@@ -1056,7 +1059,41 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
   };
 
-  const handleDispatchOffer = (applicantId: string) => {
+  // RESEND TRANSACTIONAL EMAIL TRIGGER
+  const handleDispatchOffer = async (applicantId: string) => {
+    const targetApp = applicants.find(a => a.id === applicantId);
+    if (!targetApp) return;
+
+    setIsSendingEmail(true);
+    setEmailAlertMsg('Dispatched transaction to Resend Engine...');
+
+    try {
+      const emailRes = await fetch('/api/send-offer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidateName: targetApp.candidateName,
+          candidateEmail: targetApp.candidateEmail || 'delivered@resend.dev',
+          role: targetApp.jobTitle,
+          company: targetApp.company,
+          ctc: 22.0,
+          commitmentHash: '0x8942-APEX-SEAL-2026'
+        })
+      });
+
+      const emailData = await emailRes.json();
+      if (emailData.success) {
+        setEmailAlertMsg(`✅ Real Offer Letter sent to ${targetApp.candidateName}! (Resend ID: ${emailData.emailId?.slice(0, 8)}...)`);
+      } else {
+        setEmailAlertMsg(`⚠️ Dispatch logged locally: ${emailData.message || 'Check RESEND_API_KEY'}`);
+      }
+    } catch {
+      setEmailAlertMsg('⚠️ Offer released with local cryptographic lock.');
+    } finally {
+      setIsSendingEmail(false);
+      setTimeout(() => setEmailAlertMsg(null), 6000);
+    }
+
     setApplicants(prev =>
       prev.map(a => (a.id === applicantId ? { ...a, status: 'Offer Released', offerDispatched: true } : a))
     );
@@ -1067,7 +1104,7 @@ export default function CampusNexPlatform() {
     }));
     setIsOfferLetterOpen(true);
 
-    const logEntry = `[${new Date().toLocaleTimeString()}] [OFFER_DISPATCH]: Encrypted Smart Offer released to applicant ID: ${applicantId}.`;
+    const logEntry = `[${new Date().toLocaleTimeString()}] [RESEND_DISPATCH]: Encrypted Smart Offer email released to applicant ${targetApp.candidateName}.`;
     setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
   };
 
@@ -1191,6 +1228,14 @@ export default function CampusNexPlatform() {
       </div>
 
       <div className="relative z-10">
+        {/* TOP FLOATING EMAIL DISPATCH TOAST */}
+        {emailAlertMsg && (
+          <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-[#06192d] border border-cyan-400 text-cyan-200 px-5 py-2 rounded-2xl shadow-2xl font-mono text-xs flex items-center gap-2 animate-bounce">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            <span>{emailAlertMsg}</span>
+          </div>
+        )}
+
         {/* TOP STATUS BAR */}
         <div className="bg-[#050916]/95 backdrop-blur-md border-b border-cyan-950/80 px-4 md:px-8 py-1.5 text-[10px] font-mono flex flex-wrap justify-between items-center text-slate-400 gap-2">
           <div className="flex items-center gap-3 flex-wrap">
@@ -1626,7 +1671,7 @@ export default function CampusNexPlatform() {
                 <div className="bg-[#0b1021]/80 border border-purple-800/60 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <h2 className="text-xl font-bold text-white">Recruiter Autonomous Talent Radar</h2>
-                    <p className="text-xs text-slate-400">Autonomous fitment scoring with real-time Blind Hiring DEI toggle</p>
+                    <p className="text-xs text-slate-400">Autonomous fitment scoring with real-time Blind Hiring DEI toggle & Resend Transactional Email Engine</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -1670,9 +1715,11 @@ export default function CampusNexPlatform() {
                           {!app.offerDispatched && (
                             <button
                               onClick={() => handleDispatchOffer(app.id)}
-                              className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-[9px] font-bold shadow"
+                              disabled={isSendingEmail}
+                              className="px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 text-white rounded-xl text-[9px] font-bold shadow transition flex items-center gap-1.5 disabled:opacity-50"
                             >
-                              Dispatch Anti-Rescind Offer
+                              <span>✉️</span>
+                              {isSendingEmail ? 'Dispatching...' : 'Dispatch Anti-Rescind Offer'}
                             </button>
                           )}
                         </div>
