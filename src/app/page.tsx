@@ -524,7 +524,6 @@ const DEFAULT_TPO_STUDENTS: TpoStudentEntry[] = [
   }
 ];
 
-// Fallback Synthetic Biometric Scanning Canvas
 function SyntheticBiometricCanvas({ gazeScore }: { gazeScore: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -603,7 +602,6 @@ function SyntheticBiometricCanvas({ gazeScore }: { gazeScore: number }) {
   return <canvas ref={canvasRef} className="w-full h-full object-cover rounded-xl" />;
 }
 
-// 3D Orbital Dyson Reactor
 function MasterDynamicReactor() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -703,19 +701,16 @@ export default function CampusNexPlatform() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [activeCurrency, setActiveCurrency] = useState<Currency>('INR');
 
-  // Unified State
   const [candidateProfile, setCandidateProfile] = useState<CandidateProfile>(DEFAULT_PROFILE);
   const [jobs, setJobs] = useState<Job[]>(DEFAULT_JOBS);
   const [applicants, setApplicants] = useState<ApplicantRecord[]>(DEFAULT_APPLICANTS);
   const [students, setStudents] = useState<TpoStudentEntry[]>(DEFAULT_TPO_STUDENTS);
 
-  // Modals & Feature Toggles
   const [blindHiringMode, setBlindHiringMode] = useState<boolean>(false);
   const [selectedDept, setSelectedDept] = useState<Department>('ALL');
   const [emergencyLock, setEmergencyLock] = useState<boolean>(false);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState<boolean>(false);
 
-  // Modals
   const [selectedAutopsyJob, setSelectedAutopsyJob] = useState<Job | null>(null);
   const [selectedCtcJob, setSelectedCtcJob] = useState<Job | null>(null);
   const [isAtsDiagnosticOpen, setIsAtsDiagnosticOpen] = useState<boolean>(false);
@@ -733,7 +728,6 @@ export default function CampusNexPlatform() {
   const [selectedRadarJob, setSelectedRadarJob] = useState<Job | null>(null);
   const [isOfferLetterOpen, setIsOfferLetterOpen] = useState(false);
 
-  // Form Fields
   const [newTitle, setNewTitle] = useState('');
   const [newCompany, setNewCompany] = useState('');
   const [newSalary, setNewSalary] = useState(24.0);
@@ -741,7 +735,6 @@ export default function CampusNexPlatform() {
   const [newVacancies, setNewVacancies] = useState(15);
   const [newSkills, setNewSkills] = useState('React, Node.js, PostgreSQL');
 
-  // Video Suite States
   const [isVideoSuiteOpen, setIsVideoSuiteOpen] = useState<boolean>(false);
   const [activeVideoJob, setActiveVideoJob] = useState<Job>(DEFAULT_JOBS[0]);
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
@@ -752,7 +745,6 @@ export default function CampusNexPlatform() {
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const videoStreamRef = useRef<MediaStream | null>(null);
 
-  // AI War-Room 2.0 States
   const [activeWarRoomJob, setActiveWarRoomJob] = useState<Job | null>(null);
   const [warRoomQuestionIdx, setWarRoomQuestionIdx] = useState(0);
   const [warRoomAnswer, setWarRoomAnswer] = useState('');
@@ -760,7 +752,6 @@ export default function CampusNexPlatform() {
   const [isMicRecording, setIsMicRecording] = useState(false);
   const [countdown, setCountdown] = useState(60);
 
-  // Copilot Dynamic LLM State
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [isCopilotLoading, setIsCopilotLoading] = useState(false);
@@ -771,7 +762,6 @@ export default function CampusNexPlatform() {
     }
   ]);
 
-  // SQL Console State
   const [sqlQuery, setSqlQuery] = useState('SELECT * FROM public.institutions LIMIT 5;');
   const [sqlExecutionLatency, setSqlExecutionLatency] = useState<number>(7.4);
   const [sqlRowsCount, setSqlRowsCount] = useState<number>(1);
@@ -1198,7 +1188,7 @@ export default function CampusNexPlatform() {
     setTerminalLogs(prev => [logEntry, ...prev.slice(0, 49)]);
   };
 
-  // Real LLM Copilot Integration via /api/copilot
+  // Ultra-safe Copilot Sender with 10s timeout cutoff
   const handleSendCopilot = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || isCopilotLoading) return;
@@ -1209,21 +1199,28 @@ export default function CampusNexPlatform() {
     setIsCopilotLoading(true);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const res = await fetch('/api/copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText })
+        body: JSON.stringify({ message: userText }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       const data = await res.json();
       const replyText = data.reply || 'CampusNex AI Copilot ready. Cluster state operational.';
       setChatMessages(prev => [...prev, { sender: 'ai', text: replyText }]);
-    } catch {
+    } catch (err: any) {
       setChatMessages(prev => [
         ...prev,
         {
           sender: 'ai',
-          text: 'Connected in fallback mode. DCET Hyderabad placement telemetry active.'
+          text: err.name === 'AbortError'
+            ? '⚠️ Request timed out. Gemini servers are busy, please try a shorter query.'
+            : '⚠️ Connected in fallback mode. DCET Hyderabad placement telemetry active.'
         }
       ]);
     } finally {
@@ -1237,7 +1234,6 @@ export default function CampusNexPlatform() {
 
   return (
     <div className="min-h-screen text-slate-100 font-sans pb-24 selection:bg-cyan-500 selection:text-black bg-[#040714] relative overflow-x-hidden">
-      {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[130px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[130px]" />
@@ -1254,9 +1250,7 @@ export default function CampusNexPlatform() {
             <span className="text-slate-600 hidden sm:inline">|</span>
             <span className="text-purple-300 font-semibold">TENANT: DCET HYDERABAD</span>
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-emerald-400 font-bold">
-              FAIR-SHARE & ANTI-RESCIND ACTIVE
-            </span>
+            <span className="text-emerald-400 font-bold">FAIR-SHARE & ANTI-RESCIND ACTIVE</span>
             {emergencyLock && (
               <span className="bg-rose-950 text-rose-300 border border-rose-600 px-2 py-0.5 rounded font-bold animate-pulse">
                 ⚠️ LOCKDOWN ACTIVE
@@ -1368,9 +1362,7 @@ export default function CampusNexPlatform() {
           )}
         </header>
 
-        {/* ================================================================ */}
         {/* VIEW 1: PUBLIC ENTERPRISE LANDING PAGE */}
-        {/* ================================================================ */}
         {currentView === 'landing' ? (
           <div>
             <section className="max-w-7xl mx-auto px-4 md:px-8 pt-10 pb-16">
@@ -1411,7 +1403,6 @@ export default function CampusNexPlatform() {
               </div>
             </section>
 
-            {/* LIVE METRICS */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 font-mono">
                 <div className="p-4 bg-[#081024]/80 border border-cyan-900/40 rounded-2xl text-center">
@@ -1434,15 +1425,12 @@ export default function CampusNexPlatform() {
             </section>
           </div>
         ) : (
-          /* ================================================================ */
           /* VIEW 2: AUTHENTICATED WORKSPACES */
-          /* ================================================================ */
           <main className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
             {/* 1. STUDENT WORKSPACE */}
             {activePortal === 'student' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-5">
-                  {/* Fair Share Protocol Callout Banner */}
                   <div className="bg-gradient-to-r from-[#071926]/90 via-[#07142a]/90 to-[#0c0f2b]/90 border border-emerald-500/60 p-4 rounded-3xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs font-mono shadow-xl">
                     <div>
                       <div className="flex items-center gap-2">
@@ -1474,7 +1462,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* 14-Stage Stepper */}
                   <div className="bg-[#0e122b]/80 border border-cyan-800/50 p-4 rounded-2xl shadow-xl">
                     <div className="flex justify-between items-center mb-3 text-[10px] font-mono">
                       <span className="text-cyan-300 font-bold uppercase">🔄 Recruitment Lifecycle Stages</span>
@@ -1506,7 +1493,6 @@ export default function CampusNexPlatform() {
                     </div>
                   </div>
 
-                  {/* Drives List with Anti-Rescind & Fair Share Locks */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center font-mono">
                       <h4 className="font-bold text-white text-sm">Campus Drives & Anti-Rescind Guarantees ({jobs.length})</h4>
@@ -1547,7 +1533,6 @@ export default function CampusNexPlatform() {
                             </div>
                           </div>
 
-                          {/* Skill Match & Outage Simulator Tag */}
                           <div className="p-3 bg-[#070e24] border border-cyan-900/50 rounded-2xl text-[11px] font-mono text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                             <div>
                               <span className="text-cyan-300 font-bold">Fit: {job.matchScore}%</span>
@@ -1895,572 +1880,6 @@ export default function CampusNexPlatform() {
           </main>
         )}
 
-        {/* MODAL: ANTI-RESCIND COMMITMENT LEDGER */}
-        {selectedCommitmentJob && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#080d1e] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">CRYPTOGRAPHIC TRUST PROTOCOL</span>
-                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
-                    Anti-Rescind Corporate Commitment • {selectedCommitmentJob.company}
-                  </h3>
-                </div>
-                <button onClick={() => setSelectedCommitmentJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-3 bg-[#051c1b] border border-emerald-700/60 rounded-xl space-y-1 text-slate-300">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">LEGAL ESCROW STATUS:</span>
-                  <span className="text-emerald-300 font-bold">{selectedCommitmentJob.antiRescind.lockStatus}</span>
-                </div>
-                <p className="text-[11px] font-sans leading-relaxed">
-                  Backed by <strong>{selectedCommitmentJob.antiRescind.corporateBond}</strong> deposited with Deccan College of Engineering & Technology.
-                </p>
-              </div>
-
-              <div className="space-y-1.5 text-[11px]">
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">SEVERANCE BOND:</span>
-                  <strong className="text-emerald-400">{selectedCommitmentJob.antiRescind.severanceCoverageMonths} Months Guaranteed Pay</strong>
-                </div>
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">CORPORATE SIGNER ID:</span>
-                  <strong className="text-cyan-300">{selectedCommitmentJob.antiRescind.signerCorporateId}</strong>
-                </div>
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">IMMUTABLE COMMIT HASH:</span>
-                  <code className="text-purple-300 text-[10px]">{selectedCommitmentJob.antiRescind.commitmentHash}</code>
-                </div>
-              </div>
-
-              <div className="p-2.5 bg-[#060a17] rounded-xl border border-slate-800 text-[10px] text-slate-400 font-sans">
-                🛡️ <strong>Zero Cancellation Guarantee:</strong> Under institutional terms, company cannot rescind this offer without paying 6-month full salary escrow damages to the candidate.
-              </div>
-
-              <button
-                onClick={() => setSelectedCommitmentJob(null)}
-                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
-              >
-                Close Commitment Ledger
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: VERIFIED GITHUB CODE ORIGIN */}
-        {isCodeOriginModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">STATIC REPOSITORY FORENSICS</span>
-                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
-                    GitHub Code Origin & Authenticity Inspector
-                  </h3>
-                </div>
-                <button onClick={() => setIsCodeOriginModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-4 bg-[#140b26] border border-purple-700/60 rounded-2xl text-center space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-widest block">CODEBASE ORIGINALITY INDEX</span>
-                <div className="text-3xl font-black text-purple-300">
-                  {candidateProfile.codeOriginalityScore}% Non-Template Origin
-                </div>
-                <span className="text-[10px] text-emerald-400">Zero plagiarism detected across 120+ commits</span>
-              </div>
-
-              <div className="space-y-1.5 text-[11px]">
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">PRIMARY REPO:</span>
-                  <strong className="text-white">habeeba97/campus-recruitment</strong>
-                </div>
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">CONCURRENCY CAS ENGINE:</span>
-                  <strong className="text-emerald-400">Verified Unique (Raft Logic)</strong>
-                </div>
-                <div className="p-2.5 bg-[#0e1738] rounded-xl border border-slate-800 flex justify-between items-center">
-                  <span className="text-slate-400">PROOF-OF-EXECUTION HASH:</span>
-                  <code className="text-cyan-300">{candidateProfile.poeHash}</code>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsCodeOriginModalOpen(false)}
-                className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl"
-              >
-                Close Origin Inspector
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: REJECTION AUTOPSY */}
-        {selectedAutopsyJob && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <span className="text-[10px] text-purple-400 font-bold uppercase tracking-wider">CANDIDATE FORENSICS ENGINE</span>
-                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
-                    Rejection Autopsy • {selectedAutopsyJob.company}
-                  </h3>
-                </div>
-                <button onClick={() => setSelectedAutopsyJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-3 bg-[#130b24] border border-purple-800/60 rounded-xl space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-400">EVALUATION VERDICT:</span>
-                  <span className="text-purple-300 font-bold">{selectedAutopsyJob.autopsy.status}</span>
-                </div>
-                <div className="text-[11px] text-slate-300 font-sans">
-                  Target Role: <strong className="text-white">{selectedAutopsyJob.title}</strong>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-[11px]">
-                <div className="p-3 bg-[#0c1228] border border-slate-800 rounded-xl space-y-1">
-                  <span className="text-rose-400 font-bold block">Primary Bottleneck Identified:</span>
-                  <p className="text-slate-300 font-sans">{selectedAutopsyJob.autopsy.primaryBottleneck}</p>
-                </div>
-
-                <div className="p-3 bg-[#0c1228] border border-slate-800 rounded-xl space-y-1">
-                  <span className="text-cyan-300 font-bold block">Missing Engineering Artifacts:</span>
-                  <ul className="list-disc list-inside text-slate-300 space-y-0.5">
-                    {selectedAutopsyJob.autopsy.missingArtifacts.map((art, idx) => (
-                      <li key={idx}>{art}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="p-3 bg-[#06181b] border border-emerald-800/60 rounded-xl space-y-1">
-                  <span className="text-emerald-400 font-bold block">7-Day Actionable Remediation Track:</span>
-                  <p className="text-slate-200 font-sans">{selectedAutopsyJob.autopsy.actionablePrescription}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedAutopsyJob(null)}
-                className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl"
-              >
-                Acknowledge Feedback & Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: TRUE IN-HAND CTC DISSECTOR */}
-        {selectedCtcJob && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#090b1c] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">REAL-WORLD SALARY TRANSPARENCY</span>
-                  <h3 className="text-base font-bold text-white font-sans mt-0.5">
-                    True In-Hand Compensation Breakdown • {selectedCtcJob.company}
-                  </h3>
-                </div>
-                <button onClick={() => setSelectedCtcJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-4 bg-[#061c1b] border border-emerald-700/60 rounded-2xl text-center space-y-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-widest block">ESTIMATED NET MONTHLY CASH IN-HAND</span>
-                <div className="text-3xl font-black text-emerald-400">
-                  ₹{selectedCtcJob.salaryDissection.monthlyInHandInr.toLocaleString()} / month
-                </div>
-                <span className="text-[10px] text-slate-400">Post tax deductions & PF contribution</span>
-              </div>
-
-              <div className="space-y-1.5 text-[11px]">
-                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
-                  <div>
-                    <strong className="text-white">Fixed Base Salary (Annual)</strong>
-                    <div className="text-[10px] text-slate-400">Guaranteed fixed pay directly deposited monthly</div>
-                  </div>
-                  <span className="text-emerald-400 font-bold text-sm">₹{selectedCtcJob.salaryDissection.baseLpa} LPA</span>
-                </div>
-
-                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
-                  <div>
-                    <strong className="text-white">Performance / Variable Bonus</strong>
-                    <div className="text-[10px] text-slate-400">Quarterly performance metrics payout</div>
-                  </div>
-                  <span className="text-cyan-300 font-bold text-sm">₹{selectedCtcJob.salaryDissection.variableLpa} LPA</span>
-                </div>
-
-                <div className="flex justify-between p-2.5 bg-[#0a1128] rounded-xl border border-slate-800">
-                  <div>
-                    <strong className="text-white">Year-1 ESOP / Retention Grant</strong>
-                    <div className="text-[10px] text-slate-400">Vested equity & first year sign-on incentives</div>
-                  </div>
-                  <span className="text-purple-300 font-bold text-sm">₹{selectedCtcJob.salaryDissection.esopYearOneLpa} LPA</span>
-                </div>
-              </div>
-
-              <div className="p-2.5 bg-[#060a17] rounded-xl border border-slate-800 text-[10px] text-slate-400 font-sans">
-                💡 <strong>Deduction Clarity:</strong> {selectedCtcJob.salaryDissection.deductionNotes}
-              </div>
-
-              <button
-                onClick={() => setSelectedCtcJob(null)}
-                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
-              >
-                Close Salary Breakdown
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: ATS LIVE PARSER SYNTAX DIAGNOSTIC */}
-        {isAtsDiagnosticOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#090b1c] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div>
-                  <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">MACHINE READABILITY AUDIT</span>
-                  <h3 className="text-base font-bold text-white font-sans mt-0.5">ATS Live Parser Diagnostic Meter</h3>
-                </div>
-                <button onClick={() => setIsAtsDiagnosticOpen(false)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-3 bg-[#08152a] border border-cyan-800 rounded-xl flex justify-between items-center">
-                <div>
-                  <span className="text-slate-400 block text-[10px]">CURRENT ATS COMPATIBILITY SCORE:</span>
-                  <span className="text-2xl font-black text-emerald-400">{activeResume.atsScore}%</span>
-                </div>
-                <span className="px-2.5 py-1 bg-cyan-950 text-cyan-300 border border-cyan-700 rounded-lg text-[10px] font-bold">
-                  Zero Parser Collisions
-                </span>
-              </div>
-
-              <div className="space-y-2 text-[11px]">
-                <span className="text-white font-bold block">Parser Syntax Warnings & Linting:</span>
-                <div className="space-y-1.5">
-                  {activeResume.syntaxWarnings.map((warn, idx) => (
-                    <div key={idx} className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
-                      ✓ {warn}
-                    </div>
-                  ))}
-                  <div className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
-                    ✓ Multi-column table test: Passed (Linear single stream text pipeline verified)
-                  </div>
-                  <div className="p-2.5 bg-[#0c1228] rounded-xl border border-slate-800 text-slate-300">
-                    ✓ Font encoding: UTF-8 standard fonts (No symbol glyph parsing corruption)
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsAtsDiagnosticOpen(false)}
-                className="w-full py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold rounded-xl"
-              >
-                Close Diagnostic View
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: POST HIRING DRIVE (RECRUITER) */}
-        {isPostDriveOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-purple-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative font-mono space-y-3">
-              <button
-                onClick={() => setIsPostDriveOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-              <h3 className="text-base font-bold text-white font-sans">🚀 Post New Recruitment Drive</h3>
-              <p className="text-[10px] text-slate-400">Directly syncs to candidate feeds and PostgreSQL `job_drives`</p>
-
-              <form onSubmit={handleCreateNewDrive} className="space-y-3">
-                <input
-                  type="text"
-                  required
-                  placeholder="Job Role Title (e.g. AI Concurrency Engineer)"
-                  value={newTitle}
-                  onChange={e => setNewTitle(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-                <input
-                  type="text"
-                  required
-                  placeholder="Company Name (e.g. Google Cloud / Anthropic)"
-                  value={newCompany}
-                  onChange={e => setNewCompany(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-                <div className="grid grid-cols-3 gap-2">
-                  <input
-                    type="number"
-                    step="0.5"
-                    placeholder="CTC (₹ LPA)"
-                    value={newSalary}
-                    onChange={e => setNewSalary(parseFloat(e.target.value) || 20.0)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                  <input
-                    type="number"
-                    step="0.1"
-                    placeholder="Min CGPA"
-                    value={newCgpa}
-                    onChange={e => setNewCgpa(parseFloat(e.target.value) || 7.5)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Vacancies"
-                    value={newVacancies}
-                    onChange={e => setNewVacancies(parseInt(e.target.value) || 10)}
-                    className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                  />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Required Skills (Comma separated)"
-                  value={newSkills}
-                  onChange={e => setNewSkills(e.target.value)}
-                  className="w-full bg-[#11192e] border border-slate-700 rounded-xl p-2.5 text-white"
-                />
-                <div className="flex gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsPostDriveOpen(false)}
-                    className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold"
-                  >
-                    Publish Drive
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: ACTIONABLE CAREER ROADMAP */}
-        {selectedRoadmapJob && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 className="text-base font-bold text-white font-sans">
-                  Target Career Roadmap • {selectedRoadmapJob.company}
-                </h3>
-                <button onClick={() => setSelectedRoadmapJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-3 bg-[#08122c] border border-cyan-900 rounded-xl text-emerald-400 font-bold">
-                Fit Score: {selectedRoadmapJob.matchScore}% (Target: {selectedRoadmapJob.title})
-              </div>
-
-              <div className="space-y-2">
-                <span className="font-bold text-white text-xs block">Prescribed Skill-Gap Bridging Track:</span>
-                {selectedRoadmapJob.roadmapMilestones.map((ms, idx) => (
-                  <div key={idx} className="p-3 bg-[#0d1633] border border-slate-800 rounded-2xl flex justify-between items-center">
-                    <div>
-                      <div className="font-bold text-white">{idx + 1}. {ms.title}</div>
-                      <div className="text-[10px] text-slate-400">{ms.focus}</div>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold">
-                      ⏱️ {ms.duration}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => {
-                  alert('Career modules added to your study schedule.');
-                  setSelectedRoadmapJob(null);
-                }}
-                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
-              >
-                Enroll in Track
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: EXPLAINABLE SKILL GAP RADAR */}
-        {selectedRadarJob && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <h3 className="text-base font-bold text-white font-sans">Skill Gap Radar • {selectedRadarJob.company}</h3>
-                <button onClick={() => setSelectedRadarJob(null)} className="text-slate-400 hover:text-white">✕</button>
-              </div>
-
-              <div className="p-3 bg-[#081024] rounded-xl text-emerald-400 font-bold">
-                Role Fitment: {selectedRadarJob.matchScore}%
-              </div>
-
-              <div className="p-3 bg-[#0d1633] rounded-xl space-y-1">
-                <div className="text-emerald-400 font-bold">✓ Verified Competencies: {selectedRadarJob.matched.join(', ')}</div>
-                {selectedRadarJob.missing.length > 0 ? (
-                  <div className="text-rose-400 font-bold">⚠️ Skill Gap: {selectedRadarJob.missing.join(', ')}</div>
-                ) : (
-                  <div className="text-emerald-300">✓ 100% Core Requirements Matched</div>
-                )}
-                <p className="text-[10px] text-slate-400 pt-1 border-t border-slate-800 font-sans">
-                  {selectedRadarJob.aiMatchExplanation}
-                </p>
-              </div>
-
-              <button onClick={() => setSelectedRadarJob(null)} className="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl">
-                Close Radar
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: DIGITAL ENCRYPTED OFFER LETTER */}
-        {isOfferLetterOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <button
-                onClick={() => setIsOfferLetterOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-
-              <div className="border-b border-slate-800 pb-2">
-                <span className="text-[10px] text-emerald-400 font-bold">DIGITAL OFFER LETTER • VERIFIED ON-CHAIN</span>
-                <h3 className="text-lg font-bold text-white font-sans mt-0.5">Formal Employment Offer</h3>
-              </div>
-
-              <div className="p-4 bg-[#070d1e] rounded-2xl border border-slate-800 space-y-2 text-slate-300">
-                <p>Dear <strong className="text-white">{candidateProfile.name}</strong>,</p>
-                <p className="text-[11px] leading-relaxed">
-                  We are pleased to extend an employment offer for the position of <strong>Full Stack Engineer (Elite Core)</strong> at <strong>TechCorp India</strong>.
-                </p>
-                <div className="grid grid-cols-2 gap-2 p-2.5 bg-[#0e1738] rounded-xl text-[10px] mt-2">
-                  <div>
-                    <span className="text-slate-400 block">ANNUAL CTC:</span>
-                    <span className="text-emerald-400 font-bold text-sm">₹22.0 LPA</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">JOINING DATE:</span>
-                    <span className="text-cyan-300 font-bold text-sm">01 July 2027</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">LOCATION:</span>
-                    <span className="text-white">Hyderabad / Tokyo Hybrid</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">ANTI-RESCIND COMMITMENT:</span>
-                    <span className="text-purple-300 font-bold">0x8942-TECHCORP-OFFER-COMMIT</span>
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  alert('Official Offer Letter PDF generated and saved to your device.');
-                  setIsOfferLetterOpen(false);
-                }}
-                className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl"
-              >
-                📥 Download Signed PDF
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: RESET DEMO DATA CONFIRMATION */}
-        {isResetConfirmOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b1021] border border-rose-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative font-mono space-y-4 shadow-2xl">
-              <h3 className="text-base font-bold text-white font-sans">Reset Live Demo State</h3>
-              <p className="text-slate-300 font-sans leading-relaxed">
-                Restore factory baseline across all 4 portals (Student, Recruiter, TPO, Admin).
-              </p>
-              <div className="flex gap-2 pt-2">
-                <button onClick={() => setIsResetConfirmOpen(false)} className="flex-1 py-2 rounded-xl border border-slate-700 text-slate-300">
-                  Cancel
-                </button>
-                <button onClick={handleResetDemoData} className="flex-1 py-2 rounded-xl bg-rose-600 text-white font-bold">
-                  Confirm Reset
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* MODAL: WEBRTC PROCTORED VIDEO CALL */}
-        {isVideoSuiteOpen && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-            <div className="bg-[#050917] border border-cyan-500/80 rounded-3xl w-full max-w-4xl p-5 text-xs font-mono space-y-4 shadow-2xl">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                  <h3 className="text-base font-bold text-white font-sans">WebRTC Proctored Video Call • {activeVideoJob.title}</h3>
-                </div>
-                <button onClick={handleCloseVideo} className="text-slate-400 hover:text-white text-base">✕</button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="relative bg-black rounded-2xl overflow-hidden border border-cyan-600/70 min-h-[240px] flex items-center justify-center">
-                  {isCameraActive ? (
-                    <video ref={localVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                  ) : (
-                    <SyntheticBiometricCanvas gazeScore={gazeConfidence} />
-                  )}
-                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 rounded text-[9px] text-cyan-300 border border-cyan-800">
-                    {isCameraActive ? 'LIVE WEBCAM STREAM' : 'SYNTHETIC BIOMETRIC RADAR'}
-                  </div>
-                  <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/70 rounded text-[9px] text-emerald-400">
-                    Safe-Zone Vector: {gazeConfidence}%
-                  </div>
-                </div>
-
-                <div className="bg-[#070d1e] rounded-2xl border border-slate-800 min-h-[240px] flex flex-col items-center justify-center p-6 text-center space-y-2">
-                  <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-2xl font-bold text-white">HR</div>
-                  <h4 className="font-bold text-white text-sm">{activeVideoJob.company} Interviewer</h4>
-                  <span className="text-[10px] text-cyan-300">● WebRTC Proctored Signaling Active</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 text-center text-[10px] border border-slate-800 p-2.5 rounded-xl bg-[#030612]">
-                <div>
-                  <span className="text-slate-400 block">GAZE STABILITY</span>
-                  <strong className="text-emerald-400">{gazeConfidence}% Safe Zone</strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">OFF-SCREEN DIVERGENCE</span>
-                  <strong className={offScreenCount > 0 ? 'text-amber-400' : 'text-emerald-400'}>
-                    {offScreenCount} Flags (Tolerable)
-                  </strong>
-                </div>
-                <div>
-                  <span className="text-slate-400 block">AUDIO NOISE FLOOR</span>
-                  <strong className="text-cyan-300">{audioDb} dB (Zero Whisper)</strong>
-                </div>
-              </div>
-
-              <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-                <button
-                  onClick={() => {
-                    if (isCameraActive) stopCamera();
-                    else startCamera();
-                  }}
-                  className="px-3 py-1.5 bg-[#0a122e] text-cyan-300 border border-cyan-800 rounded-xl"
-                >
-                  {isCameraActive ? 'Use Synthetic Scan' : 'Switch to Hardware Camera'}
-                </button>
-                <button onClick={handleCloseVideo} className="px-4 py-1.5 bg-rose-600 text-white font-bold rounded-xl">
-                  End Call Session
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* PERSISTENT REAL GEMINI AI COPILOT DRAWER */}
         {isCopilotOpen && (
           <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] bg-[#060a1a]/95 backdrop-blur-2xl border-l border-cyan-500/60 p-4 flex flex-col font-mono text-xs shadow-2xl">
@@ -2479,7 +1898,7 @@ export default function CampusNexPlatform() {
               ))}
               {isCopilotLoading && (
                 <div className="p-2.5 bg-[#0d1633] text-cyan-300 rounded-xl mr-6 border border-slate-800 animate-pulse">
-                  🤖 Thinking with Gemini 1.5 Flash...
+                  🤖 Copilot is thinking...
                 </div>
               )}
             </div>
@@ -2503,32 +1922,72 @@ export default function CampusNexPlatform() {
           </div>
         )}
 
-        {/* MODAL: AUTH GATEWAY */}
-        {isAuthModalOpen && (
+        {/* MODALS */}
+        {selectedCommitmentJob && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#070b1a] border border-cyan-500/80 rounded-3xl w-full max-w-md p-6 text-xs relative font-mono space-y-4">
-              <div className="border-b border-slate-800 pb-2">
-                <h3 className="text-lg font-bold text-white font-sans">Select Portal Role</h3>
-                <p className="text-[10px] text-slate-400">DCET Hyderabad Campus Network</p>
+            <div className="bg-[#080d1e] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4 shadow-2xl">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 className="text-base font-bold text-white font-sans">
+                  Anti-Rescind Corporate Commitment • {selectedCommitmentJob.company}
+                </h3>
+                <button onClick={() => setSelectedCommitmentJob(null)} className="text-slate-400 hover:text-white">✕</button>
               </div>
-              <div className="space-y-2">
-                <button onClick={() => handleLaunchRoleDashboard('student')} className="w-full p-3 rounded-xl border border-cyan-700/60 bg-[#0d1633] text-left hover:border-cyan-400 transition">
-                  <div className="font-bold text-white">🎓 Student Workspace</div>
-                  <div className="text-[10px] text-slate-400">Candidate APEX-01 (B.Tech CSE)</div>
-                </button>
-                <button onClick={() => handleLaunchRoleDashboard('recruiter')} className="w-full p-3 rounded-xl border border-purple-700/60 bg-[#120f2e] text-left hover:border-purple-400 transition">
-                  <div className="font-bold text-white">💼 Recruiter Workspace</div>
-                  <div className="text-[10px] text-slate-400">Autonomous Talent Screening & Blind DEI</div>
-                </button>
-                <button onClick={() => handleLaunchRoleDashboard('tpo')} className="w-full p-3 rounded-xl border border-indigo-700/60 bg-[#0e1436] text-left hover:border-indigo-400 transition">
-                  <div className="font-bold text-white">🏫 College TPO Workspace</div>
-                  <div className="text-[10px] text-slate-400">NAAC/NBA Compliance & Department Analytics</div>
-                </button>
-                <button onClick={() => handleLaunchRoleDashboard('admin')} className="w-full p-3 rounded-xl border border-rose-700/60 bg-[#1c0c16] text-left hover:border-rose-400 transition">
-                  <div className="font-bold text-white">🛡️ Super Admin Workspace</div>
-                  <div className="text-[10px] text-slate-400">Safe SQL Console & Schema Explorer</div>
-                </button>
+              <div className="p-3 bg-[#051c1b] border border-emerald-700/60 rounded-xl text-slate-300">
+                <p>Backed by <strong>{selectedCommitmentJob.antiRescind.corporateBond}</strong>.</p>
               </div>
+              <button onClick={() => setSelectedCommitmentJob(null)} className="w-full py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white font-bold rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isCodeOriginModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <h3 className="text-base font-bold text-white font-sans">Code Origin & Authenticity</h3>
+              <div className="text-2xl font-black text-purple-300">{candidateProfile.codeOriginalityScore}% Original</div>
+              <button onClick={() => setIsCodeOriginModalOpen(false)} className="w-full py-2 bg-purple-600 text-white font-bold rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {selectedAutopsyJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-purple-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <h3 className="text-base font-bold text-white font-sans">Rejection Autopsy • {selectedAutopsyJob.company}</h3>
+              <p className="text-slate-300">{selectedAutopsyJob.autopsy.actionablePrescription}</p>
+              <button onClick={() => setSelectedAutopsyJob(null)} className="w-full py-2 bg-purple-600 text-white font-bold rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {selectedCtcJob && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#090b1c] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <h3 className="text-base font-bold text-white font-sans">Salary Breakdown • {selectedCtcJob.company}</h3>
+              <div className="text-2xl font-black text-emerald-400">
+                ₹{selectedCtcJob.salaryDissection.monthlyInHandInr.toLocaleString()} / mo
+              </div>
+              <button onClick={() => setSelectedCtcJob(null)} className="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isOfferLetterOpen && (
+          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b1021] border border-emerald-500/80 rounded-3xl w-full max-w-lg p-6 text-xs relative font-mono space-y-4">
+              <h3 className="text-lg font-bold text-white font-sans">Formal Employment Offer</h3>
+              <p className="text-slate-300">Congratulations {candidateProfile.name}! Offer issued at ₹22.0 LPA.</p>
+              <button onClick={() => setIsOfferLetterOpen(false)} className="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl">
+                Close
+              </button>
             </div>
           </div>
         )}
